@@ -1,0 +1,9 @@
+#ifndef __appDefines_h
+#define __appDefines_h
+
+//--------------------------------------------------------------------------
+// Data root used to reach data for testing
+//--------------------------------------------------------------------------
+#define ALBEDO_DATA_ROOT "@ALBEDO_DATA_ROOT@"
+
+#endif // __appDefines_h

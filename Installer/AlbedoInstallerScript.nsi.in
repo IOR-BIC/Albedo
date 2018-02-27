@@ -1,0 +1,83 @@
+;==========================================================================
+; Program:   Albedo
+; Module:    AlbedoInstallerScript.nsi.in
+; Language:  NSIS
+; Date:      $Date: 2018-01-01 12:00:00 $
+; Version:   $Revision: 1.0.0.0 $
+; Authors:   Nicola Vanella
+;==========================================================================
+; Copyright (c) LTM-IOR 2018 (http://www.ltmsoftware.org/alba.htm)
+;
+; This software is distributed WITHOUT ANY WARRANTY; without even
+; the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+; PURPOSE. See the above copyright notice for more information.
+;==========================================================================
+
+!define PRODUCT_NAME "Albedo"
+!define PRODUCT_PUBLISHER "LTM-IOR"
+!define PRODUCT_WEB_SITE "http://www.ltm.com"
+
+!define PRODUCT_VERSION "@ALBEDO_VERSION@"
+!define PRODUCT_EXE_NAME "${PRODUCT_NAME}.exe"
+;!define PRODUCT_MANUAL_DIR "@MANUAL_HTML_DIR@"
+
+!define PRODUCT_EXECUTABLE_OUTPUT_PATH_WIN "@ALBEDO_EXECUTABLE_OUTPUT_PATH@"
+!define PRODUCT_INSTALLER_DIR_WIN "@ALBEDO_INSTALLER_DIR@"
+
+!include InstallerCommon.nsh
+
+!insertmacro Init_MUI 
+
+!macro AddExtraFiles
+	;Add here extra files
+	CreateDirectory "$INSTDIR\data"
+	CreateDirectory "$INSTDIR\data\external"
+	CreateDirectory "$INSTDIR\data\msf"
+	
+	CreateDirectory "$INSTDIR\Layout"
+	SetOutPath "$INSTDIR\Layout"
+	File "@ALBEDO_INSTALLER_DIR_WIN@\layout.mly"
+	
+	SetOutPath "$INSTDIR\bin"
+!macroend
+
+!insertmacro CreateInstaller
+
+Section -Post 
+	!insertmacro WriteRegKeys 	
+	
+	${EnumUsersReg} EraseFirstRun temp.key
+	;Add here extra RegKey
+	
+	;Associate *.alb files with Albedo
+	
+	WriteRegStr HKCR ".msf" "" "MSF File"
+	;WriteRegStr HKCR ".alb" "" "Albedo File"
+	;WriteRegStr HKCR "${PRODUCT_NAME}" "" "Albedo File"
+	;WriteRegStr HKCR "${PRODUCT_NAME}\shell" "" "open"
+	WriteRegStr HKCR "Albedo File\DefaultIcon" "" "$INSTDIR\Config\Albedo_File.ico"
+
+  ;WriteRegStr HKCR "Albedo File\shell\open\command" "" '"$INSTDIR\bin\${PRODUCT_EXE_NAME}" "%1"'
+	
+SectionEnd
+
+Function "EraseFirstRun"
+	Pop $0
+	ReadRegStr $0 HKU "$0\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "AppData"
+	${If} $0 != ""
+	Delete "$0\${PRODUCT_NAME}\FirstRun"  
+	${EndIf}
+	
+FunctionEnd
+
+!macro RemoveExtraFiles
+
+	;Remove Albedo File Association	
+	;DeleteRegKey HKCR "Albedo File"
+	;DeleteRegKey HKCR ".alb"
+	;DeleteRegKey HKCR "${PRODUCT_NAME}"
+	
+!macroend
+
+!insertmacro CreateUninstaller 
+

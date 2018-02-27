@@ -1,0 +1,32 @@
+#=========================================================================
+# Program:   Albedo
+# Module:    UseAPPExternalLibraries.cmake
+# Language:  CMake
+# Date:      $Date: 2018-01-01 12:00:00 $
+# Version:   $Revision: 1.0.0.0 $
+# Authors:   Nicola Vanella
+#==========================================================================
+# Copyright (c) LTM-IOR 2018 (http://www.ltmsoftware.org/alba.htm)
+#
+# This software is distributed WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the above copyright notice for more information.
+#=========================================================================*/
+#
+# Description:
+# This module add external libraries include paths to a project
+
+SET(ALBEDO_USE_YOURLIBRARY @ALBEDO_USE_YOURLIBRARY@)
+
+#
+# Sample code for including a YOURLIBRARY library
+#
+# IF (ALBEDO_USE_YOURLIBRARY)
+#   SET (YOURLIBRARY_POSSIBLE_ROOT_PATHS @APPExternalLibraries_BINARY_DIR@/YOURLIBRARY/Build @APPExternalLibraries_SOURCE_DIR@/YOURLIBRARY/Sources)
+#   FIND_FILE(YOURLIBRARY_USE_FILE UseYOURLIBRARY.cmake ${YOURLIBRARY_POSSIBLE_ROOT_PATHS})
+#   FIND_PATH(YOURLIBRARY_BINARY_PATH UseYOURLIBRARY.cmake ${YOURLIBRARY_POSSIBLE_ROOT_PATHS})
+#   IF (YOURLIBRARY_USE_FILE)
+#     INCLUDE (${YOURLIBRARY_USE_FILE}) # currently only local library is supported
+#   ENDIF (YOURLIBRARY_USE_FILE)
+# ENDIF (ALBEDO_USE_YOURLIBRARY)
+#  
