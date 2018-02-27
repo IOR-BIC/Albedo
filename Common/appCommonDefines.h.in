@@ -1,0 +1,21 @@
+#ifndef __appCommonDefines_h
+#define __appCommonDefines_h
+
+#if @ALBEDO_BUILD_DLL@
+# define ALBEDO_SHARED
+#endif
+
+//--------------------------------------------------------------------------
+// For WIN32 dynamic linking
+//--------------------------------------------------------------------------
+#if defined(_WIN32) && defined(ALBEDO_SHARED)
+# if defined(APP_COMMON_EXPORTS)
+#  define APP_COMMON_EXPORT __declspec( dllexport ) 
+# else
+#  define APP_COMMON_EXPORT __declspec( dllimport ) 
+# endif
+#else
+# define APP_COMMON_EXPORT
+#endif
+
+#endif // __appCommonDefines_h
