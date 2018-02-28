@@ -6,7 +6,7 @@
 ; Version:   $Revision: 1.0.0.0 $
 ; Authors:   Nicola Vanella
 ;==========================================================================
-; Copyright (c) LTM-IOR 2018 (http://www.ltmsoftware.org/alba.htm)
+; Copyright (c) LTM-IOR 2018 (https://github.com/IOR-LTM)
 ;
 ; This software is distributed WITHOUT ANY WARRANTY; without even
 ; the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -15,7 +15,7 @@
 
 !define PRODUCT_NAME "Albedo"
 !define PRODUCT_PUBLISHER "LTM-IOR"
-!define PRODUCT_WEB_SITE "http://www.ltm.com"
+!define PRODUCT_WEB_SITE "https://github.com/IOR-LTM"
 
 !define PRODUCT_VERSION "@ALBEDO_VERSION@"
 !define PRODUCT_EXE_NAME "${PRODUCT_NAME}.exe"
