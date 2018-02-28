@@ -89,8 +89,8 @@ void appLogic::InitAboutDialog()
 	// Init About Dialog
 	m_AboutDialog->SetTitle(m_AppTitle);
 	m_AboutDialog->SetRevision(m_Revision.GetCStr());
-	m_AboutDialog->SetWebSite("http://www.ltm.com");
-	//m_AboutDialog->SetLicenseURL("http://www.ltm.com");
+	m_AboutDialog->SetWebSite("https://github.com/IOR-LTM");
+	//m_AboutDialog->SetLicenseURL("https://github.com/IOR-LTM");
 	//m_AboutDialog->SetExtraMessage("");
 
 	// About Image
