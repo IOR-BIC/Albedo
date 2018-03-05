@@ -18,6 +18,7 @@ PROJECT(appGui)
 # Set your list of sources here.
 SET(PROJECT_SRCS
 appSideBar.cpp	appSideBar.h
+appGUILabel.cpp appGUILabel.h
 )
 
 IF(ALBEDO_BUILD_DLL)
