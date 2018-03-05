@@ -40,6 +40,16 @@ PURPOSE. See the above copyright notice for more information.
 ....................................
 ....................................
 
+[appGui]
+
+-appSideBar
+ Implements custom SideBar (VME, Views, Operation panels)
+
+-appGUILabel 
+ Implements Custom Gui widgets, panels, dialogs
+....................................
+....................................
+
 [appOperations]
 
 -appOpEmpty

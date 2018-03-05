@@ -20,14 +20,16 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 
 #include "appOpGuiSample.h"
+#include "appGUILabel.h"
+
 #include "mafDecl.h"
 #include "mafEvent.h"
 #include "mafGUI.h"
 #include "mafGUICheckListBox.h"
-#include "mafPics.h"
-#include "mafGUIValidator.h"
 #include "mafGUIDictionaryWidget.h"
 #include "mafGUIImageViewer.h"
+#include "mafGUIValidator.h"
+#include "mafPics.h"
 
 //----------------------------------------------------------------------------
 // Constants:
@@ -217,6 +219,8 @@ void appOpGuiSample::GuiLabels()
 
 	m_Gui2->Label("Label", &m_StringMultiline, true, false);
 	m_Gui2->Divider(1);
+
+	m_Gui2->Add(new appGUILabel(m_Gui2, ID_GUI_WIDGET, "appGUILabel"));
 }
 //----------------------------------------------------------------------------
 void appOpGuiSample::GuiEntry()
