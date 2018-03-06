@@ -33,7 +33,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "appUtils.h"
 #include "appViewImageCompound.h"
 #include "appEmptyVME.h"
-//#include "appVMESurfaceParametric.h"
+#include "appVMESurfaceParametric.h"
 
 #include "mafGUIDicomSettings.h"
 #include "mafOpExporterSTL.h"
@@ -81,7 +81,7 @@ bool Albedo::OnInit()
 
 	// Plug custom VME
  	mafPlugVME<appEmptyVME>("Empty VME");
- 	//mafPlugVME<appVMESurfaceParametric>("Parametric Surface");  // Coming soon
+ 	mafPlugVME<appVMESurfaceParametric>("Parametric Surface");
 
 	// Plug pipe to visualize custom VME
 // 	mafPlugPipe<appPipeCustomVME>("Pipe to visualize custom VME");  // Coming soon
@@ -146,10 +146,10 @@ bool Albedo::OnInit()
 	//m_Logic->Plug(new appOpInteractorSample("Interactor Sample")); // Coming soon
 	
 	// Create Empty VME Operation
-	m_Logic->Plug(new appOpCreateEmptyVME("Create Empty VME"));
+	m_Logic->Plug(new appOpCreateEmptyVME("Create Empty VME"), _("Create"));
 
 	// Create Surface Parametric Operation
-	//m_Logic->Plug(new appOpCreateSurfaceParametric("Create Parametric Surface")); // Coming soon
+	m_Logic->Plug(new appOpCreateSurfaceParametric("Create Parametric Surface"), _("Create"));
 
 	//////////////////////////////////////////////////////////////////////////
 	//Views
