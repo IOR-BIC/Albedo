@@ -1,6 +1,6 @@
 /*=========================================================================
 Program:   Albedo
-Module:    appOpCreateVMEEmpty.cpp
+Module:    appOpCreateEmptyVME.cpp
 Language:  C++
 Date:      $Date: 2018-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
@@ -19,53 +19,53 @@ PURPOSE. See the above copyright notice for more information.
 // This force to include Window, wxWidgets and VTK exactly in this order.
 //----------------------------------------------------------------------------
 
-#include "appOpCreateVMEEmpty.h"
+#include "appOpCreateEmptyVME.h"
 
-#include "appVMEEmpty.h"
-
-//----------------------------------------------------------------------------
-mafCxxTypeMacro(appOpCreateVMEEmpty);
+#include "appEmptyVME.h"
 
 //----------------------------------------------------------------------------
-appOpCreateVMEEmpty::appOpCreateVMEEmpty(const wxString &label) :
+mafCxxTypeMacro(appOpCreateEmptyVME);
+
+//----------------------------------------------------------------------------
+appOpCreateEmptyVME::appOpCreateEmptyVME(const wxString &label) :
 mafOp(label)
 {
   m_OpType	= OPTYPE_OP;
   m_Canundo = true;
 
-  m_VMEEmpty = NULL;
+  m_EmptyVME = NULL;
 }
 //----------------------------------------------------------------------------
-appOpCreateVMEEmpty::~appOpCreateVMEEmpty( ) 
+appOpCreateEmptyVME::~appOpCreateEmptyVME( ) 
 {
-  mafDEL(m_VMEEmpty);
+  mafDEL(m_EmptyVME);
 }
 //----------------------------------------------------------------------------
-mafOp* appOpCreateVMEEmpty::Copy()   
+mafOp* appOpCreateEmptyVME::Copy()   
 {
-	return new appOpCreateVMEEmpty(m_Label);
+	return new appOpCreateEmptyVME(m_Label);
 }
 //----------------------------------------------------------------------------
-bool appOpCreateVMEEmpty::Accept(mafVME*node)
+bool appOpCreateEmptyVME::Accept(mafVME*node)
 {
 	return (node && node->IsMAFType(mafVME));
 }
 //----------------------------------------------------------------------------
-void appOpCreateVMEEmpty::OpRun()   
+void appOpCreateEmptyVME::OpRun()   
 {
-  mafNEW(m_VMEEmpty);
+  mafNEW(m_EmptyVME);
 
-	m_VMEEmpty->SetName("Empty VME");
+	m_EmptyVME->SetName("Empty VME");
 
 	OpStop(OP_RUN_OK);
 }
 //----------------------------------------------------------------------------
-void appOpCreateVMEEmpty::OpDo()
+void appOpCreateEmptyVME::OpDo()
 {
-  m_VMEEmpty->ReparentTo(m_Input);
+  m_EmptyVME->ReparentTo(m_Input);
 }
 //----------------------------------------------------------------------------
-void appOpCreateVMEEmpty::OpStop(int result)
+void appOpCreateEmptyVME::OpStop(int result)
 {
 	mafEventMacro(mafEvent(this, result));
 }

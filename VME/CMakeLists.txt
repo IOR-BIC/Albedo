@@ -1,4 +1,4 @@
-#==========================================================================
+#=========================================================================
 # Program:   Albedo
 # Module:    CMakeLists.txt
 # Language:  CMake
@@ -6,34 +6,33 @@
 # Version:   $Revision: 1.0.0.0 $
 # Authors:   Nicola Vanella
 #==========================================================================
-# Copyright (c) LTM-IOR 2018 (https://github.com/IOR-LTM)
+# Copyright (c) LTM-IOR 2018 (http://www.ltmsoftware.org/alba.htm)
 #
 # This software is distributed WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 # PURPOSE. See the above copyright notice for more information.
-#==========================================================================
+#=========================================================================*/
 
-PROJECT(appOperations)
+PROJECT(appVME)
 
 # Set your list of sources here.
 SET(PROJECT_SRCS
-appOpEmpty.cpp										appOpEmpty.h
-appOpGuiSample.cpp								appOpGuiSample.h
-#appOpInteractorSample.cpp					appOpInteractorSample.h
-appOpCreateEmptyVME.cpp						appOpCreateEmptyVME.h
-#appOpCreateSurfaceParametric.cpp	appOpCreateSurfaceParametric.h
+appEmptyVME.cpp 						appEmptyVME.h
+#appVMESurfaceParametric.cpp	appVMESurfaceParametric.h
 )
 
 SET(PROJECT_LIBS ${PROJECT_LIBS})
 
 IF(ALBEDO_BUILD_DLL)
+  SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /FORCE:MULTIPLE")
   SET(BUILD_SHARED_LIBS 1)
-  ADD_DEFINITIONS(-DAPP_OPERATIONS_EXPORTS)
+  ADD_DEFINITIONS(-DAPP_VME_EXPORTS)
   # Create the library.
   ADD_LIBRARY(${PROJECT_NAME} ${PROJECT_SRCS})
-  TARGET_LINK_LIBRARIES(${PROJECT_NAME} mafDLL appGui appVME vtkAPP)
+  TARGET_LINK_LIBRARIES(${PROJECT_NAME} mafDLL appCommon vtkAPP)
 ELSE(ALBEDO_BUILD_DLL)
   # Create the library.
   ADD_LIBRARY(${PROJECT_NAME} ${PROJECT_SRCS})
   TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${PROJECT_LIBS})
 ENDIF (ALBEDO_BUILD_DLL)
+

@@ -22,7 +22,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "mafLogicWithManagers.h"
 
 //----------------------------------------------------------------------------
-// Forward reference
+// Forward reference :
 //----------------------------------------------------------------------------
 class mafOpImporterDicomOffis;
 

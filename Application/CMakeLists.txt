@@ -47,7 +47,7 @@ ELSE (WIN32)
   ADD_EXECUTABLE(${PROJECT_NAME} ${PROJECT_SRCS} )
 ENDIF (WIN32)
 
-SET(PROJECT_LIBS mafOperations mafGui mafViews mafVME mafInteraction mafService mafVME mafVisualPipes mafOperations vtkMAF appOperations appViews appCommon appGui)# GPUAPI) #appVME)
+SET(PROJECT_LIBS mafOperations mafGui mafViews mafVME mafInteraction mafService mafVME mafVisualPipes mafOperations vtkMAF appOperations appViews appCommon appGui appVME)# GPUAPI))
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${PROJECT_LIBS})
 
