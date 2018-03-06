@@ -22,6 +22,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "appEmptyVME.h"
 
 #include "mafGUI.h"
+#include "mafStorageElement.h"
 #include "mafVME.h"
 #include "mafVMEOutputNULL.h"
 
@@ -130,4 +131,43 @@ void appEmptyVME::OnEvent(mafEventBase *maf_event)
 	}
 	else
 		mafVME::OnEvent(maf_event);
+}
+
+//-----------------------------------------------------------------------
+void appEmptyVME::InternalPreUpdate()
+{
+	InternalInitialize();
+}
+
+//-----------------------------------------------------------------------
+void appEmptyVME::InternalUpdate()
+{
+}
+
+//-----------------------------------------------------------------------
+int appEmptyVME::InternalStore(mafStorageElement *node)
+{
+	if (Superclass::InternalStore(node) == MAF_OK)
+	{
+		if (node->StoreText("String", m_String) == MAF_OK &&
+				node->StoreInteger("Integer", m_Integer) == MAF_OK &&
+				node->StoreDouble("Double", m_Double) == MAF_OK
+			)
+			return MAF_OK;
+	}
+	return MAF_ERROR;
+}
+
+//-----------------------------------------------------------------------
+int appEmptyVME::InternalRestore(mafStorageElement *node)
+{
+	if (Superclass::InternalRestore(node) == MAF_OK)
+	{
+		node->RestoreText("String", m_String);
+		node->RestoreInteger("Integer", m_Integer);
+		node->RestoreDouble("Double", m_Double);
+
+		return MAF_OK;
+	}
+	return MAF_ERROR;
 }

@@ -66,6 +66,16 @@ protected:
 
 	void OnEvent(mafEventBase *maf_event);
 
+	// Store and Restore
+	virtual int InternalStore(mafStorageElement *node);
+	virtual int InternalRestore(mafStorageElement *node);
+
+	/** Called to prepare the update of the output */
+	virtual void InternalPreUpdate();
+
+	/** Update the output data structure */
+	virtual void InternalUpdate();
+
 	mafGUI *m_Gui;
 
 	// VME Properties
