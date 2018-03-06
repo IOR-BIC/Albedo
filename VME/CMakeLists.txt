@@ -18,7 +18,7 @@ PROJECT(appVME)
 # Set your list of sources here.
 SET(PROJECT_SRCS
 appEmptyVME.cpp 						appEmptyVME.h
-#appVMESurfaceParametric.cpp	appVMESurfaceParametric.h
+appVMESurfaceParametric.cpp	appVMESurfaceParametric.h
 )
 
 SET(PROJECT_LIBS ${PROJECT_LIBS})

@@ -28,9 +28,9 @@ PURPOSE. See the above copyright notice for more information.
 class appVMESurfaceParametric;
 class mafEvent;
 
-/**
-Class Name: appOpCreateSurfaceParametric
-*/
+//----------------------------------------------------------------------------
+// Class Name: appOpCreateSurfaceParametric
+//----------------------------------------------------------------------------
 class APP_OPERATIONS_EXPORT appOpCreateSurfaceParametric: public mafOp
 {
 public:
