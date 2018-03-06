@@ -177,7 +177,7 @@ void appSideBar::VmeSelected(mafVME *vme)
 }
 
 //----------------------------------------------------------------------------
-std::vector<mafVME*> appSideBar::VmeChoose(long vme_accept_function, long style, mafString title, bool multiSelect, mafVME *vme)
+std::vector<mafVME*> appSideBar::VmeChoose(void *vme_accept_function, long style, mafString title, bool multiSelect, mafVME *vme)
 {
 	mafErrorMessage("Error on choose VME");
 	std::vector<mafVME*> emptyList;
