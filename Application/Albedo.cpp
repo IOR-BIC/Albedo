@@ -29,10 +29,10 @@ PURPOSE. See the above copyright notice for more information.
 #include "appOpEmpty.h"
 #include "appOpGuiSample.h"
 //#include "appOpInteractorSample.h"
-#include "appOpCreateVMEEmpty.h"
+#include "appOpCreateEmptyVME.h"
 #include "appUtils.h"
 #include "appViewImageCompound.h"
-//#include "appVMEEmpty.h"
+#include "appEmptyVME.h"
 //#include "appVMESurfaceParametric.h"
 
 #include "mafGUIDicomSettings.h"
@@ -80,7 +80,7 @@ bool Albedo::OnInit()
 	assert(result == MAF_OK);
 
 	// Plug custom VME
- 	//mafPlugVME<appVMEEmpty>("Empty VME");  // Coming soon
+ 	mafPlugVME<appEmptyVME>("Empty VME");
  	//mafPlugVME<appVMESurfaceParametric>("Parametric Surface");  // Coming soon
 
 	// Plug pipe to visualize custom VME
@@ -145,8 +145,8 @@ bool Albedo::OnInit()
 	// Gui Interactor Operation
 	//m_Logic->Plug(new appOpInteractorSample("Interactor Sample")); // Coming soon
 	
-	// Create VME Empty Operation
-	//m_Logic->Plug(new appOpCreateVMEEmpty("Create VME Empty")); // Coming soon
+	// Create Empty VME Operation
+	m_Logic->Plug(new appOpCreateEmptyVME("Create Empty VME"));
 
 	// Create Surface Parametric Operation
 	//m_Logic->Plug(new appOpCreateSurfaceParametric("Create Parametric Surface")); // Coming soon

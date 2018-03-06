@@ -1,0 +1,21 @@
+#ifndef __appVMEDefines_h
+#define __appVMEDefines_h
+
+#if @ALBEDO_BUILD_DLL@
+# define ALBEDO_SHARED
+#endif
+
+//--------------------------------------------------------------------------
+// For WIN32 dynamic linking
+//--------------------------------------------------------------------------
+#if defined(_WIN32) && defined(ALBEDO_SHARED)
+# if defined(APP_VME_EXPORTS)
+#  define APP_VME_EXPORT __declspec( dllexport ) 
+# else
+#  define APP_VME_EXPORT __declspec( dllimport ) 
+# endif
+#else
+# define APP_VME_EXPORT
+#endif
+
+#endif // __appVMEDefines_h

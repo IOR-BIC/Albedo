@@ -22,7 +22,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "appDecl.h"
 #include "appUtils.h"
 #include "appLogic.h"
-//#include "appSideBar.h" // Coming soon
+//#include "appSideBar.h"
 
 #include "mafGUIAboutDialog.h"
 #include "mafGUIApplicationSettings.h"

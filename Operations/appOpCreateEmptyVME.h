@@ -1,6 +1,6 @@
 /*=========================================================================
 Program:   Albedo
-Module:    appOpCreateVMEEmpty.h
+Module:    appOpCreateEmptyVME.h
 Language:  C++
 Date:      $Date: 2018-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
@@ -13,11 +13,11 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE. See the above copyright notice for more information.
 =========================================================================*/
 
-#ifndef __appOpCreateVMEEmpty_H__
-#define __appOpCreateVMEEmpty_H__
+#ifndef __appOpCreateEmptyVME_H__
+#define __appOpCreateEmptyVME_H__
 
 //----------------------------------------------------------------------------
-// Include :
+// Includes :
 //----------------------------------------------------------------------------
 #include "appOperationsDefines.h"
 #include "mafOp.h"
@@ -25,18 +25,18 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 // Forward references :
 //----------------------------------------------------------------------------
-class appVMEEmpty;
+class appEmptyVME;
 
-/**
-Class Name: appOpCreateVMEEmpty
-*/
-class APP_OPERATIONS_EXPORT appOpCreateVMEEmpty: public mafOp
+//----------------------------------------------------------------------------
+// Class Name: appOpCreateEmptyVME
+//----------------------------------------------------------------------------
+class APP_OPERATIONS_EXPORT appOpCreateEmptyVME: public mafOp
 {
 public:
-  appOpCreateVMEEmpty(const wxString &label = "Create VME Empty");
-  ~appOpCreateVMEEmpty(); 
+  appOpCreateEmptyVME(const wxString &label = "Create VME Empty");
+  ~appOpCreateEmptyVME(); 
 
-  mafTypeMacro(appOpCreateVMEEmpty, mafOp);
+  mafTypeMacro(appOpCreateEmptyVME, mafOp);
 
   mafOp* Copy();
 
@@ -53,6 +53,6 @@ protected:
 	/** This method is called at the end of the operation and result contain the wxOK or wxCANCEL. */
 	void OpStop(int result);
 
-	appVMEEmpty *m_VMEEmpty;
+	appEmptyVME *m_EmptyVME;
 };
 #endif

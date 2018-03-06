@@ -54,12 +54,19 @@ PURPOSE. See the above copyright notice for more information.
 
 -appOpEmpty
 -appOpGuiSample
+-appOpCreateEmptyVME
 ....................................
 ....................................
 
 [appViews]
 
 -appViewImageCompound
+....................................
+....................................
+
+[appVME]
+
+-appEmptyVME
 ....................................
 ....................................
 
