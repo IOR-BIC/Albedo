@@ -55,6 +55,8 @@ PURPOSE. See the above copyright notice for more information.
 -appOpEmpty
 -appOpGuiSample
 -appOpCreateEmptyVME
+-appOpCreateVMESurfaceParametric
+-appOpDictionary
 ....................................
 ....................................
 
@@ -67,6 +69,7 @@ PURPOSE. See the above copyright notice for more information.
 [appVME]
 
 -appEmptyVME
+-appVMESurfaceParametric
 ....................................
 ....................................
 

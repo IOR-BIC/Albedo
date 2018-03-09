@@ -1,14 +1,25 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<DIC Name="Albedo_DB" Version="2.0">
-    <Dictionary>
-		<DItem>Right Anterior Superior Iliac Spine(RASIS)</DItem>
-		<DItem>Left Anterior Superior Iliac Spine(LASIS)</DItem>
-		<DItem>Sacrum</DItem>
-		<DItem>Right Medial Epicondyle(RME)</DItem>
-		<DItem>Right Lateral Epicondyle(RLE)</DItem>
-		<DItem>Right Greater Trochanter(RGT)</DItem>
-		<DItem>Left Medial Epicondyle(LME)</DItem>
-		<DItem>Left Lateral Epicondyle(LLE)</DItem>
-		<DItem>Left Greater Trochanter(LGT)</DItem>
-    </Dictionary>
-</DIC>
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<Dictionary Name="Dictionary" Version="1.0">
+
+  <Group Name="New_Group1">
+    <Element>New_Element_1</Element>
+    <Element>New_Element_2</Element>
+    <Element>New_Element_3</Element>
+    <Element>New_Element_4</Element>
+    <Element>New_Element_5</Element>
+    <Element>New_Element_6</Element>
+  </Group>
+
+  <Group Name="New_Group2">
+    <Element>New_Element_1</Element>
+    <Element>New_Element_2</Element>
+    <Element>New_Element_3</Element>
+  </Group>
+
+  <Group Name="New_Group3"/>
+
+  <Group Name="New_Group_4">
+    <Element>New_Element_1</Element>
+  </Group>
+
+</Dictionary>
