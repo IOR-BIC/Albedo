@@ -30,6 +30,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "appOpGuiSample.h"
 //#include "appOpInteractorSample.h"
 #include "appOpCreateEmptyVME.h"
+#include "appOpDictionary.h"
 #include "appUtils.h"
 #include "appViewImageCompound.h"
 #include "appEmptyVME.h"
@@ -145,6 +146,9 @@ bool Albedo::OnInit()
 	// Gui Interactor Operation
 	//m_Logic->Plug(new appOpInteractorSample("Interactor Sample")); // Coming soon
 	
+	// Dictionary Operation
+	m_Logic->Plug(new appOpDictionary("Dictionary Editor"));
+
 	// Create Empty VME Operation
 	m_Logic->Plug(new appOpCreateEmptyVME("Create Empty VME"), _("Create"));
 

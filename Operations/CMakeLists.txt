@@ -22,6 +22,7 @@ appOpGuiSample.cpp								appOpGuiSample.h
 #appOpInteractorSample.cpp					appOpInteractorSample.h
 appOpCreateEmptyVME.cpp						appOpCreateEmptyVME.h
 appOpCreateSurfaceParametric.cpp	appOpCreateSurfaceParametric.h
+appOpDictionary.cpp								appOpDictionary.h
 )
 
 SET(PROJECT_LIBS ${PROJECT_LIBS})
