@@ -1,6 +1,6 @@
 /*=========================================================================
 Program:   Albedo
-Module:    appOpGuiSample.cpp
+Module:    appGUIHyperLink.cpp
 Language:  C++
 Date:      $Date: 2018-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
@@ -13,69 +13,50 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE. See the above copyright notice for more information.
 =========================================================================*/
 
-#ifndef __appOpGuiSample_H__
-#define __appOpGuiSample_H__
+#ifndef __appGUIHyperLink_H__
+#define __appGUIHyperLink_H__
 
 //----------------------------------------------------------------------------
-// Include :
+// Include:
 //----------------------------------------------------------------------------
-#include "mafOp.h"
+#include "mafObserver.h"
 
 //----------------------------------------------------------------------------
 // Forward references :
 //----------------------------------------------------------------------------
-class mafGUICheckListBox;
-class mafGUIValidator;
 
 //----------------------------------------------------------------------------
-// Class Name: appOpGuiSample
+// Class Name: appGUIHyperLink
+// Class that handles a slider for visualizing or changing range.
 //----------------------------------------------------------------------------
-class MAF_EXPORT appOpGuiSample: public mafOp
+class appGUIHyperLink : public wxStaticText
 {
 public:
 
-  appOpGuiSample(const wxString &label = "Gui Sample");
-  ~appOpGuiSample(); 
+  /** Constructor */
+  appGUIHyperLink(wxWindow *parent, wxWindowID id, const wxString& label, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxString& name = wxStaticTextNameStr);
 
-  mafTypeMacro(appOpGuiSample, mafOp);
-
-  /** Receive events coming from the user interface.*/
-  void OnEvent(mafEventBase *maf_event);
+  /** Function for setting the listener of events coming from another object*/
+  void SetListener(mafObserver *listener) {m_Listener = listener;}
 	
-	/** Return a copy of the operation.*/
-  mafOp* Copy();
+	void SetUrl(wxString url) { m_URL = url; };
 
-  /** Return true for the acceptable vme type. */
-  bool Accept(mafVME*node);
+protected:
 
-  /** Builds operation's interface. */
-  void OpRun();
+	/** Initialize the values for the slider. */
+  void Initialize();
 	
+	/** Move the cursors on mouse event. */
+  void OnMouse(wxMouseEvent &event);
+
+	mafObserver *m_Listener;
+
 private:
-	void CreateGui(int index);
 
-	void GuiDivider();
-	void GuiLabels();
-	void GuiEntry();
-	void GuiButtons();
-	void GuiSliders();
-	void GuiLists();
-	void GuiExtra();
+  wxString m_ValueString;
+	wxString m_URL;
 
-	mafString m_String;
-	mafString m_StringMultiline;
-
-	int m_Interger;
-	float m_Float;
-	double m_Double;
-	
-	int m_IntVector[5];
-	double m_DoubleVector[3];
-
-	wxColor m_Color;
-
-	wxListBox *m_listBox;
-	mafGUI *m_Gui2;
+  /** declaring event table macro */
+  DECLARE_EVENT_TABLE()
 };
-
-#endif
+#endif // _appGUIHyperLink_H_
