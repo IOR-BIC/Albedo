@@ -31,6 +31,7 @@ PURPOSE. See the above copyright notice for more information.
 //#include "appOpInteractorSample.h"
 #include "appOpCreateEmptyVME.h"
 #include "appOpDictionary.h"
+#include "appOpShowDialog.h"
 #include "appUtils.h"
 #include "appViewImageCompound.h"
 #include "appEmptyVME.h"
@@ -140,14 +141,20 @@ bool Albedo::OnInit()
 	// Transform Operation
 	m_Logic->Plug(new mafOpMAFTransform("Transform \tCtrl+T"));// , _("Modify"));
 
-	// Gui Sample Operation
-	m_Logic->Plug(new appOpGuiSample("Gui Sample"));	
-
 	// Gui Interactor Operation
 	//m_Logic->Plug(new appOpInteractorSample("Interactor Sample")); // Coming soon
-	
+
 	// Dictionary Operation
 	m_Logic->Plug(new appOpDictionary("Dictionary Editor"));
+	
+	// Gui Sample Operation
+	m_Logic->Plug(new appOpGuiSample("Gui Sample"), _("GUI"));
+
+	// Show Dialog (Vertical) Operation
+	m_Logic->Plug(new appOpShowDialog("Show Dialog (Vertical)"), _("GUI"));
+
+	// Show Dialog (Horizontal) Operation
+	m_Logic->Plug(new appOpShowDialog("Show Dialog (Horizontal)", appOpShowDialog::HORIZONTAL_MODE_2), _("GUI"));
 
 	// Create Empty VME Operation
 	m_Logic->Plug(new appOpCreateEmptyVME("Create Empty VME"), _("Create"));
