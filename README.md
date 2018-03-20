@@ -40,23 +40,28 @@ PURPOSE. See the above copyright notice for more information.
 ....................................
 ....................................
 
-[appGui]
+[appGui] 
+ Implements Custom Gui widgets, panels, dialogs
+
+-appGuiHyperLink
+-appGUILabel
+-appGUISeparator
 
 -appSideBar
  Implements custom SideBar (VME, Views, Operation panels)
 
--appGUILabel 
- Implements Custom Gui widgets, panels, dialogs
 ....................................
 ....................................
 
 [appOperations]
 
--appOpEmpty
--appOpGuiSample
 -appOpCreateEmptyVME
 -appOpCreateVMESurfaceParametric
 -appOpDictionary
+-appOpEmpty
+-appOpGuiSample
+-appOpShowDialog
+
 ....................................
 ....................................
 

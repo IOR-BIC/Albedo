@@ -94,6 +94,9 @@ public:
 
 	void SetMode(DIALOG_MODE mode) { m_DialogMode = mode; };
 
+	void ShowImage(bool show)		{ m_ShowImage = show; };
+	void ShowButtons(bool show) { m_ShowButtons = show; };
+
 protected:
 
 	// This method is called at the end of the operation and result contain the wxOK or wxCANCEL.
@@ -104,6 +107,9 @@ protected:
 	wxString m_Title;
 	wxString m_Description;
 	wxString m_ImagePath;
+
+	bool m_ShowImage;
+	bool m_ShowButtons;
 
 	DIALOG_MODE m_DialogMode;
 

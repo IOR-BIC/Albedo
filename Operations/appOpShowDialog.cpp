@@ -52,6 +52,9 @@ appOpShowDialog::appOpShowDialog(const wxString &label, DIALOG_MODE mode):
 	m_PreviewImage = NULL;
 	m_PreviewImageButton = NULL;
 
+	m_ShowImage = true;
+	m_ShowButtons = true;
+
 	m_Title = "Show Dialog";
 	m_Description = "Content";
 	m_ImagePath = "/Wizard/DialogV.bmp";
@@ -155,7 +158,7 @@ void appOpShowDialog::ShowDialog()
 		wxString imagesPath = appUtils::GetConfigDirectory().c_str();
 		wxString imgPath = imagesPath + m_ImagePath;
 
-		if (wxFileExists(imgPath))
+		if (m_ShowImage && wxFileExists(imgPath))
 		{
 			wxBitmap *previewBitmap;
 
@@ -207,6 +210,7 @@ void appOpShowDialog::ShowDialog()
 
 		//////////////////////////////////////////////////////////////////////////
 		// Creating buttons
+
 		wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
 
 		m_OkBtn = new mafGUIButton(m_dialog, ID_OK_BTN, "Ok", wxPoint(-1, -1));
@@ -217,6 +221,7 @@ void appOpShowDialog::ShowDialog()
 		m_CancelBtn->SetListener(this);
 		buttonSizer->Add(m_CancelBtn, 0, wxALIGN_LEFT, 0);
 
+		//////////////////////////////////////////////////////////////////////////
 		if (m_DialogMode == HORIZONTAL_MODE_2)
 		{
 			mainSizer->Add(contentSizer, 0, wxALL, border);
@@ -225,28 +230,33 @@ void appOpShowDialog::ShowDialog()
 
 			mainSizer_2->Add(mainSizer, 0, wxALL, 0);
 
-			// Line Separator
-			appGUISeparator *sep3 = new appGUISeparator(m_dialog, 1, wxSize(imagePanelWidth + contentPanelWidth - (border * 2), 2));
-			mainSizer_2->Add(sep3, 0, wxALIGN_LEFT, 0);
-
-			mainSizer_2->Add(buttonSizer, 0, wxALL, 0);
+			if (m_ShowButtons)
+			{
+				// Line Separator
+				appGUISeparator *sep3 = new appGUISeparator(m_dialog, 1, wxSize(imagePanelWidth + contentPanelWidth - (border * 2), 2));
+				mainSizer_2->Add(sep3, 0, wxALIGN_LEFT, 0);
+				mainSizer_2->Add(buttonSizer, 0, wxALL, 0);
+			}
 
 			// Add to Dialog
 			m_dialog->Add(mainSizer_2, 0, wxALL);
 		}
 		else
 		{
-			// Line Separator
-			appGUISeparator *sep3 = new appGUISeparator(m_dialog, 2, wxSize(imagePanelWidth - (border * 2), 100));
-			contentSizer->Add(sep3, 0, wxALIGN_LEFT, 0);
+			if (m_ShowButtons)
+			{
+				// Line Separator
+				appGUISeparator *sep3 = new appGUISeparator(m_dialog, 2, wxSize(imagePanelWidth - (border * 2), 100));
+				contentSizer->Add(sep3, 0, wxALIGN_LEFT, 0);
+				contentSizer->Add(buttonSizer, 0, wxALL, 0);
+			}
 
-			contentSizer->Add(buttonSizer, 0, wxALL, 0);
 			mainSizer->Add(contentSizer, 0, wxALL, border);
 
 			// Add to Dialog
 			m_dialog->Add(mainSizer, 0, wxALL);
 		}
-		
+
 		m_dialog->Fit();
 	}
 

@@ -135,17 +135,20 @@ bool Albedo::OnInit()
 	//Operations
 	//////////////////////////////////////////////////////////////////////////	
 
-	// Empty Operation
-	m_Logic->Plug(new appOpEmpty("Op Empty"));
+	// Create Empty VME Operation
+	m_Logic->Plug(new appOpCreateEmptyVME("Create Empty VME"), _("Create"));
 
-	// Transform Operation
-	m_Logic->Plug(new mafOpMAFTransform("Transform \tCtrl+T"));// , _("Modify"));
+	// Create Surface Parametric Operation
+	m_Logic->Plug(new appOpCreateSurfaceParametric("Create Parametric Surface"), _("Create"));
 
 	// Gui Interactor Operation
 	//m_Logic->Plug(new appOpInteractorSample("Interactor Sample")); // Coming soon
 
+	// Transform Operation
+	m_Logic->Plug(new mafOpMAFTransform("Transform \tCtrl+T"), _("Edit"));
+
 	// Dictionary Operation
-	m_Logic->Plug(new appOpDictionary("Dictionary Editor"));
+	m_Logic->Plug(new appOpDictionary("Dictionary Editor"), _("Edit"));
 	
 	// Gui Sample Operation
 	m_Logic->Plug(new appOpGuiSample("Gui Sample"), _("GUI"));
@@ -156,11 +159,8 @@ bool Albedo::OnInit()
 	// Show Dialog (Horizontal) Operation
 	m_Logic->Plug(new appOpShowDialog("Show Dialog (Horizontal)", appOpShowDialog::HORIZONTAL_MODE_2), _("GUI"));
 
-	// Create Empty VME Operation
-	m_Logic->Plug(new appOpCreateEmptyVME("Create Empty VME"), _("Create"));
-
-	// Create Surface Parametric Operation
-	m_Logic->Plug(new appOpCreateSurfaceParametric("Create Parametric Surface"), _("Create"));
+	// Empty Operation
+	m_Logic->Plug(new appOpEmpty("Op Empty"));
 
 	//////////////////////////////////////////////////////////////////////////
 	//Views
