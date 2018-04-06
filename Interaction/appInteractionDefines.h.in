@@ -1,0 +1,21 @@
+#ifndef __appInteractionDefines_h
+#define __appInteractionDefines_h
+
+#if @ALBEDO_BUILD_DLL@
+# define APP_SHARED
+#endif
+
+//--------------------------------------------------------------------------
+// For WIN32 dynamic linking
+//--------------------------------------------------------------------------
+#if defined(_WIN32) && defined(APP_SHARED)
+# if defined(APP_INTERACTION_EXPORTS)
+#  define APP_INTERACTION_EXPORT __declspec( dllexport ) 
+# else
+#  define APP_INTERACTION_EXPORT __declspec( dllimport ) 
+# endif
+#else
+# define APP_INTERACTION_EXPORT
+#endif
+
+#endif // __appInteractionDefines_h

@@ -1,4 +1,4 @@
-#==========================================================================
+#=========================================================================
 # Program:   Albedo
 # Module:    CMakeLists.txt
 # Language:  CMake
@@ -11,29 +11,23 @@
 # This software is distributed WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 # PURPOSE. See the above copyright notice for more information.
-#==========================================================================
+#=========================================================================*/
 
-PROJECT(appOperations)
+PROJECT(appInteraction)
 
 # Set your list of sources here.
 SET(PROJECT_SRCS
-appOpEmpty.cpp										appOpEmpty.h
-appOpGuiSample.cpp								appOpGuiSample.h
-appOpInteractorSample.cpp					appOpInteractorSample.h
-appOpCreateEmptyVME.cpp						appOpCreateEmptyVME.h
-appOpCreateSurfaceParametric.cpp	appOpCreateSurfaceParametric.h
-appOpDictionary.cpp								appOpDictionary.h
-appOpShowDialog.cpp								appOpShowDialog.h
+appInteractor2DSample.cpp	appInteractor2DSample.h
 )
 
 SET(PROJECT_LIBS ${PROJECT_LIBS})
 
 IF(ALBEDO_BUILD_DLL)
   SET(BUILD_SHARED_LIBS 1)
-  ADD_DEFINITIONS(-DAPP_OPERATIONS_EXPORTS)
+  ADD_DEFINITIONS(-DAPP_INTERACTIONS_EXPORTS)
   # Create the library.
   ADD_LIBRARY(${PROJECT_NAME} ${PROJECT_SRCS})
-  TARGET_LINK_LIBRARIES(${PROJECT_NAME} mafDLL appGui appVME vtkAPP)
+  TARGET_LINK_LIBRARIES(${PROJECT_NAME} mafDLL appVME appViews)
 ELSE(ALBEDO_BUILD_DLL)
   # Create the library.
   ADD_LIBRARY(${PROJECT_NAME} ${PROJECT_SRCS})

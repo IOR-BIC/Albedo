@@ -28,7 +28,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "appOpCreateSurfaceParametric.h"
 #include "appOpEmpty.h"
 #include "appOpGuiSample.h"
-//#include "appOpInteractorSample.h"
+#include "appOpInteractorSample.h"
 #include "appOpCreateEmptyVME.h"
 #include "appOpDictionary.h"
 #include "appOpShowDialog.h"
@@ -44,7 +44,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "mafOpImporterImage.h"
 #include "mafOpImporterSTL.h"
 #include "mafOpImporterVTK.h"
-#include "mafOpMAFTransform.h"
+#include "mafOpTransform.h"
 #include "mafPipeFactoryVME.h"
 #include "mafPipeVolumeSliceBlend.h"
 #include "mafServiceLocator.h"
@@ -142,10 +142,10 @@ bool Albedo::OnInit()
 	m_Logic->Plug(new appOpCreateSurfaceParametric("Create Parametric Surface"), _("Create"));
 
 	// Gui Interactor Operation
-	//m_Logic->Plug(new appOpInteractorSample("Interactor Sample")); // Coming soon
+	m_Logic->Plug(new appOpInteractorSample("Interactor Sample"), _("Edit"));
 
 	// Transform Operation
-	m_Logic->Plug(new mafOpMAFTransform("Transform \tCtrl+T"), _("Edit"));
+	m_Logic->Plug(new mafOpTransform("Transform \tCtrl+T"), _("Edit"));
 
 	// Dictionary Operation
 	m_Logic->Plug(new appOpDictionary("Dictionary Editor"), _("Edit"));

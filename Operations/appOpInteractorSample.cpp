@@ -42,16 +42,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "vtkImageResample.h"
 #include "vtkPointData.h"
 
-#include <algorithm>
 
-//----------------------------------------------------------------------------
-// Widgets ID's
-//----------------------------------------------------------------------------
-enum IMPORTER_IMAGE_ID
-{
-	ID_MEASURE_UNIT = MINID,
-	ID_SET_CALIBRATION,
-};
 
 //----------------------------------------------------------------------------
 mafCxxTypeMacro(appOpInteractorSample);
@@ -64,11 +55,11 @@ mafOp(label)
   m_OpType  = OPTYPE_OP;
   m_Canundo = true;
 
-  m_Measure= 0;
-  m_MeasureUnit = 0;
+	m_OneLine = 1;
+	m_EditLine = 0;
 
   m_ImportedImage = NULL;
-  m_DistanceInteractor2D = NULL;
+  m_Interactor = NULL;
 }
 //----------------------------------------------------------------------------
 appOpInteractorSample::~appOpInteractorSample()
@@ -77,10 +68,17 @@ appOpInteractorSample::~appOpInteractorSample()
 }
 
 //----------------------------------------------------------------------------
+mafOp* appOpInteractorSample::Copy()
+{
+	return (new appOpInteractorSample(m_Label));
+}
+
+//----------------------------------------------------------------------------
 bool appOpInteractorSample::Accept(mafVME *node)
 {
   return true;
 }
+
 //----------------------------------------------------------------------------
 void appOpInteractorSample::OpRun()
 {
@@ -89,15 +87,15 @@ void appOpInteractorSample::OpRun()
 	mafEventMacro(e);
 	if (!e.GetBool())
 	{
-		//mafEventMacro(mafEvent(this,ID_SHOW_IMAGE_VIEW));
+		mafEventMacro(mafEvent(this,ID_SHOW_IMAGE_VIEW));
 	}
 	
-	m_DistanceInteractor2D = appInteractor2DSample::New();
-	m_DistanceInteractor2D->ShowLabel(false);
-	mafEventMacro(mafEvent(this, PER_PUSH, (mafObject *)m_DistanceInteractor2D));
-	m_DistanceInteractor2D->SetListener(this);
-	m_DistanceInteractor2D->SetColorSelection(0, 0, 1);
-	m_DistanceInteractor2D->CanEditMeasures(false);
+	// Create Interactor
+	m_Interactor = appInteractor2DSample::New();
+	mafEventMacro(mafEvent(this, PER_PUSH, (mafObject *)m_Interactor));
+	m_Interactor->SetListener(this);
+	m_Interactor->SetColorSelection(0, 0, 1);
+	m_Interactor->CanEditLines(false);
 
 	mafString wildc = "Images (*.bmp;*.jpg;*.png;*.tif)| *.bmp;*.jpg;*.png;*.tif";
 
@@ -124,6 +122,7 @@ void appOpInteractorSample::OpRun()
 		}
 	}
 }
+
 //----------------------------------------------------------------------------
 void appOpInteractorSample::CreateGui()
 {
@@ -132,24 +131,18 @@ void appOpInteractorSample::CreateGui()
 
 	m_Gui->Divider(2);
 
-	m_Gui->Label("Calibration", true);
+	m_Gui->Label("Draw Line", true);
+	m_Gui->Bool(-1, "One Line", &m_OneLine);
+	m_Gui->Bool(ID_EDIT_LINE, "Edit Line", &m_EditLine);
 
-	const wxString unitChoices[] = { "Inch", "Centimeter" };
-	m_Gui->Combo(ID_MEASURE_UNIT, "", &m_MeasureUnit, 2, unitChoices);
 	m_Gui->Label("");
 	m_Gui->Label("");
 	m_Gui->Divider(1);
 
 	m_Gui->OkCancel();
 	m_Gui->Label("");
+}
 
-	m_Gui->Enable(wxOK, false);
-}
-//----------------------------------------------------------------------------
-mafOp* appOpInteractorSample::Copy()
-{
-	return (new appOpInteractorSample(m_Label));
-}
 //----------------------------------------------------------------------------
 void appOpInteractorSample::OpStop(int result)
 {
@@ -157,34 +150,10 @@ void appOpInteractorSample::OpStop(int result)
 	{
 		HideGui();
 	}
-
-	if (result == OP_RUN_OK)
-	{
-		double unitToMm;
-
-		unitToMm = (m_MeasureUnit == 0) ? 25.4 : 10;
-		double scaleFactor = unitToMm / m_Measure;
-
-		vtkImageData *toScale;
-		toScale = vtkImageData::SafeDownCast(m_ImportedImage->GetOutput()->GetVTKData());
-		double spacing[3];
-		toScale->GetSpacing(spacing);
-		spacing[0] *= scaleFactor;
-		spacing[1] *= scaleFactor;
-		spacing[2] *= scaleFactor;
-		toScale->SetSpacing(spacing);
-		m_ImportedImage->SetData(toScale, 0);
-
-		GetLogicManager()->VmeVisualModeChanged(m_ImportedImage);
-	}
-	else
-	{
-		if (m_ImportedImage)
-			m_ImportedImage->ReparentTo(NULL);
-	}
-
+	
+	// Remove Interactor
 	mafEventMacro(mafEvent(this, PER_POP));
-	mafDEL(m_DistanceInteractor2D);
+	mafDEL(m_Interactor);
 
 	mafEventMacro(mafEvent(this, result));
 }
@@ -198,6 +167,12 @@ void appOpInteractorSample::OnEvent(mafEventBase *maf_event)
 		{
 			switch (e->GetId())
 			{
+			case ID_EDIT_LINE:
+			{
+				m_Interactor->CanEditLines(m_EditLine == 1);
+			}
+			break;
+
 			case wxOK:
 				OpStop(OP_RUN_OK);
 				break;
@@ -211,17 +186,16 @@ void appOpInteractorSample::OnEvent(mafEventBase *maf_event)
 		{
 			switch (e->GetId())
 			{
-			case appInteractor2DSample::ID_MEASURE_ADDED:
-			case appInteractor2DSample::ID_MEASURE_CHANGED:
+			case appInteractor2DSample::ID_LINE_ADDED:
+			case appInteractor2DSample::ID_LINE_CHANGED:
 			{
-				m_Measure = e->GetDouble();
-
-				m_Gui->Enable(wxOK, m_Measure > 0.0);
-				m_Gui->Update();
-
-				while (m_DistanceInteractor2D->SizeMeasureVector() > 1)
+				if (m_OneLine == 1)
 				{
-					m_DistanceInteractor2D->RemoveMeasure(0);
+					while (m_Interactor->SizeLineVector() > 1)
+					{
+						// Clear others lines
+						m_Interactor->RemoveLine(0);
+					}
 				}
 			}
 			break;
@@ -233,17 +207,8 @@ void appOpInteractorSample::OnEvent(mafEventBase *maf_event)
 //----------------------------------------------------------------------------
 void appOpInteractorSample::ImportImage()
 {
-	BuildImage(); // Build image sequence
+	// Build image sequence
 
-	mafTagItem tag_Nature;
-	tag_Nature.SetName("VME_NATURE");
-	tag_Nature.SetValue("NATURAL");
-
-	m_Output->GetTagArray()->SetTag(tag_Nature);
-}
-//----------------------------------------------------------------------------
-void appOpInteractorSample::BuildImage()
-{
 	wxString path, name, ext;
 
 	mafNEW(m_ImportedImage);
@@ -302,6 +267,13 @@ void appOpInteractorSample::BuildImage()
 
 	vtkDEL(grayScaleImage);
 	vtkDEL(imageReader);
+
+	// Set Tags
+	mafTagItem tag_Nature;
+	tag_Nature.SetName("VME_NATURE");
+	tag_Nature.SetValue("NATURAL");
+
+	m_Output->GetTagArray()->SetTag(tag_Nature);
 }
 
 
