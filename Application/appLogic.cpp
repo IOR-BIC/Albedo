@@ -114,12 +114,12 @@ void appLogic::OnEvent(mafEventBase *maf_event)
 		break;
 
 		// View Events
-		case VIEW_VTK_SURFACE:
+		case ID_SHOW_VIEW_VTK_SURFACE:
 		{
 			ViewCreate(VIEW_START);
 		}
 		break;
-		case VIEW_IMAGE:
+		case ID_SHOW_IMAGE_VIEW:
 		{
 			ViewCreate(VIEW_START + 1);
 		}
@@ -132,6 +132,13 @@ void appLogic::OnEvent(mafEventBase *maf_event)
 			m_OpManager->OpRun(op);
 		}
 		break;
+
+// 		case ID_IMPORTER_DICOM:
+// 		case ID_ADD_VME:
+// 		{
+// 			m_OpManager->OpRun(e->GetId() - MENU_VIEW_USER_FIRST + OP_USER);
+// 		}
+// 		break;
 
 		// WX Events
 		case wxID_FILE1:
@@ -367,8 +374,8 @@ void appLogic::CreateToolbar()
 	//m_ToolBar->AddSeparator();
 
 	// Views	
-	m_ToolBar->AddTool(VIEW_VTK_SURFACE, mafPictureFactory::GetPictureFactory()->GetBmp("VIEW_SURFACE_ICON"), _("View Surface"));
-	m_ToolBar->AddTool(VIEW_IMAGE, mafPictureFactory::GetPictureFactory()->GetBmp("VIEW_SURFACE_ICON"), _("View Image"));
+	m_ToolBar->AddTool(ID_SHOW_VIEW_VTK_SURFACE, mafPictureFactory::GetPictureFactory()->GetBmp("VIEW_SURFACE_ICON"), _("View Surface"));
+	m_ToolBar->AddTool(ID_SHOW_IMAGE_VIEW, mafPictureFactory::GetPictureFactory()->GetBmp("VIEW_SURFACE_ICON"), _("View Image"));
 	//m_ToolBar->AddSeparator();
 
 	if (m_UseSnapshotManager)
