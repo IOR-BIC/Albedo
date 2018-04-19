@@ -40,7 +40,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "mafGUIDicomSettings.h"
 #include "mafOpExporterSTL.h"
 #include "mafOpExporterVTK.h"
-#include "mafOpImporterDicomOffis.h"
+#include "mafOpImporterDicom.h"
 #include "mafOpImporterImage.h"
 #include "mafOpImporterSTL.h"
 #include "mafOpImporterVTK.h"
@@ -110,7 +110,7 @@ bool Albedo::OnInit()
 
 	// DICOM Importer
 	mafGUIDicomSettings *dicomSettings = new mafGUIDicomSettings(NULL, "DICOM");
-	m_Logic->Plug(new mafOpImporterDicomOffis("DICOM", true), "", true, dicomSettings);
+	m_Logic->Plug(new mafOpImporterDicom("DICOM", true), "", true, dicomSettings);
 
 	// Images Importer
 	m_Logic->Plug(new mafOpImporterImage("Images"));

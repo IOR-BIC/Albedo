@@ -24,7 +24,7 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 // Forward reference :
 //----------------------------------------------------------------------------
-class mafOpImporterDicomOffis;
+class mafOpImporterDicom;
 
 //----------------------------------------------------------------------------
 // Class Name: appLogic
@@ -84,7 +84,7 @@ protected:
   bool m_OpeningMSF;
 
 	// Operations
-	mafOpImporterDicomOffis	*m_OpImporterDicom;
+	mafOpImporterDicom	*m_OpImporterDicom;
 
 private:
 	//

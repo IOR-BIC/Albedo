@@ -27,7 +27,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "mafGUIAboutDialog.h"
 #include "mafGUIApplicationSettings.h"
 #include "mafLogicWithManagers.h"
-#include "mafOpImporterDicomOffis.h"
+#include "mafOpImporterDicom.h"
 #include "mafOpManager.h"
 #include "mafSnapshotManager.h"
 #include "mafVME.h"
@@ -51,7 +51,7 @@ appLogic::appLogic() : mafLogicWithManagers()
 	m_OpeningMSF = false;
 
 	// Init Operations to plug in Toolbar 
-	m_OpImporterDicom = new mafOpImporterDicomOffis("DICOM", true);
+	m_OpImporterDicom = new mafOpImporterDicom("DICOM", true);
 
 	m_Win->Maximize();
 
@@ -128,7 +128,7 @@ void appLogic::OnEvent(mafEventBase *maf_event)
 		// Operations Events 
 		case OP_IMPORTER_DICOM:
 		{
-			mafString op = "mafOpImporterDicomOffis";
+			mafString op = "mafOpImporterDicom";
 			m_OpManager->OpRun(op);
 		}
 		break;
