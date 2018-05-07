@@ -29,7 +29,7 @@ class appGUISeparator : public wxBoxSizer
 
 public:
 
-	//Costructor
+	//Constructor
   appGUISeparator(wxWindow *parent, long style = 0, const wxSize& size = wxDefaultSize);
 
 protected:  

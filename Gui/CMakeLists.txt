@@ -21,6 +21,7 @@ appSideBar.cpp			appSideBar.h
 appGUILabel.cpp 		appGUILabel.h
 appGUIHyperLink.cpp appGUIHyperLink.h
 appGUISeparator.cpp appGUISeparator.h
+appGUIHintBox.cpp		appGUIHintBox.h
 #appGUIDraw.cpp			appGUIDraw.h
 )
 

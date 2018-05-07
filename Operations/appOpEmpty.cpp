@@ -25,6 +25,7 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "mafGUI.h"
 #include "mafVME.h"
+#include "appGUIHintBox.h"
 
 //----------------------------------------------------------------------------
 mafCxxTypeMacro(appOpEmpty);
@@ -111,6 +112,10 @@ void appOpEmpty::CreateGui()
 {
 	// Interface:
 	m_Gui = new mafGUI(this);
+
+	m_Gui->Add(new appGUIHintBox(m_Gui, NULL, "Hint", "This operation in empty."));
+
+
 
 	// ToDO: add your custom widgets...
 
