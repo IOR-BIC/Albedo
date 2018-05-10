@@ -26,14 +26,13 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 appGUISeparator::appGUISeparator(wxWindow *parent, long style, const wxSize& size /*= wxDefaultSize*/) : wxBoxSizer(wxVERTICAL)
 {
-	if (style == 0) //simple empty space
+	if (style == 0) // Simple empty space
 	{
-
 		wxStaticText* div = new wxStaticText(parent, -1, "", wxDefaultPosition, size, 0);
 		Add(div, 0, wxALL, 0);
 	}
 
-	if (style == 1) //Line space
+	if (style == 1) // Line space
 	{
 		wxStaticLine *div = new wxStaticLine(parent, -1, wxDefaultPosition, size);
 		Add(div, 0, wxALL, 0);

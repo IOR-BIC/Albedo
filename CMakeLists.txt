@@ -91,7 +91,7 @@ IF(MAF_FOUND)
   CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/Operations/appOperationsDefines.h.in ${PROJECT_BINARY_DIR}/appOperationsDefines.h @ONLY)
   CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/VME/appVMEDefines.h.in ${PROJECT_BINARY_DIR}/appVMEDefines.h @ONLY)
   CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/Common/appCommonDefines.h.in ${PROJECT_BINARY_DIR}/appCommonDefines.h @ONLY)
-  #CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/Gui/appGuiDefines.h.in ${PROJECT_BINARY_DIR}/appGuiDefines.h @ONLY)
+  CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/Gui/appGuiDefines.h.in ${PROJECT_BINARY_DIR}/appGuiDefines.h @ONLY)
   CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/Views/appViewsDefines.h.in ${PROJECT_BINARY_DIR}/appViewsDefines.h @ONLY)
   CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/Interaction/appInteractionDefines.h.in ${PROJECT_BINARY_DIR}/appInteractionDefines.h @ONLY)
   

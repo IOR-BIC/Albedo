@@ -17,6 +17,7 @@ PROJECT(appGui)
 
 # Set your list of sources here.
 SET(PROJECT_SRCS
+appGUI.cpp					appGUI.h
 appSideBar.cpp			appSideBar.h
 appGUILabel.cpp 		appGUILabel.h
 appGUIHyperLink.cpp appGUIHyperLink.h
