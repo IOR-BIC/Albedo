@@ -26,6 +26,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "mafGUI.h"
 #include "mafVME.h"
 #include "appGUIHintBox.h"
+#include "appGUI.h"
 
 //----------------------------------------------------------------------------
 mafCxxTypeMacro(appOpEmpty);
@@ -111,11 +112,15 @@ void appOpEmpty::OnEvent(mafEventBase *maf_event)
 void appOpEmpty::CreateGui()
 {
 	// Interface:
-	m_Gui = new mafGUI(this);
+	m_Gui = new appGUI(this);
 
-	m_Gui->Add(new appGUIHintBox(m_Gui, NULL, "Hint", "This operation in empty."));
+/*	m_Gui->Add(new appGUIHintBox(m_Gui, NULL, "Hint", "This operation in empty.")); */
+	m_Gui->HintBox(NULL, "This operation in empty.", "Hint");
 
+	((appGUI*)m_Gui)->HyperLink(NULL, "Link", "https://github.com/IOR-LTM");
 
+// 	((appGUI*)m_Gui)->Separator(0, wxSize(1, 100));
+	((appGUI*)m_Gui)->Separator(2, wxSize(250, 1));
 
 	// ToDO: add your custom widgets...
 

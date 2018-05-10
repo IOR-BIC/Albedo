@@ -21,11 +21,9 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appGUIHintBox.h"
 
-
 //----------------------------------------------------------------------------
 appGUIHintBox::appGUIHintBox(wxWindow *parent, wxWindowID id, wxString title, wxString label) : wxStaticBoxSizer(wxHORIZONTAL, parent, title)
 {
-
 #include "pic/HINT_IMAGE_ICON.xpm"
 
 // 	GetStaticBox()->SetBackgroundColour(wxColor(0, 200, 0));
@@ -35,6 +33,5 @@ appGUIHintBox::appGUIHintBox(wxWindow *parent, wxWindowID id, wxString title, wx
 	Add(new wxBitmapButton(parent, NULL, wxBitmap(HINT_IMAGE_ICON_xpm), wxPoint(0, 0), wxSize(19, 20)));
 	Add(new wxStaticText(parent, NULL, " "));
 	Add(new wxStaticText(parent, NULL, label));	
-
 }
 
