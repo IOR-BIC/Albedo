@@ -6,7 +6,7 @@ Date:      $Date: 2018-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-LTM)
+Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -66,6 +66,20 @@ protected:
 
 	/** Create the Operation GUI */
 	virtual void CreateGui();
+
+	void TestGui();
+	int var1[4];
+	int var2[4];
+	int var3[4];
+	int var4[4];
+
+	int var[8] = { 0,0,0,0,0,0,0,0 };
+
+	int h, m, s;
+
+	int m_time[3];
+	mafString m_text_time[3];
+	mafString mTime;
 
 	bool m_Enabled;
 };

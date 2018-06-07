@@ -6,7 +6,7 @@ Date:      $Date: 2018-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-LTM)
+Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -282,7 +282,7 @@ void appOpGuiSample::GuiButtons()
 	wxString choises[3] = { _("Choise1"),_("Choise2") ,_("Choise3") };
 
 	// Id, Label, var, numChoises, choises, dim, tooltip
-	m_Gui2->Radio(ID_GUI_WIDGET, "Radio", &m_Interger, 3, choises, 1, "Tooltip");
+	m_Gui2->Radio(ID_GUI_WIDGET, "Radio", &m_Interger, 3, choises, 1, "Tooltip",4);
 	m_Gui2->Divider(1);
 
 	// Id, label, selected, tooltip
@@ -332,9 +332,20 @@ void appOpGuiSample::GuiButtons()
 	vect1.push_back("Val D");
 	vect1.push_back("Val E");
 	vect1.push_back("Val F");
-
+	
 	// nButtons, nColumns, idList, vectLabels, alignment
 	m_Gui2->MultipleButtons(6, 3, idList, vect1);
+	m_Gui2->Divider(1);
+
+	std::vector<int> vect2;
+	vect2.push_back(1);
+	vect2.push_back(0);
+	vect2.push_back(0);
+	vect2.push_back(0);
+	vect2.push_back(0);
+	vect2.push_back(0);
+
+	//m_Gui2->MultipleRadioButtons(4, 4, idList, vect1, vect2, 240);
 
 }
 //----------------------------------------------------------------------------

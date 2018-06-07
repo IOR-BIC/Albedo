@@ -6,7 +6,7 @@
 # Version:   $Revision: 1.0.0.0 $
 # Authors:   Nicola Vanella
 #==========================================================================
-# Copyright (c) LTM-IOR 2018 (https://github.com/IOR-LTM)
+# Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
 #
 # This software is distributed WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
