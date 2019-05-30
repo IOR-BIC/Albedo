@@ -337,6 +337,14 @@ void appOpGuiSample::GuiButtons()
 	m_Gui2->MultipleButtons(6, 3, idList, vect1);
 	m_Gui2->Divider(1);
 
+
+	// nButtons, nColumns, idList, vectLabels, vectImageNames, alignment
+
+	std::vector<const char*> imageNames = { "TOOL_PEN" , "TOOL_FILL", "TOOL_BRUSH","TOOL_BRUSH2" , "TOOL_ERASE", "NODE_RED" };
+
+	//m_Gui2->MultipleImageButtons(6, 3, idList, vect1, imageNames, 0);
+	m_Gui2->Divider(1);
+
 	std::vector<int> vect2;
 	vect2.push_back(1);
 	vect2.push_back(0);
@@ -366,7 +374,9 @@ void appOpGuiSample::GuiSliders()
 	m_Gui2->FloatSlider(ID_GUI_WIDGET, &m_Double, -100.0, 100.0, "min", "max", wxDefaultSize, "Tooltip", true);
 
 	// Id, Label, var, min, max, size, tooltip, textboxEnable
-	m_Gui2->FloatExpandedSlider(ID_GUI_WIDGET, "Float Expanded", &m_Double, -100.0, 100.0);
+	m_Gui2->FloatExpandedSlider(ID_GUI_WIDGET, "Float Expanded", &m_Double, -100.0, 100.0, wxSize(100,50), "Tooltip",false);
+
+	//m_Gui2->Slider(ID_GUI_WIDGET, "Slider", &m_Double, -100.0, 100.0, wxSize(100,50), "Tooltip", true, true, -1, -1);
 }
 //----------------------------------------------------------------------------
 void appOpGuiSample::GuiLists()

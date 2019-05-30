@@ -24,6 +24,8 @@ appOpCreateEmptyVME.cpp						appOpCreateEmptyVME.h
 appOpCreateSurfaceParametric.cpp	appOpCreateSurfaceParametric.h
 appOpDictionary.cpp								appOpDictionary.h
 appOpShowDialog.cpp								appOpShowDialog.h
+appOpShowImage.cpp								appOpShowImage.h
+appOpCursorTest.cpp								appOpCursorTest.h
 )
 
 SET(PROJECT_LIBS ${PROJECT_LIBS})
