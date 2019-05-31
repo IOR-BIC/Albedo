@@ -67,20 +67,6 @@ protected:
 	/** Create the Operation GUI */
 	virtual void CreateGui();
 
-	void TestGui();
-	int var1[4];
-	int var2[4];
-	int var3[4];
-	int var4[4];
-
-	int var[8] = { 0,0,0,0,0,0,0,0 };
-
-	int h, m, s;
-
-	int m_time[3];
-	mafString m_text_time[3];
-	mafString mTime;
-
 	bool m_Enabled;
 };
 #endif

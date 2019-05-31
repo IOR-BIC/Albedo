@@ -21,6 +21,7 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appOpGuiSample.h"
 #include "appGUILabel.h"
+#include "appGUI.h"
 
 #include "mafDecl.h"
 #include "mafEvent.h"
@@ -40,6 +41,7 @@ enum GUI_WIDGET_ID
 	ID_GUI_WIDGET_SECOND,
 	ID_GUI_WIDGET,
 	ID_LIST_SELECTION,
+	ID_TIME,
 };
 
 //----------------------------------------------------------------------------
@@ -55,6 +57,7 @@ mafOp(label)
 
 	m_listBox = NULL;
 	m_Gui2 = NULL;
+	m_Gui3 = NULL;
 
 	// Data
 	m_String = "String";
@@ -98,6 +101,7 @@ void appOpGuiSample::OpRun()
 	m_listBox->Append("Sliders");
 	m_listBox->Append("Lists");
 	m_listBox->Append("Extra");
+	m_listBox->Append("Clock-Calendar");
 
 	m_Gui->Label("");
 	m_Gui->OkCancel();
@@ -114,6 +118,13 @@ void appOpGuiSample::OnEvent( mafEventBase *maf_event )
 {
 	int b = 1;
 	int a = 0;
+
+	time_t rawtime;
+	time(&rawtime);
+	struct tm * timeinfo = localtime(&rawtime);
+	m_time[0] = timeinfo->tm_hour;
+	m_time[1] = timeinfo->tm_min;
+	m_time[2] = timeinfo->tm_sec;
 
   switch (maf_event->GetId())
   {
@@ -163,6 +174,9 @@ void appOpGuiSample::CreateGui(int index)
 		break;
 	case 6:
 		GuiExtra();
+		break;
+	case 7:
+		GuiClock();
 		break;
 	}
 	
@@ -478,6 +492,47 @@ void appOpGuiSample::GuiExtra()
 	// 	m_Gui2->Add(m_List, 0, wxALL | wxEXPAND, 1);
 
 	mafGUIImageViewer *immV = new mafGUIImageViewer(m_Listener);
+}
 
+//----------------------------------------------------------------------------
+void appOpGuiSample::GuiClock()
+{
+	m_Gui3 = new appGUI(this);
+
+	//////////////////////////////////////////////////////////////////////////
+	m_Gui3->Label("Calendar", true);
+	m_Gui3->Calendar();
+	m_Gui3->Divider(1);
+
+	//////////////////////////////////////////////////////////////////////////
+	time_t rawtime;
+	time(&rawtime);
+	struct tm * timeinfo = localtime(&rawtime);
+
+	m_time[0] = timeinfo->tm_hour;
+	m_time[1] = timeinfo->tm_min;
+	m_time[2] = timeinfo->tm_sec;
+
+	//myGui->Clock(m_time + 0, m_time + 1, m_time + 2);
+	
+	m_Gui3->Label("Clock 1", true);
+	m_Gui3->Clock(ID_TIME, "", m_time);
+	m_Gui3->Divider(1);	
+
+	//////////////////////////////////////////////////////////////////////////
+	m_Gui3->Label("Clock 2", true);
+	mTime = IntToString(m_time[0]);
+	mTime += IntToString(m_time[1]);
+	mTime += IntToString(m_time[2]);
+
+	m_Gui3->Clock(ID_TIME, &mTime);
+	m_Gui3->Divider(1);
+
+	m_Gui3->Enable(ID_TIME, false);
+
+	m_Gui3->FitGui();
+	m_Gui3->Update();
+
+	m_Gui2->Add(m_Gui3);
 }
 

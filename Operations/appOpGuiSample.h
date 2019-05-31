@@ -26,6 +26,7 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 class mafGUICheckListBox;
 class mafGUIValidator;
+class appGUI;
 
 //----------------------------------------------------------------------------
 // Class Name: appOpGuiSample
@@ -61,6 +62,7 @@ private:
 	void GuiSliders();
 	void GuiLists();
 	void GuiExtra();
+	void GuiClock();
 
 	mafString m_String;
 	mafString m_StringMultiline;
@@ -72,10 +74,17 @@ private:
 	int m_IntVector[5];
 	double m_DoubleVector[3];
 
+	int h, m, s;
+
+	int m_time[3];
+	mafString m_text_time[3];
+	mafString mTime;
+
 	wxColor m_Color;
 
 	wxListBox *m_listBox;
 	mafGUI *m_Gui2;
+	appGUI *m_Gui3;
 };
 
 #endif

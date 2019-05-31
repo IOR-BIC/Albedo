@@ -137,17 +137,14 @@ bool Albedo::OnInit()
 	//Operations
 	//////////////////////////////////////////////////////////////////////////	
 
+	// Empty Operation
+	m_Logic->Plug(new appOpEmpty("Op Empty"));
+
 	// Create Empty VME Operation
 	m_Logic->Plug(new appOpCreateEmptyVME("Create Empty VME"), _("Create"));
 
 	// Create Surface Parametric Operation
 	m_Logic->Plug(new appOpCreateSurfaceParametric("Create Parametric Surface"), _("Create"));
-
-	// Gui Interactor Operation
-	m_Logic->Plug(new appOpInteractorSample("Interactor Sample"), _("Edit"));
-
-	// Gui Interactor Slider Operation
-	m_Logic->Plug(new appOpInteractorSliderSample("Interactor Slider Sample"), _("Edit"));
 
 	// Transform Operation
 	m_Logic->Plug(new mafOpTransform("Transform \tCtrl+T"), _("Edit"));
@@ -155,20 +152,23 @@ bool Albedo::OnInit()
 	// Dictionary Operation
 	m_Logic->Plug(new appOpDictionary("Dictionary Editor"), _("Edit"));
 	
-	// Gui Sample Operation
-	m_Logic->Plug(new appOpGuiSample("Gui Sample"), _("GUI"));
-
 	// Show Dialog (Vertical) Operation
 	m_Logic->Plug(new appOpShowDialog("Show Dialog (Vertical)"), _("GUI"));
 
 	// Show Dialog (Horizontal) Operation
 	m_Logic->Plug(new appOpShowDialog("Show Dialog (Horizontal)", appOpShowDialog::HORIZONTAL_MODE_2), _("GUI"));
 
-	// Show Dialog (Vertical) Operation
-	m_Logic->Plug(new appOpCursorTest("Cursor Test"), _("GUI"));
+	// Test Interactor Operation
+	m_Logic->Plug(new appOpInteractorSample("Interactor Sample"), _("Test"));
 
-	// Empty Operation
-	m_Logic->Plug(new appOpEmpty("Op Empty"));
+	// Test Interactor Slider Operation
+	m_Logic->Plug(new appOpInteractorSliderSample("Interactor Slider Sample"), _("Test"));
+
+	// Test Gui Sample Operation
+	m_Logic->Plug(new appOpGuiSample("Gui Sample"), _("Test"));
+
+	// Test Show Dialog (Vertical) Operation
+	m_Logic->Plug(new appOpCursorTest("Cursor Test"), _("Test"));
 
 	//////////////////////////////////////////////////////////////////////////
 	//Views
