@@ -29,6 +29,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "appOpEmpty.h"
 #include "appOpGuiSample.h"
 #include "appOpInteractorSample.h"
+#include "appOpInteractorSliderSample.h"
 #include "appOpCreateEmptyVME.h"
 #include "appOpDictionary.h"
 #include "appOpShowDialog.h"
@@ -143,6 +144,9 @@ bool Albedo::OnInit()
 
 	// Gui Interactor Operation
 	m_Logic->Plug(new appOpInteractorSample("Interactor Sample"), _("Edit"));
+
+	// Gui Interactor Slider Operation
+	m_Logic->Plug(new appOpInteractorSliderSample("Interactor Slider Sample"), _("Edit"));
 
 	// Transform Operation
 	m_Logic->Plug(new mafOpTransform("Transform \tCtrl+T"), _("Edit"));

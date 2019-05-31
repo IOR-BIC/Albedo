@@ -247,10 +247,10 @@ void appLogic::VmeShow(mafVME *vme, bool visibility)
 //----------------------------------------------------------------------------
 void appLogic::VmeSelect(mafVME *vme)
 {
-	if (vme->IsA("appEmptyVME"))
-	{
-
-	}
+// 	if (vme->IsA("appEmptyVME"))
+// 	{
+// 
+// 	}
 
 	mafLogicWithManagers::VmeSelect(vme);
 }

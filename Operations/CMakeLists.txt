@@ -20,6 +20,7 @@ SET(PROJECT_SRCS
 appOpEmpty.cpp										appOpEmpty.h
 appOpGuiSample.cpp								appOpGuiSample.h
 appOpInteractorSample.cpp					appOpInteractorSample.h
+appOpInteractorSliderSample.cpp		appOpInteractorSliderSample.h
 appOpCreateEmptyVME.cpp						appOpCreateEmptyVME.h
 appOpCreateSurfaceParametric.cpp	appOpCreateSurfaceParametric.h
 appOpDictionary.cpp								appOpDictionary.h
