@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appTest.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -16,8 +16,8 @@ PURPOSE. See the above copyright notice for more information.
 #ifndef __CPP_UNIT_appTest_H__
 #define __CPP_UNIT_appTest_H__
 
-#include "mafIncludeWX.h"
-#include "mafString.h"
+#include "albaIncludeWX.h"
+#include "albaString.h"
 
 #include "vtkImageData.h"
 #include "vtkPointData.h"
@@ -27,7 +27,7 @@ PURPOSE. See the above copyright notice for more information.
 #include <cppunit/TestResult.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-class mafString;
+class albaString;
 class vtkImageData;
 class vtkPointData;
 
@@ -72,15 +72,15 @@ public:
 	virtual void AfterTest() {};
 
 protected:
-	void CompareImage(mafString suiteName, mafString imageName, int index = -1);
+	void CompareImage(albaString suiteName, albaString imageName, int index = -1);
 	
-	mafString GetTestDataDir(mafString suiteName);
+	albaString GetTestDataDir(albaString suiteName);
 
 	TestApp *m_App;
 	vtkRenderer *m_Renderer;
 	vtkRenderWindow *m_RenderWindow;
 
-	mafString m_WorkingDir;
+	albaString m_WorkingDir;
 };
 
 #endif

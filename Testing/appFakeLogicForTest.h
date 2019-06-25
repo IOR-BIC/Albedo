@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appFakeLogicForTest.h
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -19,13 +19,13 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 // Include:
 //----------------------------------------------------------------------------
-#include "mafAbsLogicManager.h"
+#include "albaAbsLogicManager.h"
 #include <vector>
 
 //----------------------------------------------------------------------------
 // Class Name: appFakeLogicForTest
 //----------------------------------------------------------------------------
-class appFakeLogicForTest : public mafAbsLogicManager
+class appFakeLogicForTest : public albaAbsLogicManager
 {
 public:
 
@@ -44,26 +44,26 @@ public:
 	struct calls
 	{
 		testFunctions testFunction;
-		mafVME *vme;
+		albaVME *vme;
 	};
 
 	appFakeLogicForTest();
 	~appFakeLogicForTest();
 
 	// VME
-	virtual void VmeSelect(mafVME *vme);
+	virtual void VmeSelect(albaVME *vme);
 
-	virtual void VmeSelected(mafVME *vme);
+	virtual void VmeSelected(albaVME *vme);
 
-	virtual void VmeShow(mafVME *vme, bool visibility);
+	virtual void VmeShow(albaVME *vme, bool visibility);
 
-	virtual void VmeAdd(mafVME *vme);
+	virtual void VmeAdd(albaVME *vme);
 
-	virtual void VmeRemove(mafVME *vme);
+	virtual void VmeRemove(albaVME *vme);
 
-	virtual void VmeModified(mafVME* vme);
+	virtual void VmeModified(albaVME* vme);
 
-	virtual void VmeVisualModeChanged(mafVME * vme);
+	virtual void VmeVisualModeChanged(albaVME * vme);
 
 	// Camera
 	virtual void CameraUpdate();
@@ -74,7 +74,7 @@ public:
 
 	calls GetCall(int callNum);
 
-	void AddCall(testFunctions func, mafVME* vme);
+	void AddCall(testFunctions func, albaVME* vme);
 
 	virtual bool IsOperationRunning();
 	
@@ -82,7 +82,9 @@ public:
 	
 	virtual void VmeRemoved() override;
 	
-	virtual void PrintImage(mafVMEImage *img) override;
+	virtual void PrintImage(albaVMEImage *img) override;
+
+	virtual albaOpManager * GetOpManager() const override;
 
 protected:
 

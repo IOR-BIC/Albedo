@@ -2,7 +2,7 @@
     <head>
 	    <style type="text/css">
 			body {
-			background-image: url('[MAFVariable ImgDir]\bg_rt3s.png');
+			background-image: url('[ALBAVariable ImgDir]\bg_rt3s.png');
 			background-repeat:no-repeat;
 			background-attachment:fixed;
 			background-position: top right; 
@@ -77,7 +77,7 @@
 		<title>Albedo(c) Surgical Planning Report</title>
 	</head>
 	<body>
-		<!-- <div id=head><img src="[MAFVariable ImgDir]/logo.png" height=93px id="logo"/></div>-->
+		<!-- <div id=head><img src="[ALBAVariable ImgDir]/logo.png" height=93px id="logo"/></div>-->
 		<h1>Albedo(c) Surgical Planning Report</h1>
 		<br/>
 		<table border="0px" align="center" cellspacing="3px" cellpadding="2px" width="70%">
@@ -92,92 +92,92 @@
 					</tr>
 					<tr>
 						<td align="right" width="50%" colspan="2"><b>Planning date:&nbsp</b></td>
-						<td>[MAFVariable PlanningDate]</td>
+						<td>[ALBAVariable PlanningDate]</td>
 					</tr>
 					<tr>
 						<td align="right" width="50%" colspan="2"><b>Planning performed by:&nbsp</b></td>
-						<td>Dr. [MAFVariable PerformedBy]</td>
+						<td>Dr. [ALBAVariable PerformedBy]</td>
 					</tr>
-                    [MAFIf HasPatientName]
+                    [ALBAIf HasPatientName]
 					<tr>
 						<td align="right" width="50%" colspan="2"><b>Patient name:&nbsp</b></td>
-						<td>[MAFVariable PatientName]</td>
+						<td>[ALBAVariable PatientName]</td>
 					</tr>
-                    [/MAFIf HasPatientName]
-                    [MAFIf HasPatientSex]
+                    [/ALBAIf HasPatientName]
+                    [ALBAIf HasPatientSex]
 					<tr>
 						<td align="right" width="50%" colspan="2"><b>Patient Sex:&nbsp</b></td>
-						<td>[MAFVariable PatientSex]</td>
+						<td>[ALBAVariable PatientSex]</td>
 					</tr>
-                    [/MAFIf HasPatientSex]
-                    [MAFIf HasPatientBirthdate]
+                    [/ALBAIf HasPatientSex]
+                    [ALBAIf HasPatientBirthdate]
 					<tr>
 						<td align="right" width="50%" colspan="2"><b>Patient Birthdate:&nbsp</b></td>
-						<td>[MAFVariable PatientBirthdate]</td>
+						<td>[ALBAVariable PatientBirthdate]</td>
 					</tr>
-                    [/MAFIf HasPatientBirthdate]
-                    [MAFIf HasLaterality]
+                    [/ALBAIf HasPatientBirthdate]
+                    [ALBAIf HasLaterality]
 					<tr>
 						<td align="right" width="50%" colspan="2"><b>Laterality:&nbsp</b></td>
-						<td>[MAFVariable Laterality]</td>
+						<td>[ALBAVariable Laterality]</td>
 					</tr>
-                    [/MAFIf HasLaterality]
-                    [MAFIf HasComments]
+                    [/ALBAIf HasLaterality]
+                    [ALBAIf HasComments]
                     <tr>
 						<td align="right" width="50%" colspan="2"><b>Comments:&nbsp</b></td>
-						<td>[MAFVariable Comments]</td>
+						<td>[ALBAVariable Comments]</td>
 					</tr>
-                    [/MAFIf HasComments]
+                    [/ALBAIf HasComments]
 
                     <!-- IMPLANT DATA -->
-                    [MAFIf HasImplants]
+                    [ALBAIf HasImplants]
 					    <tr>
 						    <td align="center" colspan="3"><h2>IMPLANT DATA</h2></td>
 					    </tr>
-                        [MAFLoop ImplantLoop]
+                        [ALBALoop ImplantLoop]
                             <tr >
-						        <td align="center" colspan="3"  ><h3>[MAFVariable ImplantType]</h3></td>
+						        <td align="center" colspan="3"  ><h3>[ALBAVariable ImplantType]</h3></td>
 					        </tr>
 					        <tr>
 						        <td align="right" width="50%" colspan="2"><b>Brand:&nbsp</b></td>
-						        <td>[MAFVariable ImplantBrand]</td>
+						        <td>[ALBAVariable ImplantBrand]</td>
 					        </tr>
                             <tr>
 						        <td align="right" width="50%" colspan="2"><b>Model:&nbsp</b></td>
-						        <td>[MAFVariable ImplantModel]</td>
+						        <td>[ALBAVariable ImplantModel]</td>
 					        </tr>
                             <tr>
                                 <td align="right" width="50%" colspan="2"><b>Components:&nbsp</b></td>
                             
-                                <td>[MAFLoop ImplantComponentsLoop]
-                                        -[MAFVariable ImplantComponent] <br /> 
-                                    [/MAFLoop ImplantComponentsLoop]
+                                <td>[ALBALoop ImplantComponentsLoop]
+                                        -[ALBAVariable ImplantComponent] <br /> 
+                                    [/ALBALoop ImplantComponentsLoop]
                                 </td>
 					         </tr>
-                        [/MAFLoop ImplantLoop]
-                    [/MAFIf HasImplants]
+                        [/ALBALoop ImplantLoop]
+                    [/ALBAIf HasImplants]
 
                     <!-- MEASURES -->
-                    [MAFIf HasMeasures]
+                    [ALBAIf HasMeasures]
 					    <tr>
 					        <td align="center" colspan="3"><h2>MEASURES</h2></td>
 					    </tr>
-                        [MAFLoop MeasuresLoop]
+                        [ALBALoop MeasuresLoop]
 					        <tr>
 						        <td align="right" width="50%" colspan="2"><b>Measure:&nbsp</b></td>
-						        <td>[MAFVariable Measure]</td>
+						        <td>[ALBAVariable Measure]</td>
 					        </tr>
-                        [/MAFLoop MeasuresLoop]
-                    [/MAFIf HasMeasures]
+                        [/ALBALoop MeasuresLoop]
+                    [/ALBAIf HasMeasures]
 
                     <!-- MUSCULOSKELETAL PARAMETERS -->
-                    [MAFIf HasMusculoskeletalParameters]
+                    [ALBAIf HasMusculoskeletalParameters]
 					    <tr>
 					        <td align="center" colspan="3"><h2>MUSCULOSKELETAL PARAMETERS</h2></td>
 					    </tr>
 
                 		<tr>
-						    <td align="center" colspan="3"><b><h4>[MAFVariable SidePlanning]</h4></b></td>
+						    <td align="center" colspan="3"><b><h4>[ALBAVariable SidePlanning]</h4></b></td>
 					    </tr>
 
                         <tr >
@@ -185,27 +185,27 @@
 					    </tr>
 					    <tr>
 						    <td align="right" width="50%" colspan="2"><b>Operated Leg Length PRE-OP:&nbsp</b></td>
-						    <td>[MAFVariable OperatedLegLengthPRE]</td>
+						    <td>[ALBAVariable OperatedLegLengthPRE]</td>
 					    </tr>
                 		<tr>
 						    <td align="right" width="50%" colspan="2"><b>Operated Leg Length POST-OP:&nbsp</b></td>
-						    <td>[MAFVariable OperatedLegLengthPOST]</td>
+						    <td>[ALBAVariable OperatedLegLengthPOST]</td>
 					    </tr>
                 		<tr>
 						    <td align="right" width="50%" colspan="2"><b>Contralateral Leg Length:&nbsp</b></td>
-						    <td>[MAFVariable ControlateralLegLength]</td>
+						    <td>[ALBAVariable ControlateralLegLength]</td>
 					    </tr>
                 		<tr>
 						    <td align="right" width="50%" colspan="2"><b>Operated Leg Length Variation:&nbsp</b></td>
-						    <td>[MAFVariable OperatedLegVariation]</td>
+						    <td>[ALBAVariable OperatedLegVariation]</td>
 					    </tr>
                 		<tr>
 						    <td align="right" width="50%" colspan="2"><b>Leg Length Dysmetria PRE-OP:&nbsp</b></td>
-						    <td>[MAFVariable LegLengthDysmetriaPRE]</td>
+						    <td>[ALBAVariable LegLengthDysmetriaPRE]</td>
 					    </tr>
                 		<tr>
 						    <td align="right" width="50%" colspan="2"><b>Leg Length Dysmetria POST-OP:&nbsp</b></td>
-						    <td>[MAFVariable LegLengthDysmetriaPOST]</td>
+						    <td>[ALBAVariable LegLengthDysmetriaPOST]</td>
 					    </tr>
 
                         <tr >
@@ -213,44 +213,44 @@
 					    </tr>
 					    <tr>
 						    <td align="right" width="50%" colspan="2"><b>Average Abductors Length PRE-OP:&nbsp</b></td>
-						    <td>[MAFVariable AVERAGE_METER_LENGTH_PRE]</td>
+						    <td>[ALBAVariable AVERAGE_METER_LENGTH_PRE]</td>
 					    </tr>
                 		<tr>
 						    <td align="right" width="50%" colspan="2"><b>Average Abductors Length POST-OP:&nbsp</b></td>
-						    <td>[MAFVariable AVERAGE_METER_LENGTH_POST]</td>
+						    <td>[ALBAVariable AVERAGE_METER_LENGTH_POST]</td>
 					    </tr>
                 		<tr>
 						    <td align="right" width="50%" colspan="2"><b>Average Abductors Length Variation (%):&nbsp</b></td>
-						    <td>[MAFVariable AVERAGE_METER_LENGTH_PERCENT]</td>
+						    <td>[ALBAVariable AVERAGE_METER_LENGTH_PERCENT]</td>
 					    </tr>
                 		<tr>
 						    <td align="right" width="50%" colspan="2"><b>Average Abductors Lever Arm PRE-OP:&nbsp</b></td>
-						    <td>[MAFVariable AVERAGE_ABSOLUTE_LEVER_ARM_PRE]</td>
+						    <td>[ALBAVariable AVERAGE_ABSOLUTE_LEVER_ARM_PRE]</td>
 					    </tr>
                 		<tr>
 						    <td align="right" width="50%" colspan="2"><b>Average Abductors Lever Arm POST-OP:&nbsp</b></td>
-						    <td>[MAFVariable AVERAGE_ABSOLUTE_LEVER_ARM_POST]</td>
+						    <td>[ALBAVariable AVERAGE_ABSOLUTE_LEVER_ARM_POST]</td>
 					    </tr>
                 		<tr>
 						    <td align="right" width="50%" colspan="2"><b>Average Abductors Lever Arm Variation (%):&nbsp</b></td>
-						    <td>[MAFVariable AVERAGE_ABSOLUTE_LEVER_ARM_PERCENT]</td>
+						    <td>[ALBAVariable AVERAGE_ABSOLUTE_LEVER_ARM_PERCENT]</td>
 					    </tr>
-                    [/MAFIf HasMusculoskeletalParameters]
+                    [/ALBAIf HasMusculoskeletalParameters]
 
                     <!-- IMAGES -->				
-                    [MAFIf HasImages]
+                    [ALBAIf HasImages]
 					    <tr>
                         <td align="center" colspan="3"><h2>IMAGES</h2></td>
                         </tr>
-                        [MAFLoop ImagesLoop]
+                        [ALBALoop ImagesLoop]
                         <tr>
                             <td align="center" colspan="3">                           		
-                                   <img src="[MAFVariable ImageSrc]"/> 
+                                   <img src="[ALBAVariable ImageSrc]"/> 
                                <!--</a>-->
                             </td>
                         </tr>
-                        [/MAFLoop ImagesLoop]
-                    [/MAFIf HasImages]
+                        [/ALBALoop ImagesLoop]
+                    [/ALBAIf HasImages]
 			    </tr>
 			</tr>
 		</table>

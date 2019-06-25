@@ -2,11 +2,11 @@
 # Program:   Albedo
 # Module:    CMakeLists.txt
 # Language:  CMake
-# Date:      $Date: 2018-01-01 12:00:00 $
+# Date:      $Date: 2019-01-01 12:00:00 $
 # Version:   $Revision: 1.0.0.0 $
 # Authors:   Nicola Vanella
 #==========================================================================
-# Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+# Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 #
 # This software is distributed WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -73,13 +73,13 @@ OPTION(BUILD_TESTING "Build the testing tree." OFF)
 # Find required libraries
 #-----------------------------------------------------------------------------
 
-INCLUDE("${PROJECT_SOURCE_DIR}/CMakeModules/FindMAF.cmake")
-INCLUDE("${MAF_BINARY_PATH}/MAFConfig.cmake")
+INCLUDE("${PROJECT_SOURCE_DIR}/CMakeModules/FindALBA.cmake")
+INCLUDE("${ALBA_BINARY_PATH}/ALBAConfig.cmake")
 
-# Find MAF library
-IF(MAF_FOUND)
+# Find ALBA library
+IF(ALBA_FOUND)
 	
-  INCLUDE("${MAF_USE_FILE}")
+  INCLUDE("${ALBA_USE_FILE}")
   
 	# IF(ALBEDO_BUILD_DLL)
     # SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /FORCE:MULTIPLE")
@@ -158,9 +158,9 @@ IF(MAF_FOUND)
     
   ENDIF(BUILD_TESTING)
   
-ELSE (MAF_FOUND)
-  MESSAGE (FATAL_ERROR "MAF library not found, cannot build application!!")
-ENDIF (MAF_FOUND)
+ELSE (ALBA_FOUND)
+  MESSAGE (FATAL_ERROR "ALBA library not found, cannot build application!!")
+ENDIF (ALBA_FOUND)
 
 #-----------------------------------------------------------------------------
 # ALBEDO deploy stuff.  
@@ -206,8 +206,8 @@ IF (WIN32)
   
   # Installer Configuration
   CONFIGURE_FILE(${ALBEDO_INSTALLER_DIR}/AlbedoInstallerScript.nsi.in  ${ALBEDO_EXECUTABLE_OUTPUT_PATH}/AlbedoInstallerScript.nsi @ONLY)
-  CONFIGURE_FILE(${MAF_BINARY_PATH}/INSTALLER/EnumUsersReg.nsh  ${ALBEDO_EXECUTABLE_OUTPUT_PATH}/EnumUsersReg.nsh @ONLY)
-  CONFIGURE_FILE(${MAF_BINARY_PATH}/INSTALLER/InstallerCommon.nsh  ${ALBEDO_EXECUTABLE_OUTPUT_PATH}/InstallerCommon.nsh @ONLY)
+  CONFIGURE_FILE(${ALBA_BINARY_PATH}/INSTALLER/EnumUsersReg.nsh  ${ALBEDO_EXECUTABLE_OUTPUT_PATH}/EnumUsersReg.nsh @ONLY)
+  CONFIGURE_FILE(${ALBA_BINARY_PATH}/INSTALLER/InstallerCommon.nsh  ${ALBEDO_EXECUTABLE_OUTPUT_PATH}/InstallerCommon.nsh @ONLY)
   
   IF(EXISTS "${PROJECT_SOURCE_DIR}/ParabuildScripts/")
     CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/ParabuildScripts/tagCVS.bat.in ${PROJECT_SOURCE_DIR}/ParabuildScripts/tagCVS.bat @ONLY)

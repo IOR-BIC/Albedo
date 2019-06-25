@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appUtils.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -21,14 +21,14 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appUtils.h"
 
-#include "mafDecl.h"
+#include "albaDecl.h"
 
 //----------------------------------------------------------------------------
 wxString appUtils::GetApplicationDirectory()
 {
 #ifndef _DEBUG
 	// RELEASE 
-	wxString applicationDirectory = mafGetApplicationDirectory().c_str();
+	wxString applicationDirectory = albaGetApplicationDirectory().c_str();
 	return applicationDirectory;
 
 #else
@@ -50,7 +50,7 @@ wxString appUtils::GetApplicationDirectory()
 wxString appUtils::GetConfigDirectory()
 {
 	//getting the Config directory
-	wxString config_dir = mafGetApplicationDirectory().c_str();
+	wxString config_dir = albaGetApplicationDirectory().c_str();
 
 #ifdef _DEBUG
 	config_dir = APP_SOURCE_DIR;

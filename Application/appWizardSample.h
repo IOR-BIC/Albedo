@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appWizardSample.h
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -19,19 +19,19 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 // Include:
 //----------------------------------------------------------------------------
-#include "mafWizard.h"
+#include "albaWizard.h"
 
 //----------------------------------------------------------------------------
 // Forward references :
 //----------------------------------------------------------------------------
-class mafVME;
-class mafVMEGizmo;
+class albaVME;
+class albaVMEGizmo;
 class mmiCompositorMouse;
 
 //----------------------------------------------------------------------------
 // Class Name: appWizardSample
 //----------------------------------------------------------------------------
-class appWizardSample : public mafWizard
+class appWizardSample : public albaWizard
 {
 public:
 
@@ -39,7 +39,7 @@ public:
   appWizardSample(const wxString &label);
   
   /** Accept function */
-  virtual bool Accept(mafVME* vme);
+  virtual bool Accept(albaVME* vme);
 };
 #endif
 

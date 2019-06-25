@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appFakeLogicForTest.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -15,7 +15,7 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appFakeLogicForTest.h"
 
-#include "mafVME.h"
+#include "albaVME.h"
 
 //-------------------------------------------------------------------------
 appFakeLogicForTest::appFakeLogicForTest()
@@ -29,36 +29,36 @@ appFakeLogicForTest::~appFakeLogicForTest()
 
 // VME ////////////////////////////////////////////////////////////////////
 //-------------------------------------------------------------------------
-void appFakeLogicForTest::VmeSelect(mafVME *vme)
+void appFakeLogicForTest::VmeSelect(albaVME *vme)
 {
 	AddCall(appFakeLogicForTest::FKL_VME_SELECT, vme);
 }
 //-------------------------------------------------------------------------
-void appFakeLogicForTest::VmeSelected(mafVME *vme){}
+void appFakeLogicForTest::VmeSelected(albaVME *vme){}
 //-------------------------------------------------------------------------
-void appFakeLogicForTest::VmeShow(mafVME *vme, bool visibility)
+void appFakeLogicForTest::VmeShow(albaVME *vme, bool visibility)
 {
 	AddCall(appFakeLogicForTest::FKL_VME_SHOW, vme);
 }
 //-------------------------------------------------------------------------
-void appFakeLogicForTest::VmeAdd(mafVME *vme)
+void appFakeLogicForTest::VmeAdd(albaVME *vme)
 {
 	AddCall(appFakeLogicForTest::FKL_VME_ADD, vme);
 }
 //-------------------------------------------------------------------------
-void appFakeLogicForTest::VmeRemove(mafVME *vme)
+void appFakeLogicForTest::VmeRemove(albaVME *vme)
 {
 	AddCall(appFakeLogicForTest::FKL_VME_REMOVE, vme);
 	vme->ReparentTo(NULL);
 }
 //-------------------------------------------------------------------------
-void appFakeLogicForTest::VmeModified(mafVME* vme)
+void appFakeLogicForTest::VmeModified(albaVME* vme)
 {
 	AddCall(appFakeLogicForTest::FKL_VME_MODIFIED, vme);
 }
 
 //-------------------------------------------------------------------------
-void appFakeLogicForTest::VmeVisualModeChanged(mafVME * vme)
+void appFakeLogicForTest::VmeVisualModeChanged(albaVME * vme)
 {
 	AddCall(appFakeLogicForTest::FKL_VME_VISUAL_MODE_CHANGED, vme);
 }
@@ -84,7 +84,7 @@ appFakeLogicForTest::calls appFakeLogicForTest::GetCall(int callNum)
 }
 
 //-------------------------------------------------------------------------
-void appFakeLogicForTest::AddCall(testFunctions func, mafVME* vme)
+void appFakeLogicForTest::AddCall(testFunctions func, albaVME* vme)
 {
 	calls call;
 	call.testFunction = func;
@@ -109,7 +109,13 @@ void appFakeLogicForTest::VmeRemoved()
 }
 
 //----------------------------------------------------------------------------
-void appFakeLogicForTest::PrintImage(mafVMEImage *img)
+void appFakeLogicForTest::PrintImage(albaVMEImage *img)
 {
-	AddCall(appFakeLogicForTest::FKL_PRINT_IMAGE, (mafVME*)img);
+	AddCall(appFakeLogicForTest::FKL_PRINT_IMAGE, (albaVME*)img);
+}
+
+//----------------------------------------------------------------------------
+albaOpManager * appFakeLogicForTest::GetOpManager() const
+{
+	return NULL;
 }

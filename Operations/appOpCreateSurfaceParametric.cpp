@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpCreateSurfaceParametric.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -23,15 +23,15 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appVMESurfaceParametric.h"
 
-#include "mafDecl.h"
-#include "mafEvent.h"
+#include "albaDecl.h"
+#include "albaEvent.h"
 
 //----------------------------------------------------------------------------
-mafCxxTypeMacro(appOpCreateSurfaceParametric);
+albaCxxTypeMacro(appOpCreateSurfaceParametric);
 
 //----------------------------------------------------------------------------
 appOpCreateSurfaceParametric::appOpCreateSurfaceParametric(const wxString &label) :
-mafOp(label)
+albaOp(label)
 {
   m_OpType	= OPTYPE_OP;
   m_Canundo = true;
@@ -41,22 +41,22 @@ mafOp(label)
 //----------------------------------------------------------------------------
 appOpCreateSurfaceParametric::~appOpCreateSurfaceParametric( ) 
 {
-  mafDEL(m_SurfaceParametric);
+  albaDEL(m_SurfaceParametric);
 }
 //----------------------------------------------------------------------------
-mafOp* appOpCreateSurfaceParametric::Copy()   
+albaOp* appOpCreateSurfaceParametric::Copy()   
 {
 	return new appOpCreateSurfaceParametric(m_Label);
 }
 //----------------------------------------------------------------------------
-bool appOpCreateSurfaceParametric::Accept(mafVME*node)
+bool appOpCreateSurfaceParametric::Accept(albaVME*node)
 {
-	return (node && node->IsMAFType(mafVME));
+	return (node && node->IsALBAType(albaVME));
 }
 //----------------------------------------------------------------------------
 void appOpCreateSurfaceParametric::OpRun()   
 {
-  mafNEW(m_SurfaceParametric);
+  albaNEW(m_SurfaceParametric);
   m_SurfaceParametric->SetName("Parametric Surface");
   m_Output = m_SurfaceParametric;
 
@@ -70,5 +70,5 @@ void appOpCreateSurfaceParametric::OpDo()
 //----------------------------------------------------------------------------
 void appOpCreateSurfaceParametric::OpStop(int result)
 {
-	mafEventMacro(mafEvent(this, result));
+	albaEventMacro(albaEvent(this, result));
 }

@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appLogic.h
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -19,17 +19,17 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 // Includes :
 //----------------------------------------------------------------------------
-#include "mafLogicWithManagers.h"
+#include "albaLogicWithManagers.h"
 
 //----------------------------------------------------------------------------
 // Forward reference :
 //----------------------------------------------------------------------------
-class mafOpImporterDicom;
+class albaOpImporterDicom;
 
 //----------------------------------------------------------------------------
 // Class Name: appLogic
 //----------------------------------------------------------------------------
-class appLogic: public mafLogicWithManagers
+class appLogic: public albaLogicWithManagers
 {
 public:
 
@@ -39,23 +39,23 @@ public:
   /** Destructor. */
 	virtual ~appLogic(); 
 
-	/*virtual*/ void OnEvent(mafEventBase *maf_event);
+	/*virtual*/ void OnEvent(albaEventBase *alba_event);
 		
 	/** Program Initialization */
 	/*virtual*/ void Init(int argc, char **argv);
 
-	void RunOp(mafOp *op);
+	void RunOp(albaOp *op);
 
 	/** Respond to a VME_SELECT event. Update the selection on the tree and view representation.*/
-	virtual void VmeSelect(mafVME *vme);
+	virtual void VmeSelect(albaVME *vme);
 
 	/** Respond to a VME_ADDED event. propagate event. to SideBar, ViewManager, ecc.. */
-	virtual void VmeAdded(mafVME *vme);
+	virtual void VmeAdded(albaVME *vme);
 
 protected:
   
 	/** Respond to a VME_SHOW event. Show/Hide the vme */
-	virtual void VmeShow(mafVME *vme, bool visibility);
+	virtual void VmeShow(albaVME *vme, bool visibility);
 	  	
   /** Redefined to add Meter controls*/
   virtual void CreateToolbar();
@@ -84,7 +84,7 @@ protected:
   bool m_OpeningMSF;
 
 	// Operations
-	mafOpImporterDicom	*m_OpImporterDicom;
+	albaOpImporterDicom	*m_OpImporterDicom;
 
 private:
 	//

@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appViewImageCompound.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -22,31 +22,31 @@ PURPOSE. See the above copyright notice for more information.
 #include "appViewImageCompound.h"
 #include "appDecl.h"
 
-#include "mafGUI.h"
-#include "mafGUIFloatSlider.h"
-#include "mafGUILutSlider.h"
-#include "mafGUILutSwatch.h"
-#include "mafGUIPicButton.h"
-#include "mafGUIViewWin.h"
-#include "mafPipeImage3D.h"
-#include "mafRWI.h"
-#include "mafSceneGraph.h"
-#include "mafSceneNode.h"
-#include "mafVME.h"
-#include "mafVMEImage.h"
-#include "mafVMEIterator.h"
-#include "mafVMEOutputImage.h"
-#include "mafViewImage.h"
-#include "mafViewImage.h"
-#include "mafViewImageCompound.h"
-#include "mafViewVTK.h"
+#include "albaGUI.h"
+#include "albaGUIFloatSlider.h"
+#include "albaGUILutSlider.h"
+#include "albaGUILutSwatch.h"
+#include "albaGUIPicButton.h"
+#include "albaGUIViewWin.h"
+#include "albaPipeImage3D.h"
+#include "albaRWI.h"
+#include "albaSceneGraph.h"
+#include "albaSceneNode.h"
+#include "albaVME.h"
+#include "albaVMEImage.h"
+#include "albaVMEIterator.h"
+#include "albaVMEOutputImage.h"
+#include "albaViewImage.h"
+#include "albaViewImage.h"
+#include "albaViewImageCompound.h"
+#include "albaViewVTK.h"
 
 #include "vtkActor2D.h"
 #include "vtkDataSet.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
-#include "vtkMAFSimpleRulerActor2D.h"
-#include "vtkMAFTextActorMeter.h"
+#include "vtkALBASimpleRulerActor2D.h"
+#include "vtkALBATextActorMeter.h"
 #include "vtkProperty2D.h"
 #include "vtkRendererCollection.h"
 #include "vtkTextActor.h"
@@ -63,12 +63,12 @@ enum SUBVIEW_ID
 };
 
 //----------------------------------------------------------------------------
-mafCxxTypeMacro(appViewImageCompound);
+albaCxxTypeMacro(appViewImageCompound);
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 appViewImageCompound::appViewImageCompound( wxString label, int num_row, int num_col)
-: mafViewImageCompound(label,num_row,num_col)
+: albaViewImageCompound(label,num_row,num_col)
 {
 	m_LutWidget = NULL;
 	m_LutSlider = NULL;
@@ -89,7 +89,7 @@ appViewImageCompound::~appViewImageCompound()
   if(m_Ruler)
   {
     m_Renderer->RemoveActor2D(m_Ruler);
-    mafDEL(m_Ruler);
+    albaDEL(m_Ruler);
   }
 
 	delete m_RulerButton;
@@ -100,9 +100,9 @@ appViewImageCompound::~appViewImageCompound()
 //-------------------------------------------------------------------------
 void appViewImageCompound::PackageView()
 {
-	m_ViewImage = new mafViewImage("View Image", CAMERA_CT, false, false, 0);
-	m_ViewImage->PlugVisualPipe("mafVMEVolumeGray", "mafPipeBox", NON_VISIBLE);
-	m_ViewImage->PlugVisualPipe("mafVMESurface", "mafPipeSurface", NON_VISIBLE);
+	m_ViewImage = new albaViewImage("View Image", CAMERA_CT, false, false, 0);
+	m_ViewImage->PlugVisualPipe("albaVMEVolumeGray", "albaPipeBox", NON_VISIBLE);
+	m_ViewImage->PlugVisualPipe("albaVMESurface", "albaPipeSurface", NON_VISIBLE);
 
 	PlugChildView(m_ViewImage);
 }
@@ -118,7 +118,7 @@ void appViewImageCompound::ShowRuler(bool show)
 // 		m_RulerButton->SetBitmap("HIDE_RULER_ICON");
 // 		m_RulerButton->SetToolTip("Show Ruler");
 
-    m_Ruler = vtkMAFSimpleRulerActor2D::New();
+    m_Ruler = vtkALBASimpleRulerActor2D::New();
     m_Ruler->SetColor(0.5,1.0,1.0);
     m_Ruler->SetLabelAxesVisibility(false);
     m_Ruler->SetLegend("mm/tick");
@@ -164,7 +164,7 @@ void appViewImageCompound::SetRendererByView()
   m_Renderer = newRenderer;
 }
 //----------------------------------------------------------------------------
-mafView * appViewImageCompound::Copy(mafObserver *Listener, bool lightCopyEnabled /*= false*/)
+albaView * appViewImageCompound::Copy(albaObserver *Listener, bool lightCopyEnabled /*= false*/)
 {
 	m_LightCopyEnabled = lightCopyEnabled;
 	appViewImageCompound *v = new appViewImageCompound(m_Label, m_ViewRowNum, m_ViewColNum);
@@ -182,16 +182,16 @@ mafView * appViewImageCompound::Copy(mafObserver *Listener, bool lightCopyEnable
 //----------------------------------------------------------------------------
 void appViewImageCompound::CreateGuiView()
 {
-	m_GuiView = new mafGUI(this);
+	m_GuiView = new albaGUI(this);
 
 	wxBoxSizer *mainVertSizer = new wxBoxSizer(wxHORIZONTAL);
-	m_LutSlider = new mafGUILutSlider(m_GuiView, -1, wxPoint(0, 0), wxSize(500, 24));
+	m_LutSlider = new albaGUILutSlider(m_GuiView, -1, wxPoint(0, 0), wxSize(500, 24));
 	m_LutSlider->SetListener(this);
  	m_LutSlider->SetSize(500, 24);
  	m_LutSlider->SetMinSize(wxSize(500, 24));
  	EnableWidgets(false);
 
-	m_RulerButton = new mafGUIPicButton(m_GuiView, "SHOW_RULER_ICON", VIEW_RULER, this);
+	m_RulerButton = new albaGUIPicButton(m_GuiView, "SHOW_RULER_ICON", VIEW_RULER, this);
 	m_RulerButton->SetToolTip("Show Ruler");
 	m_RulerButton->SetListener(this);
 
@@ -204,9 +204,9 @@ void appViewImageCompound::CreateGuiView()
 }
 
 //----------------------------------------------------------------------------
-void appViewImageCompound::OnEvent(mafEventBase *maf_event)
+void appViewImageCompound::OnEvent(albaEventBase *alba_event)
 {
-	switch (maf_event->GetId())
+	switch (alba_event->GetId())
 	{
 	case VIEW_RULER:
 	{
@@ -227,6 +227,6 @@ void appViewImageCompound::OnEvent(mafEventBase *maf_event)
 	}
 	break;
 	default:
-		Superclass::OnEvent(maf_event);
+		Superclass::OnEvent(alba_event);
 	}
 }

@@ -2,11 +2,11 @@
 # Program:   Albedo
 # Module:    CMakeLists.txt
 # Language:  CMake
-# Date:      $Date: 2018-01-01 12:00:00 $
+# Date:      $Date: 2019-01-01 12:00:00 $
 # Version:   $Revision: 1.0.0.0 $
 # Authors:   Nicola Vanella
 #==========================================================================
-# Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+# Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 #
 # This software is distributed WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -47,7 +47,7 @@ ELSE (WIN32)
   ADD_EXECUTABLE(${PROJECT_NAME} ${PROJECT_SRCS} )
 ENDIF (WIN32)
 
-SET(PROJECT_LIBS mafOperations mafGui mafViews mafVME mafInteraction mafService mafVME mafVisualPipes mafOperations vtkMAF appOperations appInteraction appViews appCommon appGui appVME)# GPUAPI))
+SET(PROJECT_LIBS albaOperations albaGui albaViews albaVME albaInteraction albaService albaVME albaVisualPipes albaOperations vtkALBA appOperations appInteraction appViews appCommon appGui appVME)# GPUAPI))
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${PROJECT_LIBS})
 

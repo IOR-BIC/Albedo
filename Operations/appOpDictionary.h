@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpDictionary.h
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -22,7 +22,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "appOperationsDefines.h"
 #include "appDecl.h"
 
-#include "mafOp.h"
+#include "albaOp.h"
 
 #include <vector>
 #include <xercesc/util/XercesDefs.hpp>
@@ -31,14 +31,14 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 // Forward references :
 //----------------------------------------------------------------------------
-class mafGUIDictionaryWidget;
+class albaGUIDictionaryWidget;
 
 typedef std::vector<wxString> StringVector;
 
 //----------------------------------------------------------------------------
 // Class Name: appOpDictionary
 //----------------------------------------------------------------------------
-class APP_OPERATIONS_EXPORT appOpDictionary : public mafOp
+class APP_OPERATIONS_EXPORT appOpDictionary : public albaOp
 {
 public:
 	/** Constructor. */
@@ -48,13 +48,13 @@ public:
 	~appOpDictionary();
 
 	/** RTTI macro. */
-	mafTypeMacro(appOpDictionary, mafOp);
+	albaTypeMacro(appOpDictionary, albaOp);
 
 	/** Return a copy of the operation */
-	/*virtual*/ mafOp* Copy();
+	/*virtual*/ albaOp* Copy();
 
 	/** Return true for the acceptable vme type. */
-	/*virtual*/ bool Accept(mafVME *node);
+	/*virtual*/ bool Accept(albaVME *node);
 
 	/** Builds operation's interface. */
 	/*virtual*/ void OpRun();
@@ -63,7 +63,7 @@ public:
 	/*virtual*/ void OpDo();
 
 	/** Receive events coming from the user interface.*/
-	void OnEvent(mafEventBase *maf_event);
+	void OnEvent(albaEventBase *alba_event);
 	
 	//Widgets ID's	
 	enum OP_DICTIONARY_ID
@@ -98,10 +98,10 @@ protected:
 	int LoadDictionary(wxString fileName);
 	int SaveDictionary(const char *fileName);
 	bool CheckNodeElement(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node, const char *elementName);
-	mafString GetElementAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node, const char *attributeName);
+	albaString GetElementAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node, const char *attributeName);
 
 	void SelectGroup(int selection);
-	void SelectElement(mafString selection);
+	void SelectElement(albaString selection);
 	
 	void AddGroup();
 	void AddElement();
@@ -138,6 +138,6 @@ protected:
 
 	// Gui widgets
 	wxComboBox	*m_GroupComboBox;
-	mafGUIDictionaryWidget *m_ElementDict;
+	albaGUIDictionaryWidget *m_ElementDict;
 };
 #endif

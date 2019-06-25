@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appSideBar.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (http://www.ltmsoftware.org/alba.htm)
+Copyright (c) BIC-IOR 2019 (http://www.ltmsoftware.org/alba.htm)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -21,27 +21,27 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appSideBar.h"
 
-#include "mafGUI.h"
-#include "mafGUIDialogFindVme.h"
-#include "mafGUIDockManager.h"
-#include "mafGUIHolder.h"
-#include "mafGUIMDIFrame.h"
-#include "mafGUIPanel.h"
-#include "mafGUIPanelStack.h"
-#include "mafGUISplittedPanel.h"
-#include "mafGUITree.h"
-#include "mafGUIVMEChooser.h"
-#include "mafPipe.h"
-#include "mafTransform.h"
-#include "mafVME.h"
-#include "mafVMEIterator.h"
-#include "mafVMEOutput.h"
-#include "mafVMERoot.h"
-#include "mafView.h"
-#include "mafViewVTK.h"
+#include "albaGUI.h"
+#include "albaGUIDialogFindVme.h"
+#include "albaGUIDockManager.h"
+#include "albaGUIHolder.h"
+#include "albaGUIMDIFrame.h"
+#include "albaGUIPanel.h"
+#include "albaGUIPanelStack.h"
+#include "albaGUISplittedPanel.h"
+#include "albaGUITree.h"
+#include "albaGUIVMEChooser.h"
+#include "albaPipe.h"
+#include "albaTransform.h"
+#include "albaVME.h"
+#include "albaVMEIterator.h"
+#include "albaVMEOutput.h"
+#include "albaVMERoot.h"
+#include "albaView.h"
+#include "albaViewVTK.h"
 
 //----------------------------------------------------------------------------
-appSideBar::appSideBar(mafGUIMDIFrame* parent, int id, mafObserver *Listener)
+appSideBar::appSideBar(albaGUIMDIFrame* parent, int id, albaObserver *Listener)
 {
   m_SelectedVme  = NULL;
 	m_OldSelectedVme = NULL;
@@ -56,17 +56,17 @@ appSideBar::appSideBar(mafGUIMDIFrame* parent, int id, mafObserver *Listener)
   m_Notebook->SetFont(wxFont(wxSystemSettings::GetFont(wxSYS_DEFAULT_GUI_FONT)));
 	
 	//VME panel
-	m_VmePanel = new mafGUIHolder(m_Notebook, -1, false, true);
+	m_VmePanel = new albaGUIHolder(m_Notebook, -1, false, true);
 	m_Notebook->AddPage(m_VmePanel, _("VME"));
 
   //View property panel
-  m_ViewPropertyPanel = new mafGUIHolder(m_Notebook,-1,false,true);
+  m_ViewPropertyPanel = new albaGUIHolder(m_Notebook,-1,false,true);
   m_ViewPropertyPanel->SetTitle(_("No view selected:"));
   m_Notebook->AddPage(m_ViewPropertyPanel,_("View settings"));
 
   //Operation panel ----------------------------
-  m_OpPanel  = new mafGUIPanelStack(m_Notebook ,-1);
-  mafGUINamedPanel *empty_op = new mafGUINamedPanel(m_OpPanel ,-1,false,true);
+  m_OpPanel  = new albaGUIPanelStack(m_Notebook ,-1);
+  albaGUINamedPanel *empty_op = new albaGUINamedPanel(m_OpPanel ,-1,false,true);
   empty_op->SetTitle(_(" No operation running:"));
   m_OpPanel->Push(empty_op);
   m_Notebook->AddPage(m_OpPanel ,_("Operation"));
@@ -87,7 +87,7 @@ appSideBar::~appSideBar()
 }
 
 //----------------------------------------------------------------------------
-void appSideBar::OpShowGui(bool push_gui, mafGUIPanel *panel)
+void appSideBar::OpShowGui(bool push_gui, albaGUIPanel *panel)
 {
 	m_Notebook->Show(true);
 	if(push_gui)
@@ -112,7 +112,7 @@ void appSideBar::OpHideGui(bool view_closed)
 	}
 }
 //----------------------------------------------------------------------------
-void appSideBar::ViewSelect(mafView *view)
+void appSideBar::ViewSelect(albaView *view)
 {
 	if (view)
 	{
@@ -120,7 +120,7 @@ void appSideBar::ViewSelect(mafView *view)
 		s += wxStripMenuCodes(view->GetLabel());
 		s += " props:";
 		m_ViewPropertyPanel->SetTitle(s);
-		mafGUI *gui = view->GetGui();
+		albaGUI *gui = view->GetGui();
 		if (gui)
 			m_ViewPropertyPanel->Put(gui);
 		else
@@ -138,7 +138,7 @@ void appSideBar::ViewSelect(mafView *view)
 	m_Notebook->SetSelection(1);
 }
 //----------------------------------------------------------------------------
-void appSideBar::ViewDeleted(mafView *view)
+void appSideBar::ViewDeleted(albaView *view)
 {
   ViewSelect(NULL);
 }
@@ -147,27 +147,27 @@ void appSideBar::EnableSelect(bool enable)
 {
 }
 //----------------------------------------------------------------------------
-void appSideBar::VmeAdd(mafVME *vme)
+void appSideBar::VmeAdd(albaVME *vme)
 {
 	//UpdateVmePanel();
 }
 //----------------------------------------------------------------------------
-void appSideBar::VmeRemove(mafVME *vme)
+void appSideBar::VmeRemove(albaVME *vme)
 {
 	//UpdateVmePanel();
 }
 //----------------------------------------------------------------------------
-void appSideBar::VmeModified(mafVME *vme)
+void appSideBar::VmeModified(albaVME *vme)
 {
 	//UpdateVmePanel();
 }
 //----------------------------------------------------------------------------
-void appSideBar::VmeShow(mafVME *vme, bool visibility)
+void appSideBar::VmeShow(albaVME *vme, bool visibility)
 {
 	//UpdateVmePanel();
 }
 //----------------------------------------------------------------------------
-void appSideBar::VmeSelected(mafVME *vme)
+void appSideBar::VmeSelected(albaVME *vme)
 {
 //   m_SelectedVme = vme;
 //   UpdateVmePanel();
@@ -177,17 +177,17 @@ void appSideBar::VmeSelected(mafVME *vme)
 }
 
 //----------------------------------------------------------------------------
-std::vector<mafVME*> appSideBar::VmeChoose(void *vme_accept_function, long style, mafString title, bool multiSelect, mafVME *vme)
+std::vector<albaVME*> appSideBar::VmeChoose(void *vme_accept_function, long style, albaString title, bool multiSelect, albaVME *vme)
 {
-	mafErrorMessage("Error on choose VME");
-	std::vector<mafVME*> emptyList;
+	albaErrorMessage("Error on choose VME");
+	std::vector<albaVME*> emptyList;
 	return emptyList;
 }
 
 //----------------------------------------------------------------------------
 void appSideBar::FindVME()
 {
-	mafErrorMessage("Error on find VME");
+	albaErrorMessage("Error on find VME");
 }
 
 //----------------------------------------------------------------------------
@@ -204,14 +204,14 @@ void appSideBar::UpdateVmePanel()
 
 	m_OldSelectedVme = m_SelectedVme;
 
-	mafPipe	*vme_pipe = NULL;
-	mafGUI	*vme_gui = NULL;
+	albaPipe	*vme_pipe = NULL;
+	albaGUI	*vme_gui = NULL;
 
 	if (m_AppendingGUI && m_CurrentVmeGui)
 		m_AppendingGUI->Remove(m_CurrentVmeGui);
 
 	m_AppendingGUI = NULL;
-	m_AppendingGUI = new mafGUI(NULL); //TODO Update Gui
+	m_AppendingGUI = new albaGUI(NULL); //TODO Update Gui
 
 	if (m_SelectedVme && m_SelectedVme->IsA("appVMEProsthesis"))
 	{

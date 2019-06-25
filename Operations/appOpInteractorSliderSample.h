@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpInteractorSliderSample.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -21,20 +21,20 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 #include "appOperationsDefines.h"
 
-#include "mafOp.h"
-#include "mafVMEVolumeGray.h"
+#include "albaOp.h"
+#include "albaVMEVolumeGray.h"
 
 //----------------------------------------------------------------------------
 // Forward references :
 //----------------------------------------------------------------------------
-class mafEvent;
-class mafInteractorSlider;
-class mafView;
+class albaEvent;
+class albaInteractorSlider;
+class albaView;
 class vtkRectilinearGrid;
 class vtkImageData;
 
 // Class Name: appOpInteractorSliderSample
-class APP_OPERATIONS_EXPORT appOpInteractorSliderSample: public mafOp
+class APP_OPERATIONS_EXPORT appOpInteractorSliderSample: public albaOp
 {
 public:
 
@@ -51,20 +51,20 @@ public:
   appOpInteractorSliderSample(const wxString &label = "Interactor Slider Sample");
  ~appOpInteractorSliderSample(); 
 
-	//virtual void OnEvent(mafEventBase *maf_event);
+	//virtual void OnEvent(albaEventBase *alba_event);
   
-  mafTypeMacro(appOpInteractorSliderSample, mafOp);
+  albaTypeMacro(appOpInteractorSliderSample, albaOp);
 
-  mafOp* Copy();
+  albaOp* Copy();
 
 	/** Return true for the acceptable vme type. */
-  bool Accept(mafVME *node);
+  bool Accept(albaVME *node);
 
 	/** Builds operation's interface. */
   void OpRun();
 
   /** Precess events coming from other objects */
-  void OnEvent(mafEventBase *maf_event);
+  void OnEvent(albaEventBase *alba_event);
 
 protected:
 
@@ -74,8 +74,8 @@ protected:
   /** Create the GUI */
   virtual void CreateGui();
 
-	mafInteractorSlider *m_InteractorSlider;
-	mafView *m_View;
+	albaInteractorSlider *m_InteractorSlider;
+	albaView *m_View;
 
 	double m_SliderValue;
 	double m_SliderMin;
@@ -93,7 +93,7 @@ protected:
 	void GetSliceOrigin(double *origin);
 	void UpdateVolumeSlice();
 
-	mafVMEVolumeGray* m_Volume;	//<Input volume
+	albaVMEVolumeGray* m_Volume;	//<Input volume
 	int m_SlicePlane;						//<Current slicing plane (xy,xz,yx)
 
 	enum PLANE_TYPE

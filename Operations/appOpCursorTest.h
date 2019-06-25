@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpCursorTest.h
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -21,10 +21,10 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 #include "appOperationsDefines.h"
 #include "appDecl.h"
-#include "mafOp.h"
+#include "albaOp.h"
 
-class mafLogicWithManagers;
-class mafView;
+class albaLogicWithManagers;
+class albaView;
 //----------------------------------------------------------------------------
 // Forward references :
 //----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ class mafView;
 //----------------------------------------------------------------------------
 // Class Name: appOpCursorTest
 //----------------------------------------------------------------------------
-class APP_OPERATIONS_EXPORT appOpCursorTest : public mafOp
+class APP_OPERATIONS_EXPORT appOpCursorTest : public albaOp
 {
 public:
 	/** Constructor. */
@@ -42,13 +42,13 @@ public:
 	~appOpCursorTest();
 
 	/** RTTI macro. */
-	mafTypeMacro(appOpCursorTest, mafOp);
+	albaTypeMacro(appOpCursorTest, albaOp);
 
 	/** Return a copy of the operation */
-	/*virtual*/ mafOp* Copy();
+	/*virtual*/ albaOp* Copy();
 
 	/** Return true for the acceptable vme type. */
-	/*virtual*/ bool Accept(mafVME *node);
+	/*virtual*/ bool Accept(albaVME *node);
 
 	/** Builds operation's interface. */
 	/*virtual*/ void OpRun();
@@ -57,7 +57,7 @@ public:
 	/*virtual*/ void OpDo();
 
 	/** Receive events coming from the user interface.*/
-	void OnEvent(mafEventBase *maf_event);
+	void OnEvent(albaEventBase *alba_event);
   
 	void EnableOp(bool enable) { m_Enabled = enable; };
 
@@ -69,7 +69,7 @@ protected:
 	/** Create the Operation GUI */
 	virtual void CreateGui();
 
-	mafView* m_View;
+	albaView* m_View;
 
 	bool m_Enabled;
 };

@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOperationsTests.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -26,11 +26,11 @@ PURPOSE. See the above copyright notice for more information.
 #include "../appFakeLogicForTest.h"
 #include "appOpEmptyTest.h"
 
-#include "mafServiceLocator.h"
-#include "mafVMEOutputNULL.h"
+#include "albaServiceLocator.h"
+#include "albaVMEOutputNULL.h"
 
 #include "vtkFileOutputWindow.h"
-#include "vtkMAFSmartPointer.h"
+#include "vtkALBASmartPointer.h"
 
 #include <cppunit/BriefTestProgressListener.h>
 #include <cppunit/CompilerOutputter.h>
@@ -39,24 +39,24 @@ PURPOSE. See the above copyright notice for more information.
 #include <cppunit/extensions/TestFactoryRegistry.h>
 
 //-------------------------------------------------------------------------
-mafCxxTypeMacro(DummyVme);
+albaCxxTypeMacro(DummyVme);
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
-mafVMEOutput *DummyVme::GetOutput()
+albaVMEOutput *DummyVme::GetOutput()
 {
 	// Allocate the right type of output on demand
 	if (m_Output == NULL)
 	{
-		SetOutput(mafVMEOutputNULL::New()); // create the output
+		SetOutput(albaVMEOutputNULL::New()); // create the output
 	}
 	return m_Output;
 }
 
 //----------------------------------------------------------------------------
-void DummyObserver::OnEvent(mafEventBase *maf_event)
+void DummyObserver::OnEvent(albaEventBase *alba_event)
 {
-	if (mafEvent *e = mafEvent::SafeDownCast(maf_event))
+	if (albaEvent *e = albaEvent::SafeDownCast(alba_event))
 	{
 		if (e->GetId() == VME_CHOOSE)
 		{
@@ -70,9 +70,9 @@ void DummyObserver::OnEvent(mafEventBase *maf_event)
 int	main( int argc, char* argv[] )
 {
 	// Create log of VTK error messages
-	vtkMAFSmartPointer<vtkFileOutputWindow> log;
+	vtkALBASmartPointer<vtkFileOutputWindow> log;
 	vtkOutputWindow::SetInstance(log);
-	mafString logPath = wxGetWorkingDirectory();
+	albaString logPath = wxGetWorkingDirectory();
 	logPath << "\\vtkLog.txt";
 	log->SetFileName(logPath);
 
@@ -88,7 +88,7 @@ int	main( int argc, char* argv[] )
 	controller.addListener( &progress );      
 
  	appFakeLogicForTest *logic = new appFakeLogicForTest();
- 	mafServiceLocator::SetLogicManager(logic);
+ 	albaServiceLocator::SetLogicManager(logic);
 
 	// Add the top suite to the test runner
 	CPPUNIT_NS::TestRunner runner;

@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpShowDialog.h
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -19,22 +19,22 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 // Include :
 //----------------------------------------------------------------------------
-#include "mafOp.h"
+#include "albaOp.h"
 #include "appOperationsDefines.h"
 
 //----------------------------------------------------------------------------
 // Forward references :
 //----------------------------------------------------------------------------
-class mafGUIButton;
-class mafGUIDialog;
-class mafGUIPicButton;
+class albaGUIButton;
+class albaGUIDialog;
+class albaGUIPicButton;
 class wxBoxSizer;
 class wxImage;
 
 //----------------------------------------------------------------------------
 // Class Name: appOpShowDialog
 //----------------------------------------------------------------------------
-class APP_OPERATIONS_EXPORT appOpShowDialog : public mafOp
+class APP_OPERATIONS_EXPORT appOpShowDialog : public albaOp
 {
 public:
 
@@ -75,16 +75,16 @@ public:
 	appOpShowDialog(const wxString &label = "Show Dialog", DIALOG_MODE mode = VERTICAL_MODE);
   ~appOpShowDialog();
 
-  mafTypeMacro(appOpShowDialog, mafOp);
+  albaTypeMacro(appOpShowDialog, albaOp);
 
-	virtual void OnEvent(mafEventBase *maf_event);
+	virtual void OnEvent(albaEventBase *alba_event);
 
-	mafOp* Copy();
+	albaOp* Copy();
 
 	void OpRun();
 
 	// Return true for the acceptable vme type.
-	bool Accept(mafVME *node);
+	bool Accept(albaVME *node);
 
 	void SetTitle(wxString title) { m_Title = title; };
 
@@ -113,11 +113,11 @@ protected:
 
 	DIALOG_MODE m_DialogMode;
 
-	mafGUIDialog *m_dialog;
+	albaGUIDialog *m_dialog;
 
-	mafGUIButton		*m_OkBtn;
-	mafGUIButton		*m_CancelBtn;
+	albaGUIButton		*m_OkBtn;
+	albaGUIButton		*m_CancelBtn;
 	wxImage					*m_PreviewImage;
-	mafGUIPicButton *m_PreviewImageButton;
+	albaGUIPicButton *m_PreviewImageButton;
 };
 #endif

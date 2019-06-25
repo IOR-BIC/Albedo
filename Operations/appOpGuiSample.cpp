@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpGuiSample.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -23,14 +23,14 @@ PURPOSE. See the above copyright notice for more information.
 #include "appGUILabel.h"
 #include "appGUI.h"
 
-#include "mafDecl.h"
-#include "mafEvent.h"
-#include "mafGUI.h"
-#include "mafGUICheckListBox.h"
-#include "mafGUIDictionaryWidget.h"
-#include "mafGUIImageViewer.h"
-#include "mafGUIValidator.h"
-#include "mafPics.h"
+#include "albaDecl.h"
+#include "albaEvent.h"
+#include "albaGUI.h"
+#include "albaGUICheckListBox.h"
+#include "albaGUIDictionaryWidget.h"
+#include "albaGUIImageViewer.h"
+#include "albaGUIValidator.h"
+#include "albaPics.h"
 
 //----------------------------------------------------------------------------
 // Constants:
@@ -45,12 +45,12 @@ enum GUI_WIDGET_ID
 };
 
 //----------------------------------------------------------------------------
-mafCxxTypeMacro(appOpGuiSample);
+albaCxxTypeMacro(appOpGuiSample);
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 appOpGuiSample::appOpGuiSample(const wxString &label) :
-mafOp(label)
+albaOp(label)
 {
   m_OpType	= OPTYPE_OP;
   m_Canundo = true;
@@ -76,12 +76,12 @@ appOpGuiSample::~appOpGuiSample()
 }
 
 //----------------------------------------------------------------------------
-mafOp* appOpGuiSample::Copy()   
+albaOp* appOpGuiSample::Copy()   
 {
 	return new appOpGuiSample(m_Label);
 }
 //----------------------------------------------------------------------------
-bool appOpGuiSample::Accept(mafVME*node)
+bool appOpGuiSample::Accept(albaVME*node)
 {
 	return true;
 }
@@ -89,7 +89,7 @@ bool appOpGuiSample::Accept(mafVME*node)
 //----------------------------------------------------------------------------
 void appOpGuiSample::OpRun()
 {
-  m_Gui = new mafGUI(this);	
+  m_Gui = new albaGUI(this);	
 
 	m_listBox = m_Gui->ListBox(ID_LIST_SELECTION, "List", 100);
 
@@ -107,14 +107,14 @@ void appOpGuiSample::OpRun()
 	m_Gui->OkCancel();
 	m_Gui->Divider(1);
 
-	m_Gui2 = new mafGUI(this);
+	m_Gui2 = new albaGUI(this);
 	m_Gui->AddGui(m_Gui2);
 
   ShowGui();
 }
 
 //----------------------------------------------------------------------------
-void appOpGuiSample::OnEvent( mafEventBase *maf_event )
+void appOpGuiSample::OnEvent( albaEventBase *alba_event )
 {
 	int b = 1;
 	int a = 0;
@@ -126,12 +126,12 @@ void appOpGuiSample::OnEvent( mafEventBase *maf_event )
 	m_time[1] = timeinfo->tm_min;
 	m_time[2] = timeinfo->tm_sec;
 
-  switch (maf_event->GetId())
+  switch (alba_event->GetId())
   {
     case ID_GUI_WIDGET_FIRST:
     case ID_GUI_WIDGET_SECOND:
     case ID_GUI_WIDGET:
-			mafLogMessage("Event: %d - Sender: %s", maf_event->GetId(), maf_event->GetSender());
+			albaLogMessage("Event: %d - Sender: %s", alba_event->GetId(), alba_event->GetSender());
     break;
 
 		case ID_LIST_SELECTION:
@@ -327,7 +327,7 @@ void appOpGuiSample::GuiButtons()
 	m_Gui2->TwoButtons(ID_GUI_WIDGET_FIRST, ID_GUI_WIDGET_SECOND, "Label1", "Label2", 240, 50);
 	m_Gui2->Divider(1);
 
-	wxBitmap bitmap = mafPictureFactory::GetPictureFactory()->GetBmp("NODE_BLUE");
+	wxBitmap bitmap = albaPictureFactory::GetPictureFactory()->GetBmp("NODE_BLUE");
 	m_Gui2->ImageButton(ID_GUI_WIDGET, "Label", bitmap, "Tooltip");
 	m_Gui2->Divider(1);
 
@@ -397,10 +397,10 @@ void appOpGuiSample::GuiLists()
 {
 	m_Gui2->Label("Lists", true);
 
-	mafGUI *rollGui = new mafGUI(this);
+	albaGUI *rollGui = new albaGUI(this);
 	
 	// Id, Label, height, tooltip
-	mafGUICheckListBox *checkList= rollGui->CheckList(ID_GUI_WIDGET, "CheckList", 60, "Tooltip");
+	albaGUICheckListBox *checkList= rollGui->CheckList(ID_GUI_WIDGET, "CheckList", 60, "Tooltip");
 		// Id, Label, checked
 		checkList->AddItem(ID_GUI_WIDGET, "Item1", false);
 		checkList->AddItem(ID_GUI_WIDGET, "Item2", true);
@@ -423,8 +423,8 @@ void appOpGuiSample::GuiLists()
 
 		wxImageList *m_Images;
 		m_Images = new wxImageList(15, 15, FALSE, 3);
-		m_Images->Add(mafPictureFactory::GetPictureFactory()->GetBmp("NODE_GRAY"));
-		m_Images->Add(mafPictureFactory::GetPictureFactory()->GetBmp("NODE_BLUE"));
+		m_Images->Add(albaPictureFactory::GetPictureFactory()->GetBmp("NODE_GRAY"));
+		m_Images->Add(albaPictureFactory::GetPictureFactory()->GetBmp("NODE_BLUE"));
 
 // Id, Label, height, tooltip, style, width
 		wxListCtrl *listCtrl = rollGui->ListCtrl(ID_GUI_WIDGET, "", 45, "Tooltip", wxVERTICAL);
@@ -459,14 +459,14 @@ void appOpGuiSample::GuiExtra()
 
 	// TEST
 	
-	wxBitmap bitmap = mafPictureFactory::GetPictureFactory()->GetBmp("NODE_RED");
+	wxBitmap bitmap = albaPictureFactory::GetPictureFactory()->GetBmp("NODE_RED");
 
 	m_Gui2->ImageButton(ID_GUI_WIDGET, "Ciao", bitmap, "Tooltip");
 	m_Gui2->Divider(1);
 	// 
 	// 	//
-	// 	mafGUIDictionaryWidget *m_Dict;
-	// 	m_Dict = new mafGUIDictionaryWidget(m_Gui2, -1);
+	// 	albaGUIDictionaryWidget *m_Dict;
+	// 	m_Dict = new albaGUIDictionaryWidget(m_Gui2, -1);
 	// 	m_Dict->SetListener(this);
 	// 	//m_Dict->SetCloud(m_Cloud);
 	// 	m_Dict->InitDictionary(NULL);
@@ -479,8 +479,8 @@ void appOpGuiSample::GuiExtra()
 	// 	m_Gui->Divider(1);
 
 
-	// 	mafGUIListCtrl *m_List;
-	// 	m_List = new mafGUIListCtrl(m_Gui2, ID_GUI_WIDGET, false, true);
+	// 	albaGUIListCtrl *m_List;
+	// 	m_List = new albaGUIListCtrl(m_Gui2, ID_GUI_WIDGET, false, true);
 	// 	//m_List->Show(false);
 	// 	m_List->SetListener(this);
 	// 	m_List->SetSize(wxSize(199, 300));
@@ -491,7 +491,7 @@ void appOpGuiSample::GuiExtra()
 	// 
 	// 	m_Gui2->Add(m_List, 0, wxALL | wxEXPAND, 1);
 
-	mafGUIImageViewer *immV = new mafGUIImageViewer(m_Listener);
+	albaGUIImageViewer *immV = new albaGUIImageViewer(m_Listener);
 }
 
 //----------------------------------------------------------------------------

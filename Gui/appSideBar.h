@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appSideBar.h
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (http://www.ltmsoftware.org/alba.htm)
+Copyright (c) BIC-IOR 2019 (http://www.ltmsoftware.org/alba.htm)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -19,11 +19,11 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 // Include:
 //----------------------------------------------------------------------------
-#include "mafAbsSideBar.h"
-#include "mafEvent.h"
-#include "mafGUICheckTree.h"
-#include "mafGUIVMEChooserTree.h"
-#include "mafObserver.h"
+#include "albaAbsSideBar.h"
+#include "albaEvent.h"
+#include "albaGUICheckTree.h"
+#include "albaGUIVMEChooserTree.h"
+#include "albaObserver.h"
 
 #include <wx/notebook.h>
 #include <wx/splitter.h>
@@ -32,53 +32,53 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 // Forward reference
 //----------------------------------------------------------------------------
-class mafGUI;
-class mafGUIHolder;
-class mafGUIMDIFrame;
-class mafGUINamedPanel;
-class mafGUIPanel;
-class mafGUIPanelStack;
-class mafGUISplittedPanel;
-class mafVME;
-class mafView;
+class albaGUI;
+class albaGUIHolder;
+class albaGUIMDIFrame;
+class albaGUINamedPanel;
+class albaGUIPanel;
+class albaGUIPanelStack;
+class albaGUISplittedPanel;
+class albaVME;
+class albaView;
 class wxListCtrl;
 
 //----------------------------------------------------------------------------
 // Class Name: appSideBar
 //----------------------------------------------------------------------------
-class appSideBar: public mafAbsSideBar
+class appSideBar: public albaAbsSideBar
 {
 public:
 
-	appSideBar(mafGUIMDIFrame* parent, int id, mafObserver *Listener);
+	appSideBar(albaGUIMDIFrame* parent, int id, albaObserver *Listener);
 	~appSideBar(); 
 	
 	// Add a new vme into the tree
-	void VmeAdd(mafVME *vme);
+	void VmeAdd(albaVME *vme);
 
 	// Remove a vme from the tree
-	void VmeRemove(mafVME *vme);
+	void VmeRemove(albaVME *vme);
 
 	// Notify to the tree that a vme is modified.
-	void VmeModified(mafVME *vme);
+	void VmeModified(albaVME *vme);
 
 	// Notify to the tree the visibility of the vme.
-	void VmeShow(mafVME *vme, bool visibility);
+	void VmeShow(albaVME *vme, bool visibility);
 
 	// Notify to the tree that the vme has been selected.
-	void VmeSelected(mafVME *vme);
+	void VmeSelected(albaVME *vme);
 		
 	// Show the operation's parameters gui on the tabbed panel.
-	void OpShowGui(bool push_gui, mafGUIPanel *panel);
+	void OpShowGui(bool push_gui, albaGUIPanel *panel);
 
 	// Hide the view/operation's gui from the tabbed panel.
 	void OpHideGui(bool view_closed);
 
 	// Plug the view settings on the tabbed panel.
-	void ViewSelect(mafView *view);
+	void ViewSelect(albaView *view);
 
 	// Notify to the tree that a view has been deleted.
-	void ViewDeleted(mafView *view);
+	void ViewDeleted(albaView *view);
 
 	// Enable/Disable the vme selection when an operation ends/start.
 	void EnableSelect(bool enable);
@@ -90,7 +90,7 @@ public:
   void Show(bool show) {m_Notebook->Show(show);};
 
 	// Respond to a VME_CHOOSE event. Build a dialog containing the vme tree and return the vme choosed from the user.
-	std::vector<mafVME*> VmeChoose(void *vme_accept_function = 0, long style = REPRESENTATION_AS_TREE, mafString title = "Choose Node", bool multiSelect = false, mafVME *vme = NULL);
+	std::vector<albaVME*> VmeChoose(void *vme_accept_function = 0, long style = REPRESENTATION_AS_TREE, albaString title = "Choose Node", bool multiSelect = false, albaVME *vme = NULL);
 
 	// Open a Find VME dialog.
 	void FindVME();
@@ -103,18 +103,18 @@ protected:
 	wxNotebook        *m_VmeNotebook;
 	wxSplitterWindow	*m_SideSplittedPanel;
 
-  mafGUIPanelStack	*m_OpPanel;
-	mafGUIHolder			*m_ViewPropertyPanel;
+  albaGUIPanelStack	*m_OpPanel;
+	albaGUIHolder			*m_ViewPropertyPanel;
 
-	mafGUIHolder  *m_VmePanel;
-  mafGUIHolder  *m_VmePipePanel;
+	albaGUIHolder  *m_VmePanel;
+  albaGUIHolder  *m_VmePipePanel;
 
-  mafVME			*m_SelectedVme;
-	mafVME			*m_OldSelectedVme;
-  mafView     *m_SelectedView;
-  mafObserver *m_Listener;
+  albaVME			*m_SelectedVme;
+	albaVME			*m_OldSelectedVme;
+  albaView     *m_SelectedView;
+  albaObserver *m_Listener;
 
-	mafGUI *m_AppendingGUI;
-	mafGUI *m_CurrentVmeGui;
+	albaGUI *m_AppendingGUI;
+	albaGUI *m_CurrentVmeGui;
 };
 #endif

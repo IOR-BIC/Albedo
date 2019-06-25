@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appGUI.h
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -22,27 +22,27 @@ PURPOSE. See the above copyright notice for more information.
 #include "appDecl.h"
 #include "appGuiDefines.h"
 
-#include "mafGUI.h"
+#include "albaGUI.h"
 
 //----------------------------------------------------------------------------
 // Forward references :
 //----------------------------------------------------------------------------
-class mafEventBase;
-class mafInteractorCompositorMouse;
+class albaEventBase;
+class albaInteractorCompositorMouse;
 class appInteractorGenericMouse;
 class appInteractionVolume;
 class appGUIComponent;
 class appGUITransformMouse;
-class mafGUIValidator;
+class albaGUIValidator;
 
 //----------------------------------------------------------------------------
 // Class Name: appGUI
 //----------------------------------------------------------------------------
-class APP_GUI_EXPORT appGUI : public mafGUI
+class APP_GUI_EXPORT appGUI : public albaGUI
 {
 public:
 
-	appGUI(mafObserver *listener);
+	appGUI(albaObserver *listener);
 	~appGUI();
 
 	void OnDClickList(wxCommandEvent& event);
@@ -70,7 +70,7 @@ public:
 
 	void Clock(int *hour = NULL, int *min = NULL, int *sec = NULL);
 	void Clock(int id, wxString label, int var[3]);
-	void Clock(int id, mafString *var);
+	void Clock(int id, albaString *var);
 
 private:
 	DECLARE_EVENT_TABLE()

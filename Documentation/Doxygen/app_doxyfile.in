@@ -94,7 +94,7 @@ VERBATIM_HEADERS       = NO
 #---------------------------------------------------------------------------
 ALPHABETICAL_INDEX     = YES
 COLS_IN_ALPHA_INDEX    = 4
-IGNORE_PREFIX          = maf \
+IGNORE_PREFIX          = alba \
                          mmi \
                          mmo \
                          mmg \
@@ -201,16 +201,16 @@ PREDEFINED             = "vtkSetMacro(name,type)=                  virtual void 
                          "vtkWorldCoordinateMacro(name)=           virtual vtkCoordinate *Get##name##Coordinate (); virtual void Set##name(float x[3]); virtual void Set##name(float x, float y, float z); virtual float *Get##name();" \
                          "vtkViewportCoordinateMacro(name)=        virtual vtkCoordinate *Get##name##Coordinate (); virtual void Set##name(float x[2]); virtual void Set##name(float x, float y); virtual float *Get##name();" \
                          "vtkTypeMacro(thisClass,superclass)=      virtual const char *GetClassName(); static int IsTypeOf(const char *type); virtual int IsA(const char *type); static thisClass* SafeDownCast(vtkObject *o);" \
-                         "mafAbstractTypeMacro(thisClass,superclass)=  public: typedef superclass Superclass; static const mafTypeID &GetStaticTypeId(); virtual const mafTypeID &GetTypeId() const; static const char *GetStaticTypeName(); virtual const char *GetTypeName() const; static bool IsStaticType(const char *type); static bool IsStaticType(const mafTypeID &type); virtual bool IsA(const char *type) const; virtual bool IsA(const mafTypeID &type) const; static thisClass* SafeDownCast(mafObject *o); " \
-                         "mafTypeMacro(thisClass,superclass)=       mafAbstractTypeMacro(thisClass,superclass); static mafObject *NewObject(); virtual mafObject *NewObjectInstance() const; thisClass *NewInstance() const; static thisClass *New();" \ 
-                         "MAF_ID_DEC(idname)=                       static const mafID idname;" \
-                         "MAF_ID_GLOBAL(name)=                      extern const mafID idname"
+                         "albaAbstractTypeMacro(thisClass,superclass)=  public: typedef superclass Superclass; static const albaTypeID &GetStaticTypeId(); virtual const albaTypeID &GetTypeId() const; static const char *GetStaticTypeName(); virtual const char *GetTypeName() const; static bool IsStaticType(const char *type); static bool IsStaticType(const albaTypeID &type); virtual bool IsA(const char *type) const; virtual bool IsA(const albaTypeID &type) const; static thisClass* SafeDownCast(albaObject *o); " \
+                         "albaTypeMacro(thisClass,superclass)=       albaAbstractTypeMacro(thisClass,superclass); static albaObject *NewObject(); virtual albaObject *NewObjectInstance() const; thisClass *NewInstance() const; static thisClass *New();" \ 
+                         "ALBA_ID_DEC(idname)=                       static const albaID idname;" \
+                         "ALBA_ID_GLOBAL(name)=                      extern const albaID idname"
 EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Configuration::additions related to external references   
 #---------------------------------------------------------------------------
-TAGFILES               = "@MAF_BINARY_PATH@/Documentation/Doxygen/maf.tag = http://doc.openmaf.org/"
+TAGFILES               = "@ALBA_BINARY_PATH@/Documentation/Doxygen/alba.tag = http://doc.openalba.org/"
 GENERATE_TAGFILE       = "@PROJECT_BINARY_DIR@/med.tag"
 ALLEXTERNALS           = NO
 EXTERNAL_GROUPS        = YES

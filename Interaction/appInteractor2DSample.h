@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appInteractor2DSample.h
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -21,14 +21,14 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 #include "appInteractionDefines.h"
 
-#include "mafEvent.h"
-#include "mafInteractorPER.h"
+#include "albaEvent.h"
+#include "albaInteractorPER.h"
 
 //----------------------------------------------------------------------------
 // Forward references :
 //----------------------------------------------------------------------------
-class mafDeviceButtonsPadMouse;
-class mafRWI;
+class albaDeviceButtonsPadMouse;
+class albaRWI;
 
 class vtkLineSource;
 class vtkCoordinate;
@@ -43,11 +43,11 @@ class vtkAPPTextActorMeter;
 class vtkAPPPointCloudSource;
 
 // Class Name: appInteractor2DSample
-class APP_INTERACTION_EXPORT appInteractor2DSample : public mafInteractorPER
+class APP_INTERACTION_EXPORT appInteractor2DSample : public albaInteractorPER
 {
 public:
 
-	mafTypeMacro(appInteractor2DSample, mafInteractorPER);
+	albaTypeMacro(appInteractor2DSample, albaInteractorPER);
 
 	enum LINE_INTERACTIONS
 	{
@@ -66,7 +66,7 @@ public:
 		ID_MOVE_LINE,
 	};
 
-	virtual void OnEvent(mafEventBase *event);
+	virtual void OnEvent(albaEventBase *event);
 
 	void AddMeasureLine(double point1[3], double point2[3]);
 
@@ -84,7 +84,7 @@ public:
 	int GetLastEditedLine() { return m_LastEditing; }
 	int GetLineSelection() { return m_LastSelection; }
 
-	void SetRendererByView(mafView * view);
+	void SetRendererByView(albaView * view);
 
 	void CanEditLines(bool edit = true) { m_EditLinesEnable = edit; };
 
@@ -101,11 +101,11 @@ protected:
 	appInteractor2DSample();
 	virtual ~appInteractor2DSample();
 
-	virtual void OnLeftButtonDown(mafEventInteraction *e);
-	virtual void OnLeftButtonUp(mafEventInteraction *e);
-	virtual void OnMove(mafEventInteraction *e);
+	virtual void OnLeftButtonDown(albaEventInteraction *e);
+	virtual void OnLeftButtonUp(albaEventInteraction *e);
+	virtual void OnMove(albaEventInteraction *e);
 
-	void InitRenderer(mafEventInteraction *e);
+	void InitRenderer(albaEventInteraction *e);
 
 	// Draw the Line
 	void DrawMeasureTool(double * wp);
@@ -129,9 +129,9 @@ protected:
 	std::vector<vtkPolyDataMapper2D *> m_LineMapperVector;
 	std::vector<vtkLineSource *> m_LineSourceVector;
 
-	mafDeviceButtonsPadMouse	*m_Mouse;
+	albaDeviceButtonsPadMouse	*m_Mouse;
 	vtkRenderer								*m_Renderer;
-	mafView										*m_View;
+	albaView										*m_View;
 
 	double *m_Bounds;
 	bool m_IsInBound;

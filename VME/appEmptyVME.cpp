@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appEmptyVME.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (http://www.ltmsoftware.org/alba.htm)
+Copyright (c) BIC-IOR 2019 (http://www.ltmsoftware.org/alba.htm)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -21,13 +21,13 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appEmptyVME.h"
 
-#include "mafGUI.h"
-#include "mafStorageElement.h"
-#include "mafVME.h"
-#include "mafVMEOutputNULL.h"
+#include "albaGUI.h"
+#include "albaStorageElement.h"
+#include "albaVME.h"
+#include "albaVMEOutputNULL.h"
 
 //------------------------------------------------------------------------------
-mafCxxTypeMacro(appEmptyVME);
+albaCxxTypeMacro(appEmptyVME);
 
 //------------------------------------------------------------------------------
 appEmptyVME::appEmptyVME()
@@ -48,12 +48,12 @@ appEmptyVME::~appEmptyVME()
 // GET-SET //////////////////////////////////////////////////////////////////////////
 
 //-------------------------------------------------------------------------
-mafVMEOutput *appEmptyVME::GetOutput()
+albaVMEOutput *appEmptyVME::GetOutput()
 {
 	// Allocate the right type of output on demand
 	if (m_Output == NULL)
 	{
-		SetOutput(mafVMEOutputNULL::New()); // Create the output
+		SetOutput(albaVMEOutputNULL::New()); // Create the output
 	}
 
 	return m_Output;
@@ -67,19 +67,19 @@ char** appEmptyVME::GetIcon()
 }
 
 //----------------------------------------------------------------------------
-void appEmptyVME::SetMatrix(const mafMatrix &mat)
+void appEmptyVME::SetMatrix(const albaMatrix &mat)
 {
 }
 
 //----------------------------------------------------------------------------
-void appEmptyVME::GetLocalTimeStamps(std::vector<mafTimeStamp> &kframes)
+void appEmptyVME::GetLocalTimeStamps(std::vector<albaTimeStamp> &kframes)
 {
 }
 
 //-------------------------------------------------------------------------
-mafGUI* appEmptyVME::CreateGui()
+albaGUI* appEmptyVME::CreateGui()
 {
-	m_Gui = mafVME::CreateGui();
+	m_Gui = albaVME::CreateGui();
 
 	if(m_Gui)
 	{
@@ -106,9 +106,9 @@ mafGUI* appEmptyVME::CreateGui()
 }
 
 //----------------------------------------------------------------------------
-void appEmptyVME::OnEvent(mafEventBase *maf_event)
+void appEmptyVME::OnEvent(albaEventBase *alba_event)
 {
-	if (mafEvent *e = mafEvent::SafeDownCast(maf_event))
+	if (albaEvent *e = albaEvent::SafeDownCast(alba_event))
 	{
 		switch (e->GetId())
 		{
@@ -126,11 +126,11 @@ void appEmptyVME::OnEvent(mafEventBase *maf_event)
 			break;
 
 		default:
-			mafVME::OnEvent(maf_event);
+			albaVME::OnEvent(alba_event);
 		}
 	}
 	else
-		mafVME::OnEvent(maf_event);
+		albaVME::OnEvent(alba_event);
 }
 
 //-----------------------------------------------------------------------
@@ -145,29 +145,29 @@ void appEmptyVME::InternalUpdate()
 }
 
 //-----------------------------------------------------------------------
-int appEmptyVME::InternalStore(mafStorageElement *node)
+int appEmptyVME::InternalStore(albaStorageElement *node)
 {
-	if (Superclass::InternalStore(node) == MAF_OK)
+	if (Superclass::InternalStore(node) == ALBA_OK)
 	{
-		if (node->StoreText("String", m_String) == MAF_OK &&
-				node->StoreInteger("Integer", m_Integer) == MAF_OK &&
-				node->StoreDouble("Double", m_Double) == MAF_OK
+		if (node->StoreText("String", m_String) == ALBA_OK &&
+				node->StoreInteger("Integer", m_Integer) == ALBA_OK &&
+				node->StoreDouble("Double", m_Double) == ALBA_OK
 			)
-			return MAF_OK;
+			return ALBA_OK;
 	}
-	return MAF_ERROR;
+	return ALBA_ERROR;
 }
 
 //-----------------------------------------------------------------------
-int appEmptyVME::InternalRestore(mafStorageElement *node)
+int appEmptyVME::InternalRestore(albaStorageElement *node)
 {
-	if (Superclass::InternalRestore(node) == MAF_OK)
+	if (Superclass::InternalRestore(node) == ALBA_OK)
 	{
 		node->RestoreText("String", m_String);
 		node->RestoreInteger("Integer", m_Integer);
 		node->RestoreDouble("Double", m_Double);
 
-		return MAF_OK;
+		return ALBA_OK;
 	}
-	return MAF_ERROR;
+	return ALBA_ERROR;
 }

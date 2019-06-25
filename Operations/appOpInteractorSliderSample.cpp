@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpInteractorSliderSample.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -21,24 +21,24 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appOpInteractorSliderSample.h"
 #include "appDecl.h"
-#include "mafInteractorSlider.h"
+#include "albaInteractorSlider.h"
 
-#include "mafDecl.h"
-#include "mafEvent.h"
-#include "mafGUI.h"
+#include "albaDecl.h"
+#include "albaEvent.h"
+#include "albaGUI.h"
 
-#include "mafTagArray.h"
-#include "mafVMEVolumeRGB.h"
-#include "mafVMEImage.h"
-#include "mafVMEItem.h"
-#include "mafVMEOutput.h"
-#include "mafVMEVolumeGray.h"
-#include "mafViewGlobalSlice.h"
+#include "albaTagArray.h"
+#include "albaVMEVolumeRGB.h"
+#include "albaVMEImage.h"
+#include "albaVMEItem.h"
+#include "albaVMEOutput.h"
+#include "albaVMEVolumeGray.h"
+#include "albaViewGlobalSlice.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkRectilinearGrid.h"
 
-#include "vtkMAFSmartPointer.h"
+#include "vtkALBASmartPointer.h"
 #include "vtkImageData.h"
 #include "vtkBMPReader.h"
 #include "vtkJPEGReader.h"
@@ -48,16 +48,16 @@ PURPOSE. See the above copyright notice for more information.
 #include "vtkImageResample.h"
 #include "vtkPointData.h"
 #include "vtkDataSetToDataSetFilter.h"
-#include "mafVMEIterator.h"
-#include "mafVME.h"
+#include "albaVMEIterator.h"
+#include "albaVME.h"
 
 //----------------------------------------------------------------------------
-mafCxxTypeMacro(appOpInteractorSliderSample);
+albaCxxTypeMacro(appOpInteractorSliderSample);
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 appOpInteractorSliderSample::appOpInteractorSliderSample(const wxString &label) :
-mafOp(label)
+albaOp(label)
 {
   m_OpType  = OPTYPE_OP;
   m_Canundo = true;
@@ -72,13 +72,13 @@ appOpInteractorSliderSample::~appOpInteractorSliderSample()
 { }
 
 //----------------------------------------------------------------------------
-mafOp* appOpInteractorSliderSample::Copy()
+albaOp* appOpInteractorSliderSample::Copy()
 {
 	return (new appOpInteractorSliderSample(m_Label));
 }
 
 //----------------------------------------------------------------------------
-bool appOpInteractorSliderSample::Accept(mafVME *node)
+bool appOpInteractorSliderSample::Accept(albaVME *node)
 {
   return true;
 }
@@ -87,21 +87,21 @@ bool appOpInteractorSliderSample::Accept(mafVME *node)
 void appOpInteractorSliderSample::OpRun()
 {
 	// Open View if necessary
-	mafEvent e(this, VIEW_SELECTED);
-	mafEventMacro(e);
+	albaEvent e(this, VIEW_SELECTED);
+	albaEventMacro(e);
 	if (!e.GetBool())
 	{
-		mafEventMacro(mafEvent(this, ID_SHOW_IMAGE_VIEW));
-		//mafEventMacro(mafEvent(this, ID_SHOW_SLICE_VIEW));
+		albaEventMacro(albaEvent(this, ID_SHOW_IMAGE_VIEW));
+		//albaEventMacro(albaEvent(this, ID_SHOW_SLICE_VIEW));
 	}
 	
 	// Find Volume
-	mafVMEIterator *iter = m_Input->GetRoot()->NewIterator();
-	for (mafVME *vme = iter->GetFirstNode(); vme; vme = iter->GetNextNode())
+	albaVMEIterator *iter = m_Input->GetRoot()->NewIterator();
+	for (albaVME *vme = iter->GetFirstNode(); vme; vme = iter->GetNextNode())
 	{
-		if (vme->IsA("mafVMEVolumeGray")) // Find Volume
+		if (vme->IsA("albaVMEVolumeGray")) // Find Volume
 		{
-			m_Volume = (mafVMEVolumeGray*)vme;
+			m_Volume = (albaVMEVolumeGray*)vme;
 		}
 	}
 	iter->Delete();
@@ -111,8 +111,8 @@ void appOpInteractorSliderSample::OpRun()
 	{
 		m_InteractorSlider = NULL;
 
-		mafEvent e(this, VIEW_SELECTED);
-		mafEventMacro(e);
+		albaEvent e(this, VIEW_SELECTED);
+		albaEventMacro(e);
 
 		if (e.GetBool())
 		{
@@ -134,10 +134,10 @@ void appOpInteractorSliderSample::OpRun()
 
 			m_View = e.GetView();
 			
-			m_InteractorSlider = new mafInteractorSlider(m_View, m_SliderOrientation, m_SliderValue, m_SliderMin, m_SliderMax, m_SliderPosX, m_SliderPosY, m_SliderLenght);
+			m_InteractorSlider = new albaInteractorSlider(m_View, m_SliderOrientation, m_SliderValue, m_SliderMin, m_SliderMax, m_SliderPosX, m_SliderPosY, m_SliderLenght);
 
-			//m_InteractorSlider = new mafInteractorSlider(m_View);
-			mafEventMacro(mafEvent(this, PER_PUSH, (mafObject *)m_InteractorSlider));
+			//m_InteractorSlider = new albaInteractorSlider(m_View);
+			albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorSlider));
 			m_InteractorSlider->SetListener(this);
 
 			CreateGui();
@@ -149,7 +149,7 @@ void appOpInteractorSliderSample::OpRun()
 //----------------------------------------------------------------------------
 void appOpInteractorSliderSample::CreateGui()
 {
-	m_Gui = new mafGUI(this);
+	m_Gui = new albaGUI(this);
 	m_Gui->SetListener(this);
 
 	m_Gui->Divider(2);
@@ -199,16 +199,16 @@ void appOpInteractorSliderSample::OpStop(int result)
 	
 	// Remove Interactor
 	m_InteractorSlider->ShowSlider(false);
-	mafEventMacro(mafEvent(this, PER_POP));
-	mafDEL(m_InteractorSlider);
+	albaEventMacro(albaEvent(this, PER_POP));
+	albaDEL(m_InteractorSlider);
 
-	mafEventMacro(mafEvent(this, result));
+	albaEventMacro(albaEvent(this, result));
 }
 
 //----------------------------------------------------------------------------
-void appOpInteractorSliderSample::OnEvent(mafEventBase *maf_event)
+void appOpInteractorSliderSample::OnEvent(albaEventBase *alba_event)
 {
-	if (mafEvent *e = mafEvent::SafeDownCast(maf_event))
+	if (albaEvent *e = albaEvent::SafeDownCast(alba_event))
 	{
 		if (e->GetSender() == m_Gui)
 		{
@@ -244,11 +244,11 @@ void appOpInteractorSliderSample::OnEvent(mafEventBase *maf_event)
 			{
 				m_InteractorSlider->ShowSlider(false);
 
-				mafEventMacro(mafEvent(this, PER_POP));
-				mafDEL(m_InteractorSlider);
+				albaEventMacro(albaEvent(this, PER_POP));
+				albaDEL(m_InteractorSlider);
 
-				m_InteractorSlider = new mafInteractorSlider(m_View, m_SliderOrientation, m_SliderValue, m_SliderMin, m_SliderMax, m_SliderPosX, m_SliderPosY, m_SliderLenght);
-				mafEventMacro(mafEvent(this, PER_PUSH, (mafObject *)m_InteractorSlider));
+				m_InteractorSlider = new albaInteractorSlider(m_View, m_SliderOrientation, m_SliderValue, m_SliderMin, m_SliderMax, m_SliderPosX, m_SliderPosY, m_SliderLenght);
+				albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorSlider));
 				m_InteractorSlider->SetListener(this);
 
 				m_Gui->Update();
@@ -260,7 +260,7 @@ void appOpInteractorSliderSample::OnEvent(mafEventBase *maf_event)
 		{
 			switch (e->GetId())
 			{
-			case mafInteractorSlider::ID_VALUE_CHANGED:
+			case albaInteractorSlider::ID_VALUE_CHANGED:
 			{
 				m_SliderValue = m_InteractorSlider->GetValue();
 				m_Gui->Update();
@@ -276,7 +276,7 @@ void appOpInteractorSliderSample::OnEvent(mafEventBase *maf_event)
 //----------------------------------------------------------------------------
 void appOpInteractorSliderSample::UpdateVolumeSlice()
 {
-	mafViewGlobalSlice *viewSlice = mafViewGlobalSlice::SafeDownCast(m_View);
+	albaViewGlobalSlice *viewSlice = albaViewGlobalSlice::SafeDownCast(m_View);
 	 
 	if (viewSlice && m_Volume)
 	{

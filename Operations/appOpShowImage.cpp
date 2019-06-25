@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpShowImage.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -22,14 +22,14 @@ PURPOSE. See the above copyright notice for more information.
 #include "appOpShowImage.h"
 #include "appGUILabel.h"
 
-#include "mafDecl.h"
-#include "mafEvent.h"
-#include "mafGUI.h"
-#include "mafGUICheckListBox.h"
-#include "mafGUIDictionaryWidget.h"
-#include "mafGUIImageViewer.h"
-#include "mafGUIValidator.h"
-#include "mafPics.h"
+#include "albaDecl.h"
+#include "albaEvent.h"
+#include "albaGUI.h"
+#include "albaGUICheckListBox.h"
+#include "albaGUIDictionaryWidget.h"
+#include "albaGUIImageViewer.h"
+#include "albaGUIValidator.h"
+#include "albaPics.h"
 #include "wx\os2\bmpbuttn.h"
 
 //----------------------------------------------------------------------------
@@ -44,12 +44,12 @@ enum GUI_WIDGET_ID
 };
 
 //----------------------------------------------------------------------------
-mafCxxTypeMacro(appOpShowImage);
+albaCxxTypeMacro(appOpShowImage);
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 appOpShowImage::appOpShowImage(const wxString &label) :
-mafOp(label)
+albaOp(label)
 {
   m_OpType	= OPTYPE_OP;
   m_Canundo = true;
@@ -57,8 +57,8 @@ mafOp(label)
 	m_listBox = NULL;
 	m_BitmapButton = NULL;
 
-	mafPictureFactory::GetPictureFactory()->GetVmeNames(m_VectNames);
-	//mafPictureFactory::GetPictureFactory()->GetPicIds(m_VectIds);
+	albaPictureFactory::GetPictureFactory()->GetVmeNames(m_VectNames);
+	//albaPictureFactory::GetPictureFactory()->GetPicIds(m_VectIds);
 }
 //----------------------------------------------------------------------------
 appOpShowImage::~appOpShowImage()
@@ -68,12 +68,12 @@ appOpShowImage::~appOpShowImage()
 }
 
 //----------------------------------------------------------------------------
-mafOp* appOpShowImage::Copy()   
+albaOp* appOpShowImage::Copy()   
 {
 	return new appOpShowImage(m_Label);
 }
 //----------------------------------------------------------------------------
-bool appOpShowImage::Accept(mafVME*node)
+bool appOpShowImage::Accept(albaVME*node)
 {
 	return true;
 }
@@ -81,7 +81,7 @@ bool appOpShowImage::Accept(mafVME*node)
 //----------------------------------------------------------------------------
 void appOpShowImage::OpRun()
 {
-  m_Gui = new mafGUI(this);	
+  m_Gui = new albaGUI(this);	
 
 	m_listBox = m_Gui->ListBox(ID_LIST_SELECTION, "List", 100);
 
@@ -106,13 +106,13 @@ void appOpShowImage::OpRun()
 	m_Gui->Label("");
 	m_Gui->Divider(1);
 
-	wxBitmap bitmap = mafPictureFactory::GetPictureFactory()->GetVmePic(m_VectNames[0]);
+	wxBitmap bitmap = albaPictureFactory::GetPictureFactory()->GetVmePic(m_VectNames[0]);
 
 	if(bitmap == wxNullBitmap) 
-		bitmap = mafPictureFactory::GetPictureFactory()->GetBmp(m_VectNames[0]);
+		bitmap = albaPictureFactory::GetPictureFactory()->GetBmp(m_VectNames[0]);
 
 
-	//wxBitmap bitmap = mafPictureFactory::GetPictureFactory()->GetBmp(m_VectNames[0]);
+	//wxBitmap bitmap = albaPictureFactory::GetPictureFactory()->GetBmp(m_VectNames[0]);
 	if (m_BitmapButton == NULL)
 	{
 		m_BitmapButton = new wxBitmapButton(m_Gui, -1, bitmap, wxPoint(0, 0), wxSize(19, 20));
@@ -127,17 +127,17 @@ void appOpShowImage::OpRun()
 }
 
 //----------------------------------------------------------------------------
-void appOpShowImage::OnEvent( mafEventBase *maf_event )
+void appOpShowImage::OnEvent( albaEventBase *alba_event )
 {
 	int b = 1;
 	int a = 0;
 
-  switch (maf_event->GetId())
+  switch (alba_event->GetId())
   {
     case ID_GUI_WIDGET_FIRST:
     case ID_GUI_WIDGET_SECOND:
     case ID_GUI_WIDGET:
-			mafLogMessage("Event: %d - Sender: %s", maf_event->GetId(), maf_event->GetSender());
+			albaLogMessage("Event: %d - Sender: %s", alba_event->GetId(), alba_event->GetSender());
     break;
 
 		case ID_LIST_SELECTION:
@@ -156,7 +156,7 @@ void appOpShowImage::OnEvent( mafEventBase *maf_event )
 //----------------------------------------------------------------------------
 void appOpShowImage::CreateGui(int index)
 {
-	wxBitmap bitmap = mafPictureFactory::GetPictureFactory()->GetBmp(m_VectNames[index]);
+	wxBitmap bitmap = albaPictureFactory::GetPictureFactory()->GetBmp(m_VectNames[index]);
 	if (m_BitmapButton == NULL)
 	{
 		m_BitmapButton = new wxBitmapButton(m_Gui, -1, bitmap, wxPoint(0, 0), wxSize(19, 20));

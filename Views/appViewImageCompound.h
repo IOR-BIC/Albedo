@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appViewImageCompound.h
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -20,25 +20,25 @@ PURPOSE. See the above copyright notice for more information.
 // Include:
 //----------------------------------------------------------------------------
 #include "appViewsDefines.h"
-#include "mafViewImageCompound.h"
-#include "vtkMAFSimpleRulerActor2D.h"
+#include "albaViewImageCompound.h"
+#include "vtkALBASimpleRulerActor2D.h"
 #include "vtkRenderWindow.h"
 
 //----------------------------------------------------------------------------
 // Forward references :
 //----------------------------------------------------------------------------
-class mafSceneGraph;
-class mafGUI;
-class mafRWIBase;
-class mafViewImage;
-class mafGUILutSlider;
-class mafGUILutSwatch;
-class mafGUIFloatSlider;
-class mafGUIPicButton;
+class albaSceneGraph;
+class albaGUI;
+class albaRWIBase;
+class albaViewImage;
+class albaGUILutSlider;
+class albaGUILutSwatch;
+class albaGUIFloatSlider;
+class albaGUIPicButton;
 
 class vtkLookupTable;
 class vtkWindowLevelLookupTable;
-class vtkMAFSimpleRulerActor2D;
+class vtkALBASimpleRulerActor2D;
 
 enum VIEW_OPTIONS
 {
@@ -47,9 +47,9 @@ enum VIEW_OPTIONS
 
 /**
   Class Name: appViewImageCompound.
-  Class that contain mafViewImage in order to add gui view widget like windowing buttons.
+  Class that contain albaViewImage in order to add gui view widget like windowing buttons.
 */
-class APP_VIEWS_EXPORT appViewImageCompound: public mafViewImageCompound
+class APP_VIEWS_EXPORT appViewImageCompound: public albaViewImageCompound
 {
 public:
   /** constructor. */
@@ -58,12 +58,12 @@ public:
   virtual ~appViewImageCompound(); 
 
 	/** RTTI macro.*/
-	mafTypeMacro(appViewImageCompound, mafViewImageCompound);
+	albaTypeMacro(appViewImageCompound, albaViewImageCompound);
 
   /**  Redefine this method to package the compounded view */
   virtual void PackageView();
 
-  virtual mafView *Copy(mafObserver *Listener, bool lightCopyEnabled = false);
+  virtual albaView *Copy(albaObserver *Listener, bool lightCopyEnabled = false);
 
 	bool RulerIsVisible() { return m_ShowRuler; };
   void ShowRuler(bool show);
@@ -72,15 +72,15 @@ public:
 	virtual void CreateGuiView();
 
 	/** Precess events coming from other objects */
-	void OnEvent(mafEventBase *maf_event);
+	void OnEvent(albaEventBase *alba_event);
 
 protected:
   void SetRendererByView();
 
-  vtkMAFSimpleRulerActor2D *m_Ruler;
+  vtkALBASimpleRulerActor2D *m_Ruler;
 	vtkRenderer *m_Renderer;
 
-	mafGUIPicButton *m_RulerButton;
+	albaGUIPicButton *m_RulerButton;
 
   bool m_ShowRuler;
 };
