@@ -52,6 +52,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "mafServiceLocator.h"
 #include "mafVMEFactory.h" 
 #include "mafViewVTK.h"
+#include "mafViewGlobalSlice.h"
 
 #include <vtkTimerLog.h>
 
@@ -181,6 +182,10 @@ bool Albedo::OnInit()
 	appViewImageCompound *view_image = new appViewImageCompound("Image");
 	view_image->PackageView();
 	m_Logic->Plug(view_image);
+
+	//View Global Slice 
+	mafViewGlobalSlice *vGlobalS = new mafViewGlobalSlice("Global Slice");
+	m_Logic->Plug(vGlobalS);
 
 #ifdef USE_WIZARD
 	//////////////////////////////////////////////////////////////////////////

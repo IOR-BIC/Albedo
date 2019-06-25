@@ -31,6 +31,12 @@ PURPOSE. See the above copyright notice for more information.
 #include "mafVMEVolumeRGB.h"
 #include "mafVMEImage.h"
 #include "mafVMEItem.h"
+#include "mafVMEOutput.h"
+#include "mafVMEVolumeGray.h"
+#include "mafViewGlobalSlice.h"
+#include "vtkDataArray.h"
+#include "vtkImageData.h"
+#include "vtkRectilinearGrid.h"
 
 #include "vtkMAFSmartPointer.h"
 #include "vtkImageData.h"
@@ -41,6 +47,9 @@ PURPOSE. See the above copyright notice for more information.
 #include "vtkImageFlip.h"
 #include "vtkImageResample.h"
 #include "vtkPointData.h"
+#include "vtkDataSetToDataSetFilter.h"
+#include "mafVMEIterator.h"
+#include "mafVME.h"
 
 //----------------------------------------------------------------------------
 mafCxxTypeMacro(appOpInteractorSliderSample);
@@ -52,6 +61,9 @@ mafOp(label)
 {
   m_OpType  = OPTYPE_OP;
   m_Canundo = true;
+
+	m_View = NULL;
+	m_Volume = NULL;
 
   m_InteractorSlider = NULL;
 }
@@ -80,7 +92,20 @@ void appOpInteractorSliderSample::OpRun()
 	if (!e.GetBool())
 	{
 		mafEventMacro(mafEvent(this, ID_SHOW_IMAGE_VIEW));
+		//mafEventMacro(mafEvent(this, ID_SHOW_SLICE_VIEW));
 	}
+	
+	// Find Volume
+	mafVMEIterator *iter = m_Input->GetRoot()->NewIterator();
+	for (mafVME *vme = iter->GetFirstNode(); vme; vme = iter->GetNextNode())
+	{
+		if (vme->IsA("mafVMEVolumeGray")) // Find Volume
+		{
+			m_Volume = (mafVMEVolumeGray*)vme;
+		}
+	}
+	iter->Delete();
+
 
 	if (!m_TestMode)
 	{
@@ -94,9 +119,9 @@ void appOpInteractorSliderSample::OpRun()
 			// Create Interactor
 
 			m_SliderValue = 0.0;
-			m_SliderMin = -100.0;
+			m_SliderMin = 1.0;
 			m_SliderMax = 100.0;
-			m_SliderSteps = 200;
+			m_SliderSteps = 100;
 
 			m_SliderPosX = 100;
 			m_SliderPosY = 100;
@@ -108,7 +133,7 @@ void appOpInteractorSliderSample::OpRun()
 			m_SliderLabelsShow = true;
 
 			m_View = e.GetView();
-
+			
 			m_InteractorSlider = new mafInteractorSlider(m_View, m_SliderOrientation, m_SliderValue, m_SliderMin, m_SliderMax, m_SliderPosX, m_SliderPosY, m_SliderLenght);
 
 			//m_InteractorSlider = new mafInteractorSlider(m_View);
@@ -239,9 +264,61 @@ void appOpInteractorSliderSample::OnEvent(mafEventBase *maf_event)
 			{
 				m_SliderValue = m_InteractorSlider->GetValue();
 				m_Gui->Update();
+
+				UpdateVolumeSlice();
 			}
 			break;
 			}
 		}
+	}
+}
+
+//----------------------------------------------------------------------------
+void appOpInteractorSliderSample::UpdateVolumeSlice()
+{
+	mafViewGlobalSlice *viewSlice = mafViewGlobalSlice::SafeDownCast(m_View);
+	 
+	if (viewSlice && m_Volume)
+	{
+		int sliceIndex = m_SliderValue;
+		m_SlicePlane = XY;
+
+		//viewSlice->SetSliceAxis(m_SlicePlane);
+
+		double origin[3];
+
+		if (m_Volume->GetOutput()->GetVTKData()->IsA("vtkImageData"))
+		{
+			vtkImageData *sp = vtkImageData::SafeDownCast(m_Volume->GetOutput()->GetVTKData());
+			sp->Update();
+			double spc[3];
+			sp->GetSpacing(spc);
+			sp->GetOrigin(origin);
+
+			if (m_SlicePlane == XY)
+				origin[2] = (sliceIndex - 1)*spc[2] + origin[2];
+			else if (m_SlicePlane == XZ)
+				origin[1] = (sliceIndex - 1)*spc[1] + origin[1];
+			else if (m_SlicePlane == YZ)
+				origin[0] = (sliceIndex - 1)*spc[0] + origin[0];
+
+		}
+		else
+		{
+			vtkRectilinearGrid *rg = vtkRectilinearGrid::SafeDownCast(m_Volume->GetOutput()->GetVTKData());
+			rg->Update();
+			origin[0] = rg->GetXCoordinates()->GetTuple1(0);
+			origin[1] = rg->GetYCoordinates()->GetTuple1(0);
+			origin[2] = rg->GetZCoordinates()->GetTuple1(0);
+
+			if (m_SlicePlane == XY)
+				origin[2] = rg->GetZCoordinates()->GetTuple1(sliceIndex - 1);
+			else if (m_SlicePlane == XZ)
+				origin[1] = rg->GetYCoordinates()->GetTuple1(sliceIndex - 1);
+			if (m_SlicePlane == YZ)
+				origin[0] = rg->GetXCoordinates()->GetTuple1(sliceIndex - 1);
+		}
+
+		viewSlice->SetSlice(origin);
 	}
 }

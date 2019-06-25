@@ -22,12 +22,16 @@ PURPOSE. See the above copyright notice for more information.
 #include "appOperationsDefines.h"
 
 #include "mafOp.h"
+#include "mafVMEVolumeGray.h"
 
 //----------------------------------------------------------------------------
 // Forward references :
 //----------------------------------------------------------------------------
 class mafEvent;
 class mafInteractorSlider;
+class mafView;
+class vtkRectilinearGrid;
+class vtkImageData;
 
 // Class Name: appOpInteractorSliderSample
 class APP_OPERATIONS_EXPORT appOpInteractorSliderSample: public mafOp
@@ -85,5 +89,18 @@ protected:
 
 	int m_SliderShow;
 	int m_SliderLabelsShow;
+
+	void GetSliceOrigin(double *origin);
+	void UpdateVolumeSlice();
+
+	mafVMEVolumeGray* m_Volume;	//<Input volume
+	int m_SlicePlane;						//<Current slicing plane (xy,xz,yx)
+
+	enum PLANE_TYPE
+	{
+		YZ = 0,
+		XZ,
+		XY,
+	};
 };
 #endif

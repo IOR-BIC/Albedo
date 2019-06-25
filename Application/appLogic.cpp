@@ -124,6 +124,11 @@ void appLogic::OnEvent(mafEventBase *maf_event)
 			ViewCreate(VIEW_START + 1);
 		}
 		break;
+		case ID_SHOW_SLICE_VIEW:
+		{
+			ViewCreate(VIEW_START + 2);
+		}
+		break;
 
 		// Operations Events 
 		case OP_IMPORTER_DICOM:
@@ -376,6 +381,7 @@ void appLogic::CreateToolbar()
 	// Views	
 	m_ToolBar->AddTool(ID_SHOW_VIEW_VTK_SURFACE, mafPictureFactory::GetPictureFactory()->GetBmp("VIEW_SURFACE_ICON"), _("View Surface"));
 	m_ToolBar->AddTool(ID_SHOW_IMAGE_VIEW, mafPictureFactory::GetPictureFactory()->GetBmp("VIEW_SURFACE_ICON"), _("View Image"));
+	m_ToolBar->AddTool(ID_SHOW_SLICE_VIEW, mafPictureFactory::GetPictureFactory()->GetBmp("VIEW_SURFACE_ICON"), _("View Slice"));
 	//m_ToolBar->AddSeparator();
 
 	if (m_UseSnapshotManager)
