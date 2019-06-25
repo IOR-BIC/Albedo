@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpEmpty.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -23,16 +23,16 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appDecl.h"
 
-#include "mafGUI.h"
-#include "mafVME.h"
+#include "albaGUI.h"
+#include "albaVME.h"
 #include "appGUIHintBox.h"
 #include "appGUI.h"
 
 //----------------------------------------------------------------------------
-mafCxxTypeMacro(appOpEmpty);
+albaCxxTypeMacro(appOpEmpty);
 
 //----------------------------------------------------------------------------
-appOpEmpty::appOpEmpty(wxString label, bool enable) :mafOp(label)
+appOpEmpty::appOpEmpty(wxString label, bool enable) :albaOp(label)
 {
 	m_OpType = OPTYPE_OP;
 	m_Canundo = true;
@@ -46,14 +46,14 @@ appOpEmpty::~appOpEmpty()
 }
 
 //----------------------------------------------------------------------------
-bool appOpEmpty::Accept(mafVME *node)
+bool appOpEmpty::Accept(albaVME *node)
 {
 	//return node->IsA("...");
 	return m_Enabled;
 }
 
 //----------------------------------------------------------------------------
-mafOp* appOpEmpty::Copy()
+albaOp* appOpEmpty::Copy()
 {
 	appOpEmpty *cp = new appOpEmpty(m_Label, m_Enabled);
 	return cp;
@@ -76,7 +76,7 @@ void appOpEmpty::OpStop(int result)
 		HideGui();
 	}
 
-	mafEventMacro(mafEvent(this, result));
+	albaEventMacro(albaEvent(this, result));
 }
 //----------------------------------------------------------------------------
 void appOpEmpty::OpDo()
@@ -84,9 +84,9 @@ void appOpEmpty::OpDo()
 }
 
 //----------------------------------------------------------------------------
-void appOpEmpty::OnEvent(mafEventBase *maf_event)
+void appOpEmpty::OnEvent(albaEventBase *alba_event)
 {
-	if (mafEvent *e = mafEvent::SafeDownCast(maf_event))
+	if (albaEvent *e = albaEvent::SafeDownCast(alba_event))
 	{
 		m_Gui->Update();
 		//if (e->GetSender() == m_Gui)
@@ -102,13 +102,13 @@ void appOpEmpty::OnEvent(mafEventBase *maf_event)
 				break;
 
 			default:
-				Superclass::OnEvent(maf_event);
+				Superclass::OnEvent(alba_event);
 				break;
 			}
 		}
 // 		else
 // 		{
-// 			Superclass::OnEvent(maf_event);
+// 			Superclass::OnEvent(alba_event);
 // 		}
 	}
 }

@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appWizardSample.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -21,14 +21,14 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appWizardSample.h"
 
-#include "mafWizardBlockInformation.h"
-#include "mafWizardBlockOperation.h"
-#include "mafWizardBlockSelection.h"
+#include "albaWizardBlockInformation.h"
+#include "albaWizardBlockOperation.h"
+#include "albaWizardBlockSelection.h"
 
 //--------------------------------------------------------------------------------
-appWizardSample::appWizardSample( const wxString &label ):mafWizard(label)
+appWizardSample::appWizardSample( const wxString &label ):albaWizard(label)
 {
-  mafWizardBlockInformation *infoBlock=new mafWizardBlockInformation("START");
+  albaWizardBlockInformation *infoBlock=new albaWizardBlockInformation("START");
   infoBlock->SetBoxLabel("Info");
   infoBlock->SetDescription("Import Loop:\nYou can import and show a series of VTK files.");
   infoBlock->SetWindowTitle("Wizard Sample");
@@ -36,15 +36,15 @@ appWizardSample::appWizardSample( const wxString &label ):mafWizard(label)
   infoBlock->SetBlockProgress(10);
   
   //Start Block (import a VTK file)   
-  mafWizardBlockOperation *opBlock=new mafWizardBlockOperation("Import");
+  albaWizardBlockOperation *opBlock=new albaWizardBlockOperation("Import");
   opBlock->SetRequiredView("");
   opBlock->VmeSelect("root");
-  opBlock->SetRequiredOperation("mafOpImporterVTK");
+  opBlock->SetRequiredOperation("albaOpImporterVTK");
   opBlock->SetNextBlock("opPause");
   opBlock->SetBlockProgress(25);
 
   //Move block (position the Block)
-  mafWizardBlockOperation *opBlock2=new mafWizardBlockOperation("opPause");
+  albaWizardBlockOperation *opBlock2=new albaWizardBlockOperation("opPause");
   opBlock2->SetRequiredView("VTK view");
   opBlock2->VmeSelect("lastChild");
   opBlock2->SetRequiredOperation("PAUSE");
@@ -52,7 +52,7 @@ appWizardSample::appWizardSample( const wxString &label ):mafWizard(label)
   opBlock2->SetBlockProgress(75);
   
   //Select Block ask user if want to import another file
-  mafWizardBlockSelection *selectorBlock=new mafWizardBlockSelection("Select");
+  albaWizardBlockSelection *selectorBlock=new albaWizardBlockSelection("Select");
   selectorBlock->SetWindowTitle("Test Selector");
   selectorBlock->SetDescription("Wizard Selector Test window");
   selectorBlock->AddChoice("Import another VTK","deleteBlock"); 
@@ -60,7 +60,7 @@ appWizardSample::appWizardSample( const wxString &label ):mafWizard(label)
   selectorBlock->SetBlockProgress(100);
 
   //Move block (position the Block)
-  mafWizardBlockOperation *deleteBlock=new mafWizardBlockOperation("deleteBlock");
+  albaWizardBlockOperation *deleteBlock=new albaWizardBlockOperation("deleteBlock");
   deleteBlock->SetRequiredOperation("DELETE");
   deleteBlock->SetNextBlock("Import");
 	
@@ -75,7 +75,7 @@ appWizardSample::appWizardSample( const wxString &label ):mafWizard(label)
 }
 
 //--------------------------------------------------------------------------------
-bool appWizardSample::Accept(mafVME* vme)
+bool appWizardSample::Accept(albaVME* vme)
 {
   return true;
 }

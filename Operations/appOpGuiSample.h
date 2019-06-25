@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpGuiSample.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -19,35 +19,35 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 // Include :
 //----------------------------------------------------------------------------
-#include "mafOp.h"
+#include "albaOp.h"
 
 //----------------------------------------------------------------------------
 // Forward references :
 //----------------------------------------------------------------------------
-class mafGUICheckListBox;
-class mafGUIValidator;
+class albaGUICheckListBox;
+class albaGUIValidator;
 class appGUI;
 
 //----------------------------------------------------------------------------
 // Class Name: appOpGuiSample
 //----------------------------------------------------------------------------
-class MAF_EXPORT appOpGuiSample: public mafOp
+class ALBA_EXPORT appOpGuiSample: public albaOp
 {
 public:
 
   appOpGuiSample(const wxString &label = "Gui Sample");
   ~appOpGuiSample(); 
 
-  mafTypeMacro(appOpGuiSample, mafOp);
+  albaTypeMacro(appOpGuiSample, albaOp);
 
   /** Receive events coming from the user interface.*/
-  void OnEvent(mafEventBase *maf_event);
+  void OnEvent(albaEventBase *alba_event);
 	
 	/** Return a copy of the operation.*/
-  mafOp* Copy();
+  albaOp* Copy();
 
   /** Return true for the acceptable vme type. */
-  bool Accept(mafVME*node);
+  bool Accept(albaVME*node);
 
   /** Builds operation's interface. */
   void OpRun();
@@ -64,8 +64,8 @@ private:
 	void GuiExtra();
 	void GuiClock();
 
-	mafString m_String;
-	mafString m_StringMultiline;
+	albaString m_String;
+	albaString m_StringMultiline;
 
 	int m_Interger;
 	float m_Float;
@@ -77,13 +77,13 @@ private:
 	int h, m, s;
 
 	int m_time[3];
-	mafString m_text_time[3];
-	mafString mTime;
+	albaString m_text_time[3];
+	albaString mTime;
 
 	wxColor m_Color;
 
 	wxListBox *m_listBox;
-	mafGUI *m_Gui2;
+	albaGUI *m_Gui2;
 	appGUI *m_Gui3;
 };
 

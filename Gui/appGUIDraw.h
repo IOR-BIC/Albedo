@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appGUIDraw.h
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -19,7 +19,7 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 // Include:
 //----------------------------------------------------------------------------
-#include "mafObserver.h"
+#include "albaObserver.h"
 
 //----------------------------------------------------------------------------
 // Class Name: appGUIDraw :
@@ -32,7 +32,7 @@ public:
 	appGUIDraw(wxWindow *parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxString& name = wxPanelNameStr);
 
 	/** Function for setting the listener of events coming from another object*/
-	void SetListener(mafObserver *listener) { m_Listener = listener; }
+	void SetListener(albaObserver *listener) { m_Listener = listener; }
 
 	/** Get the 'min', 'max' or 'mid' value according to 'i'. */
 	double GetValue(int i) const { return this->m_Value[i]; }
@@ -85,7 +85,7 @@ protected:
 	double m_Value[3];
 
 	int m_NumberOfWidgets;
-	mafObserver *m_Listener;
+	albaObserver *m_Listener;
 
 private:
 

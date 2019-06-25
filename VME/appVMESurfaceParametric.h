@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appVMESurfaceParametric.h
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (http://www.ltmsoftware.org/alba.htm)
+Copyright (c) BIC-IOR 2019 (http://www.ltmsoftware.org/alba.htm)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -21,15 +21,15 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 #include "appVMEDefines.h"
 
-#include "mafVME.h"
-#include "mafEvent.h"
+#include "albaVME.h"
+#include "albaEvent.h"
 
 //----------------------------------------------------------------------------
 // Forward declarations :
 //----------------------------------------------------------------------------
 class mmaMaterial;
-class mafVME;
-class mafVMEOutputSurface;
+class albaVME;
+class albaVMEOutputSurface;
 class vtkPolyData;
 
 //----------------------------------------------------------------------------
@@ -37,11 +37,11 @@ class vtkPolyData;
 // This class represents a parametric surface that is a specific geometry.
 // Currently generated geometries are : cylinder, sphere, cube, cone and plane.
 //----------------------------------------------------------------------------
-class APP_VME_EXPORT appVMESurfaceParametric : public mafVME
+class APP_VME_EXPORT appVMESurfaceParametric : public albaVME
 {
 public:
 
-  mafTypeMacro(appVMESurfaceParametric, mafVME);
+  albaTypeMacro(appVMESurfaceParametric, albaVME);
     
   enum PARAMETRIC_SURFACE_TYPE_ID
   {
@@ -75,25 +75,25 @@ public:
   int GetCylinderAxis() {return m_CylinderOrientationAxis;};
 
   /** Copy the contents of another appVMESurfaceParametric into this one. */
-  virtual int DeepCopy(mafVME *a);
+  virtual int DeepCopy(albaVME *a);
 
   /** Compare with another appVMESurfaceParametric. */
-  virtual bool Equals(mafVME *vme);
+  virtual bool Equals(albaVME *vme);
 
   /** return the right type of output */  
-  mafVMEOutputSurface *GetSurfaceOutput();
+  albaVMEOutputSurface *GetSurfaceOutput();
 
   /**
   Return the list of timestamps for this VME. Timestamps list is 
   obtained merging timestamps for matrices and VME items*/
-  virtual void GetLocalTimeStamps(std::vector<mafTimeStamp> &kframes);
+  virtual void GetLocalTimeStamps(std::vector<albaTimeStamp> &kframes);
 
   /** return always false since (currently) the slicer is not an animated VME (position 
   is the same for all timestamps). */
   virtual bool IsAnimated();
 
   /** Return the suggested pipe-typename for the visualization of this vme */
-  virtual mafString GetVisualPipe() {return mafString("mafPipeSurface");};
+  virtual albaString GetVisualPipe() {return albaString("albaPipeSurface");};
 
   /** Return pointer to material attribute. */
   mmaMaterial *GetMaterial();
@@ -102,14 +102,14 @@ public:
   static char ** GetIcon();
 	
   /** Precess events coming from other objects */ 
-  virtual void OnEvent(mafEventBase *maf_event);
+  virtual void OnEvent(albaEventBase *alba_event);
 
   /**
   Set the Pose matrix of the VME. This function modifies the MatrixVector. You can
   set or get the Pose for a specified time. When setting, if the time does not exist
   the MatrixVector creates a new KeyMatrix on the fly. When getting, the matrix vector
   interpolates on the fly according to the matrix interpolator.*/
-  virtual void SetMatrix(const mafMatrix &mat);
+  virtual void SetMatrix(const albaMatrix &mat);
 	
 	/** Returns EllipsoidXLenght */
 	double GetEllipsoidXLenght() const { return m_EllipsoidXLenght; }
@@ -157,8 +157,8 @@ protected:
   /** this function uses PARAMETRIC_SURFACE_TYPE_ID as argument*/
   void EnableParametricSurfaceGui(int surfaceTypeID);
 
-	virtual int InternalStore(mafStorageElement *parent);
-	virtual int InternalRestore(mafStorageElement *node);
+	virtual int InternalStore(albaStorageElement *parent);
+	virtual int InternalRestore(albaStorageElement *node);
 
 	/** called to prepare the update of the output */
 	virtual void InternalPreUpdate();
@@ -167,7 +167,7 @@ protected:
 	virtual void InternalUpdate();
 
   /** Internally used to create a new instance of the GUI.*/
-  virtual mafGUI *CreateGui();
+  virtual albaGUI *CreateGui();
 
   void CreateGuiPlane();
   void EnableGuiPlane();
@@ -187,14 +187,14 @@ protected:
   void CreateGuiEllipsoid();
   void EnableGuiEllipsoid();
   
-  mafGUI *m_GuiSphere;
-  mafGUI *m_GuiCone;
-  mafGUI *m_GuiCylinder;
-  mafGUI *m_GuiCube;
-  mafGUI *m_GuiPlane;
-  mafGUI *m_GuiEllipsoid;
+  albaGUI *m_GuiSphere;
+  albaGUI *m_GuiCone;
+  albaGUI *m_GuiCylinder;
+  albaGUI *m_GuiCube;
+  albaGUI *m_GuiPlane;
+  albaGUI *m_GuiEllipsoid;
 
-	mafTransform *m_Transform; 
+	albaTransform *m_Transform; 
 	vtkPolyData  *m_PolyData;
   
   int m_GeometryType;

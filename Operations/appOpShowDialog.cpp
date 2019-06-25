@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpShowDialog.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -26,25 +26,25 @@ PURPOSE. See the above copyright notice for more information.
 #include "appGUISeparator.h"
 #include "appUtils.h"
 
-#include "mafDecl.h"
-#include "mafGUI.h"
-#include "mafGUIButton.h"
-#include "mafGUIDialog.h"
-#include "mafGUIPicButton.h"
-#include "mafVME.h"
-#include "mafVMEIterator.h"
+#include "albaDecl.h"
+#include "albaGUI.h"
+#include "albaGUIButton.h"
+#include "albaGUIDialog.h"
+#include "albaGUIPicButton.h"
+#include "albaVME.h"
+#include "albaVMEIterator.h"
 
 #include <wx/bitmap.h>
 #include <wx/dir.h>
 #include <wx/image.h>
 
 //----------------------------------------------------------------------------
-mafCxxTypeMacro(appOpShowDialog);
+albaCxxTypeMacro(appOpShowDialog);
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 appOpShowDialog::appOpShowDialog(const wxString &label, DIALOG_MODE mode):
-	mafOp(label)
+	albaOp(label)
 {
 	m_dialog = NULL;
 	m_OkBtn = NULL;
@@ -77,13 +77,13 @@ appOpShowDialog::~appOpShowDialog()
 }
 
 //----------------------------------------------------------------------------
-bool appOpShowDialog::Accept(mafVME *node)
+bool appOpShowDialog::Accept(albaVME *node)
 {
 	return true;
 }
 
 //----------------------------------------------------------------------------
-mafOp* appOpShowDialog::Copy()
+albaOp* appOpShowDialog::Copy()
 {
 	appOpShowDialog *op = new appOpShowDialog(m_Label, m_DialogMode);
 	op->m_OpType = m_OpType;
@@ -99,9 +99,9 @@ void appOpShowDialog::OpRun()
 }
 
 //----------------------------------------------------------------------------
-void appOpShowDialog::OnEvent(mafEventBase *maf_event)
+void appOpShowDialog::OnEvent(albaEventBase *alba_event)
 {
-	if (mafEvent *e = mafEvent::SafeDownCast(maf_event))
+	if (albaEvent *e = albaEvent::SafeDownCast(alba_event))
 	{
 		switch (e->GetId())
 		{
@@ -118,7 +118,7 @@ void appOpShowDialog::OnEvent(mafEventBase *maf_event)
 		break;
 
 		default:
-			mafEventMacro(*e);
+			albaEventMacro(*e);
 			break;
 		}
 	}
@@ -127,7 +127,7 @@ void appOpShowDialog::OnEvent(mafEventBase *maf_event)
 //----------------------------------------------------------------------------
 void appOpShowDialog::OpStop(int result)
 {
-	mafEventMacro(mafEvent(this, result));
+	albaEventMacro(albaEvent(this, result));
 }
 
 //----------------------------------------------------------------------------
@@ -137,7 +137,7 @@ void appOpShowDialog::ShowDialog()
 
 	if (m_dialog == NULL)
 	{
-		m_dialog = new mafGUIDialog(m_Title, mafCLOSEWINDOW);
+		m_dialog = new albaGUIDialog(m_Title, albaCLOSEWINDOW);
 		m_dialog->SetListener(this);
 
 		int mainStyle = wxVERTICAL;
@@ -167,7 +167,7 @@ void appOpShowDialog::ShowDialog()
 			m_PreviewImage->LoadFile(imgPath.c_str(), wxBITMAP_TYPE_ANY);
 
 			previewBitmap = new wxBitmap(*m_PreviewImage);
-			m_PreviewImageButton = new mafGUIPicButton(m_dialog, previewBitmap, -1);
+			m_PreviewImageButton = new albaGUIPicButton(m_dialog, previewBitmap, -1);
 
 			imagePanelWidth = m_PreviewImage->GetWidth();
 
@@ -213,11 +213,11 @@ void appOpShowDialog::ShowDialog()
 
 		wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
 
-		m_OkBtn = new mafGUIButton(m_dialog, ID_OK_BTN, "Ok", wxPoint(-1, -1));
+		m_OkBtn = new albaGUIButton(m_dialog, ID_OK_BTN, "Ok", wxPoint(-1, -1));
 		m_OkBtn->SetListener(this);
 		buttonSizer->Add(m_OkBtn, 0, wxALIGN_LEFT, 0);
 
-		m_CancelBtn = new mafGUIButton(m_dialog, ID_CANCEL_BTN, "Cancel", wxPoint(-1, -1));
+		m_CancelBtn = new albaGUIButton(m_dialog, ID_CANCEL_BTN, "Cancel", wxPoint(-1, -1));
 		m_CancelBtn->SetListener(this);
 		buttonSizer->Add(m_CancelBtn, 0, wxALIGN_LEFT, 0);
 
@@ -261,8 +261,8 @@ void appOpShowDialog::ShowDialog()
 	}
 
 	// Show dialog
-	wxSize s = mafGetFrame()->GetSize();
-	wxPoint p = mafGetFrame()->GetPosition();
+	wxSize s = albaGetFrame()->GetSize();
+	wxPoint p = albaGetFrame()->GetPosition();
 	int posX = p.x + s.GetWidth() * .5 - m_dialog->GetSize().GetWidth() * .5;
 	int posY = p.y + s.GetHeight() * .5 - m_dialog->GetSize().GetHeight() * .5;
 	m_dialog->SetPosition(wxPoint(posX, posY));

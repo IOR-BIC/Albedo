@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    Albedo.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -39,20 +39,20 @@ PURPOSE. See the above copyright notice for more information.
 #include "appEmptyVME.h"
 #include "appVMESurfaceParametric.h"
 
-#include "mafGUIDicomSettings.h"
-#include "mafOpExporterSTL.h"
-#include "mafOpExporterVTK.h"
-#include "mafOpImporterDicom.h"
-#include "mafOpImporterImage.h"
-#include "mafOpImporterSTL.h"
-#include "mafOpImporterVTK.h"
-#include "mafOpTransform.h"
-#include "mafPipeFactoryVME.h"
-#include "mafPipeVolumeSliceBlend.h"
-#include "mafServiceLocator.h"
-#include "mafVMEFactory.h" 
-#include "mafViewVTK.h"
-#include "mafViewGlobalSlice.h"
+#include "albaGUIDicomSettings.h"
+#include "albaOpExporterSTL.h"
+#include "albaOpExporterVTK.h"
+#include "albaOpImporterDicom.h"
+#include "albaOpImporterImage.h"
+#include "albaOpImporterSTL.h"
+#include "albaOpImporterVTK.h"
+#include "albaOpTransform.h"
+#include "albaPipeFactoryVME.h"
+#include "albaPipeVolumeSliceBlend.h"
+#include "albaServiceLocator.h"
+#include "albaVMEFactory.h" 
+#include "albaViewVTK.h"
+#include "albaViewGlobalSlice.h"
 
 #include <vtkTimerLog.h>
 
@@ -60,7 +60,7 @@ PURPOSE. See the above copyright notice for more information.
 #define USE_WIZARD
 
 #ifdef USE_WIZARD
-#include "mafWizard.h"
+#include "albaWizard.h"
 #include "appWizardSample.h"
 #endif
 
@@ -78,22 +78,22 @@ bool Albedo::OnInit()
 	InitializeReg();
 
 	int result;
-  result = mafVMEFactory::Initialize();
-	assert(result == MAF_OK);
+  result = albaVMEFactory::Initialize();
+	assert(result == ALBA_OK);
 
-	result = mafPipeFactoryVME::Initialize();
-	assert(result == MAF_OK);
+	result = albaPipeFactoryVME::Initialize();
+	assert(result == ALBA_OK);
 
 	// Plug custom VME
- 	mafPlugVME<appEmptyVME>("Empty VME");
- 	mafPlugVME<appVMESurfaceParametric>("Parametric Surface");
+ 	albaPlugVME<appEmptyVME>("Empty VME");
+ 	albaPlugVME<appVMESurfaceParametric>("Parametric Surface");
 
 	// Plug pipe to visualize custom VME
-// 	mafPlugPipe<appPipeCustomVME>("Pipe to visualize custom VME");  // Coming soon
+// 	albaPlugPipe<appPipeCustomVME>("Pipe to visualize custom VME");  // Coming soon
 
 	// Create Logic Manager
 	m_Logic = new appLogic();
-	mafServiceLocator::SetLogicManager(m_Logic);
+	albaServiceLocator::SetLogicManager(m_Logic);
 	m_Logic->GetTopWin()->SetTitle("Albedo");
 
 #ifdef USE_WIZARD
@@ -105,34 +105,34 @@ bool Albedo::OnInit()
 
 	m_Logic->Configure();
 
-	SetTopWindow(mafGetFrame());
+	SetTopWindow(albaGetFrame());
 
 	//////////////////////////////////////////////////////////////////////////
 	//Importers
 	//////////////////////////////////////////////////////////////////////////
 
 	// DICOM Importer
-	mafGUIDicomSettings *dicomSettings = new mafGUIDicomSettings(NULL, "DICOM");
-	m_Logic->Plug(new mafOpImporterDicom("DICOM", true), "", true, dicomSettings);
+	albaGUIDicomSettings *dicomSettings = new albaGUIDicomSettings(NULL, "DICOM");
+	m_Logic->Plug(new albaOpImporterDicom("DICOM", true), "", true, dicomSettings);
 
 	// Images Importer
-	m_Logic->Plug(new mafOpImporterImage("Images"));
+	m_Logic->Plug(new albaOpImporterImage("Images"));
 	
 	// STL Importer
-	m_Logic->Plug(new mafOpImporterSTL("STL"));
+	m_Logic->Plug(new albaOpImporterSTL("STL"));
 	
 	// VTK Importer
-	m_Logic->Plug(new mafOpImporterVTK("VTK"));	
+	m_Logic->Plug(new albaOpImporterVTK("VTK"));	
 
 	//////////////////////////////////////////////////////////////////////////
 	//Exporters
 	//////////////////////////////////////////////////////////////////////////
 
 	// STL Exporter
-	m_Logic->Plug(new mafOpExporterSTL("STL"));
+	m_Logic->Plug(new albaOpExporterSTL("STL"));
 
 	// VTK Exporter
-	m_Logic->Plug(new mafOpExporterVTK("VTK"));
+	m_Logic->Plug(new albaOpExporterVTK("VTK"));
 
 	//////////////////////////////////////////////////////////////////////////
 	//Operations
@@ -148,7 +148,7 @@ bool Albedo::OnInit()
 	m_Logic->Plug(new appOpCreateSurfaceParametric("Create Parametric Surface"), _("Create"));
 
 	// Transform Operation
-	m_Logic->Plug(new mafOpTransform("Transform \tCtrl+T"), _("Edit"));
+	m_Logic->Plug(new albaOpTransform("Transform \tCtrl+T"), _("Edit"));
 
 	// Dictionary Operation
 	m_Logic->Plug(new appOpDictionary("Dictionary Editor"), _("Edit"));
@@ -176,7 +176,7 @@ bool Albedo::OnInit()
 	//////////////////////////////////////////////////////////////////////////
 
 	// VTK View (Surface)
-	m_Logic->Plug(new mafViewVTK("Surface"));	
+	m_Logic->Plug(new albaViewVTK("Surface"));	
 
 	// Image Compound View
 	appViewImageCompound *view_image = new appViewImageCompound("Image");
@@ -184,7 +184,7 @@ bool Albedo::OnInit()
 	m_Logic->Plug(view_image);
 
 	//View Global Slice 
-	mafViewGlobalSlice *vGlobalS = new mafViewGlobalSlice("Global Slice");
+	albaViewGlobalSlice *vGlobalS = new albaViewGlobalSlice("Global Slice");
 	m_Logic->Plug(vGlobalS);
 
 #ifdef USE_WIZARD
@@ -200,7 +200,7 @@ bool Albedo::OnInit()
 	//////////////////////////////////////////////////////////////////////////
 
 	// Splash Screen
-	mafString splashImageName = "AlbedoSplash.bmp";
+	albaString splashImageName = "AlbedoSplash.bmp";
 
 	wxString splashDir = appUtils::GetConfigDirectory().c_str();
 	wxBitmap splashBitmap;
@@ -229,25 +229,25 @@ int Albedo::OnExit()
 //--------------------------------------------------------------------------------
 void Albedo::InitializeIcons()
 {
-	mafPictureFactory::GetPictureFactory()->Initialize();
+	albaPictureFactory::GetPictureFactory()->Initialize();
 
 #include "pic/FRAME_ICON16x16.xpm"
-	mafADDPIC(FRAME_ICON16x16);
+	albaADDPIC(FRAME_ICON16x16);
 #include "pic/FRAME_ICON32x32.xpm"
-	mafADDPIC(FRAME_ICON32x32);
+	albaADDPIC(FRAME_ICON32x32);
 #include "pic/MDICHILD_ICON.xpm"
-	mafADDPIC(MDICHILD_ICON);
+	albaADDPIC(MDICHILD_ICON);
 
 #include "pic/CAMERA.xpm"
-	mafADDPIC(CAMERA);
+	albaADDPIC(CAMERA);
 #include "pic/IMPORT_DICOM.xpm"
-	mafADDPIC(IMPORT_DICOM);
+	albaADDPIC(IMPORT_DICOM);
 #include "pic/VIEW_SURFACE_ICON.xpm"
-	mafADDPIC(VIEW_SURFACE_ICON);
+	albaADDPIC(VIEW_SURFACE_ICON);
 #include "pic/SHOW_RULER_ICON.xpm"
-	mafADDPIC(SHOW_RULER_ICON);
+	albaADDPIC(SHOW_RULER_ICON);
 #include "pic/HIDE_RULER_ICON.xpm"
-	mafADDPIC(HIDE_RULER_ICON);
+	albaADDPIC(HIDE_RULER_ICON);
 }
 
 //--------------------------------------------------------------------------------

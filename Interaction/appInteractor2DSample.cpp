@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appInteractor2DSample.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -15,16 +15,16 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appInteractor2DSample.h"
 
-#include "mafDecl.h"
-#include "mafDeviceButtonsPadMouse.h"
-#include "mafRWI.h"
-#include "mafView.h"
-#include "mafVME.h"
-#include "mafVMEOutput.h"
-#include "mafEventInteraction.h"
-#include "mafDeviceButtonsPadTracker.h"
+#include "albaDecl.h"
+#include "albaDeviceButtonsPadMouse.h"
+#include "albaRWI.h"
+#include "albaView.h"
+#include "albaVME.h"
+#include "albaVMEOutput.h"
+#include "albaEventInteraction.h"
+#include "albaDeviceButtonsPadTracker.h"
 
-#include "vtkMAFSmartPointer.h"
+#include "vtkALBASmartPointer.h"
 #include "vtkMath.h"
 #include "vtkLine.h"
 #include "vtkPolyData.h"
@@ -59,7 +59,7 @@ PURPOSE. See the above copyright notice for more information.
 #define POINT_UPDATE_DISTANCE_2 (POINT_UPDATE_DISTANCE * POINT_UPDATE_DISTANCE)
 
 //------------------------------------------------------------------------------
-mafCxxTypeMacro(appInteractor2DSample)
+albaCxxTypeMacro(appInteractor2DSample)
 
 //----------------------------------------------------------------------------
 appInteractor2DSample::appInteractor2DSample()
@@ -159,16 +159,16 @@ appInteractor2DSample::~appInteractor2DSample()
 
 // MOUSE EVENTS
 //----------------------------------------------------------------------------
-void appInteractor2DSample::OnLeftButtonDown(mafEventInteraction *e)
+void appInteractor2DSample::OnLeftButtonDown(albaEventInteraction *e)
 {
-	mafEventMacro(mafEvent(this, CAMERA_UPDATE));
+	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
 
 	if (!m_ParallelView)
 	{
 		InitRenderer(e);
 	}
 
-	int shiftPressed = e->GetModifier(MAF_SHIFT_KEY) ? 1 : 0;
+	int shiftPressed = e->GetModifier(ALBA_SHIFT_KEY) ? 1 : 0;
 
 	if (shiftPressed)
 	{
@@ -209,7 +209,7 @@ void appInteractor2DSample::OnLeftButtonDown(mafEventInteraction *e)
 	m_ButtonDownInside = m_IsInBound;
 }
 //----------------------------------------------------------------------------
-void appInteractor2DSample::OnLeftButtonUp(mafEventInteraction *e)
+void appInteractor2DSample::OnLeftButtonUp(albaEventInteraction *e)
 {
 	m_DraggingLeft = false;
 	OnButtonUp(e);
@@ -262,7 +262,7 @@ void appInteractor2DSample::OnLeftButtonUp(mafEventInteraction *e)
 	}
 }
 //----------------------------------------------------------------------------
-void appInteractor2DSample::OnMove(mafEventInteraction *e)
+void appInteractor2DSample::OnMove(albaEventInteraction *e)
 {
 	if (!m_ParallelView)
 	{
@@ -312,16 +312,16 @@ void appInteractor2DSample::OnMove(mafEventInteraction *e)
 	}
 }
 //----------------------------------------------------------------------------
-void appInteractor2DSample::InitRenderer(mafEventInteraction *e)
+void appInteractor2DSample::InitRenderer(albaEventInteraction *e)
 {
-	mafEventMacro(mafEvent(this, CAMERA_UPDATE));
+	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
 
 	if (m_Renderer == NULL)
 	{
 		if (m_Mouse == NULL)
 		{
-			mafDevice *device = mafDevice::SafeDownCast((mafDevice*)e->GetSender());
-			mafDeviceButtonsPadMouse  *mouse = mafDeviceButtonsPadMouse::SafeDownCast(device);
+			albaDevice *device = albaDevice::SafeDownCast((albaDevice*)e->GetSender());
+			albaDeviceButtonsPadMouse  *mouse = albaDeviceButtonsPadMouse::SafeDownCast(device);
 			m_Mouse = mouse;
 		}
 
@@ -332,17 +332,17 @@ void appInteractor2DSample::InitRenderer(mafEventInteraction *e)
 		m_ParallelView = m_Renderer->GetActiveCamera()->GetParallelProjection() != 0;
 }
 //----------------------------------------------------------------------------
-void appInteractor2DSample::OnEvent(mafEventBase *event)
+void appInteractor2DSample::OnEvent(albaEventBase *event)
 {
-	mafID ch = event->GetChannel();
+	albaID ch = event->GetChannel();
 
 	if (ch == MCH_INPUT)
 	{
-		mafID id = event->GetId();
+		albaID id = event->GetId();
 
-		if (id == mafDeviceButtonsPadTracker::GetTracker3DMoveId() || id == mafDeviceButtonsPadMouse::GetMouse2DMoveId())
+		if (id == albaDeviceButtonsPadTracker::GetTracker3DMoveId() || id == albaDeviceButtonsPadMouse::GetMouse2DMoveId())
 		{
-			mafEventInteraction *e = mafEventInteraction::SafeDownCast(event);
+			albaEventInteraction *e = albaEventInteraction::SafeDownCast(event);
 			OnMove(e);
 		}
 	}
@@ -436,12 +436,12 @@ void appInteractor2DSample::DrawMeasureTool(double * wp)
 			if (m_CurrentLineIndex >= 0)
 			{
 				EditMeasureLine(m_CurrentLineIndex, tmpPt1, tmpPt2);
-				mafEventMacro(mafEvent(this, ID_LINE_CHANGED, m_Distance));
+				albaEventMacro(albaEvent(this, ID_LINE_CHANGED, m_Distance));
 			}
 			else
 			{
 				AddMeasureLine(tmpPt1, tmpPt2);
-				mafEventMacro(mafEvent(this, ID_LINE_ADDED, m_Distance));
+				albaEventMacro(albaEvent(this, ID_LINE_ADDED, m_Distance));
 			}
 		}
 		else
@@ -465,7 +465,7 @@ void appInteractor2DSample::CalculateLine()
 	m_EditLine->GetPoint2(p2_1);
 
 	m_Distance = sqrt(vtkMath::Distance2BetweenPoints(p1_1, p2_1));
-	mafEventMacro(mafEvent(this, ID_RESULT_LINE, m_Distance));
+	albaEventMacro(albaEvent(this, ID_RESULT_LINE, m_Distance));
 }
 //----------------------------------------------------------------------------
 void appInteractor2DSample::SelectLine(int index)
@@ -490,8 +490,8 @@ void appInteractor2DSample::SelectLine(int index)
 			m_LastEditing = -1;
 		}
 
-		mafEventMacro(mafEvent(this, CAMERA_UPDATE));
-		mafEventMacro(mafEvent(this, ID_LINE_SELECTED));
+		albaEventMacro(albaEvent(this, CAMERA_UPDATE));
+		albaEventMacro(albaEvent(this, ID_LINE_SELECTED));
 	}
 }
 //----------------------------------------------------------------------------
@@ -526,7 +526,7 @@ void appInteractor2DSample::AddMeasureLine(double *point1, double *point2)
 	// Push Distance
 	m_DistanceVector.push_back(m_Distance);
 
-	mafEventMacro(mafEvent(this, CAMERA_UPDATE));
+	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
 }
 //----------------------------------------------------------------------------
 void appInteractor2DSample::EditMeasureLine(int index, double *point1, double *point2)
@@ -562,7 +562,7 @@ void appInteractor2DSample::EditMeasureLine(int index, double *point1, double *p
 
 	UpdateTextActor(point1, point2, index);
 
-	mafEventMacro(mafEvent(this, CAMERA_UPDATE));
+	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
 }
 
 //----------------------------------------------------------------------------
@@ -633,7 +633,7 @@ void appInteractor2DSample::MoveLine(int index, double * pointCoord)
 		m_EditLine->GetPoint2(tmpPt2);
 
 		EditMeasureLine(index, tmpPt, tmpPt2);
-		mafEventMacro(mafEvent(this, ID_LINE_CHANGED, m_Distance));
+		albaEventMacro(albaEvent(this, ID_LINE_CHANGED, m_Distance));
 
 		m_ActorAdded = false;
 	}
@@ -659,7 +659,7 @@ void appInteractor2DSample::RemoveLine(int index)
 
 		m_CurrentAddedLine--;
 
-		mafEventMacro(mafEvent(this, CAMERA_UPDATE));
+		albaEventMacro(albaEvent(this, CAMERA_UPDATE));
 	}
 }
 //---------------------------------------------------------------------------
@@ -684,7 +684,7 @@ void appInteractor2DSample::GetLinePoints(int index, double *point1, double *poi
 }
 
 //----------------------------------------------------------------------------
-void appInteractor2DSample::SetRendererByView(mafView * view)
+void appInteractor2DSample::SetRendererByView(albaView * view)
 {
 	m_View = view;
 

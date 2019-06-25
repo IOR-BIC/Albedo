@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appVMESurfaceParametric.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (http://www.ltmsoftware.org/alba.htm)
+Copyright (c) BIC-IOR 2019 (http://www.ltmsoftware.org/alba.htm)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -21,20 +21,20 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appVMESurfaceParametric.h"
 
-#include "mafDataPipeCustom.h"
-#include "mafDataPipeInterpolator.h"
-#include "mafDataVector.h"
-#include "mafGUI.h"
-#include "mafMatrixInterpolator.h"
-#include "mafMatrixVector.h"
-#include "mafTagArray.h"
-#include "mafTransform.h"
-#include "mafVMEItemVTK.h"
-#include "mafVMEOutputSurface.h"
+#include "albaDataPipeCustom.h"
+#include "albaDataPipeInterpolator.h"
+#include "albaDataVector.h"
+#include "albaGUI.h"
+#include "albaMatrixInterpolator.h"
+#include "albaMatrixVector.h"
+#include "albaTagArray.h"
+#include "albaTransform.h"
+#include "albaVMEItemVTK.h"
+#include "albaVMEOutputSurface.h"
 #include "mmaMaterial.h"
 #include "mmuIdFactory.h"
 
-#include "vtkMAFSmartPointer.h"
+#include "vtkALBASmartPointer.h"
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkBitArray.h"
@@ -53,7 +53,7 @@ PURPOSE. See the above copyright notice for more information.
 const bool DEBUG_MODE = true;
 
 //------------------------------------------------------------------------------
-mafCxxTypeMacro(appVMESurfaceParametric);
+albaCxxTypeMacro(appVMESurfaceParametric);
 
 //------------------------------------------------------------------------------
 appVMESurfaceParametric::appVMESurfaceParametric()
@@ -94,8 +94,8 @@ appVMESurfaceParametric::appVMESurfaceParametric()
   m_EllipsoidTheRes = 10.0;
   m_EllipsoidOrientationAxis = ID_X_AXIS;
 
-	mafNEW(m_Transform);
-	mafVMEOutputSurface *output=mafVMEOutputSurface::New(); // an output with no data
+	albaNEW(m_Transform);
+	albaVMEOutputSurface *output=albaVMEOutputSurface::New(); // an output with no data
 	output->SetTransform(m_Transform); // force my transform in the output
 	SetOutput(output);
 
@@ -103,8 +103,8 @@ appVMESurfaceParametric::appVMESurfaceParametric()
 
 	vtkNEW(m_PolyData);
 
-  // Attach a data pipe which creates a bridge between VTK and MAF
-	mafDataPipeCustom *dpipe = mafDataPipeCustom::New();
+  // Attach a data pipe which creates a bridge between VTK and ALBA
+	albaDataPipeCustom *dpipe = albaDataPipeCustom::New();
 	dpipe->SetInput(m_PolyData);
 	SetDataPipe(dpipe);
 }
@@ -112,14 +112,14 @@ appVMESurfaceParametric::appVMESurfaceParametric()
 appVMESurfaceParametric::~appVMESurfaceParametric()
 {
 	vtkDEL(m_PolyData);
-  mafDEL(m_Transform);
+  albaDEL(m_Transform);
 	SetOutput(NULL);
 }
 
 //-------------------------------------------------------------------------
-int appVMESurfaceParametric::DeepCopy(mafVME *a)
+int appVMESurfaceParametric::DeepCopy(albaVME *a)
 { 
-  if (Superclass::DeepCopy(a)==MAF_OK)
+  if (Superclass::DeepCopy(a)==ALBA_OK)
   {
     appVMESurfaceParametric *vmeParametricSurface=appVMESurfaceParametric::SafeDownCast(a);
     m_Transform->SetMatrix(vmeParametricSurface->m_Transform->GetMatrix());
@@ -165,20 +165,20 @@ int appVMESurfaceParametric::DeepCopy(mafVME *a)
     this->m_EllipsoidTheRes = vmeParametricSurface->m_EllipsoidTheRes;
     this->m_EllipsoidOrientationAxis = vmeParametricSurface->m_EllipsoidOrientationAxis;
 
-    mafDataPipeCustom *dpipe = mafDataPipeCustom::SafeDownCast(GetDataPipe());
+    albaDataPipeCustom *dpipe = albaDataPipeCustom::SafeDownCast(GetDataPipe());
     if (dpipe)
     {
       dpipe->SetInput(m_PolyData);
     }
 
     InternalUpdate();
-    return MAF_OK;
+    return ALBA_OK;
   }  
-  return MAF_ERROR;
+  return ALBA_ERROR;
 }
 
 //-------------------------------------------------------------------------
-bool appVMESurfaceParametric::Equals(mafVME *vme)
+bool appVMESurfaceParametric::Equals(albaVME *vme)
 {
   bool ret = false;
   if (Superclass::Equals(vme))
@@ -248,15 +248,15 @@ mmaMaterial *appVMESurfaceParametric::GetMaterial()
 	return material;
 }
 //-------------------------------------------------------------------------
-mafVMEOutputSurface *appVMESurfaceParametric::GetSurfaceOutput()
+albaVMEOutputSurface *appVMESurfaceParametric::GetSurfaceOutput()
 {
-	return (mafVMEOutputSurface *)GetOutput();
+	return (albaVMEOutputSurface *)GetOutput();
 }
 //-------------------------------------------------------------------------
-void appVMESurfaceParametric::GetLocalTimeStamps(std::vector<mafTimeStamp> &kframes)
+void appVMESurfaceParametric::GetLocalTimeStamps(std::vector<albaTimeStamp> &kframes)
 {
 	kframes.clear(); // no timestamps
-	mafTimeStamp t = m_Transform->GetMatrix().GetTimeStamp();
+	albaTimeStamp t = m_Transform->GetMatrix().GetTimeStamp();
 	kframes.push_back(t);
 }
 //-------------------------------------------------------------------------
@@ -272,7 +272,7 @@ bool appVMESurfaceParametric::IsAnimated()
 }
 
 //-------------------------------------------------------------------------
-void appVMESurfaceParametric::SetMatrix(const mafMatrix &mat)
+void appVMESurfaceParametric::SetMatrix(const albaMatrix &mat)
 {
 	m_Transform->SetMatrix(mat);
 	//Update AbsMatrix output
@@ -295,10 +295,10 @@ void appVMESurfaceParametric::SetSphereRadius(double radius)
 // EVENT //////////////////////////////////////////////////////////////////////////
 
 //-------------------------------------------------------------------------
-void appVMESurfaceParametric::OnEvent(mafEventBase *maf_event)
+void appVMESurfaceParametric::OnEvent(albaEventBase *alba_event)
 {
   // events to be sent up or down in the tree are simply forwarded
-  if (mafEvent *e = mafEvent::SafeDownCast(maf_event))
+  if (albaEvent *e = albaEvent::SafeDownCast(alba_event))
   {
     switch(e->GetId())
     {
@@ -324,12 +324,12 @@ void appVMESurfaceParametric::OnEvent(mafEventBase *maf_event)
       break;
       
       default:
-        mafVME::OnEvent(maf_event);
+        albaVME::OnEvent(alba_event);
     }
   }  
   else
   {
-    Superclass::OnEvent(maf_event);
+    Superclass::OnEvent(alba_event);
   }
 }
 
@@ -345,7 +345,7 @@ void appVMESurfaceParametric::InternalUpdate()
 	{
 	case PARAMETRIC_SPHERE:
 	{
-		vtkMAFSmartPointer<vtkSphereSource> surf;
+		vtkALBASmartPointer<vtkSphereSource> surf;
 		surf->SetRadius(m_SphereRadius);
 		surf->SetPhiResolution(m_SpherePhiRes);
 		surf->SetThetaResolution(m_SphereTheRes);
@@ -356,14 +356,14 @@ void appVMESurfaceParametric::InternalUpdate()
 	break;
 	case PARAMETRIC_CONE:
 	{
-		vtkMAFSmartPointer<vtkConeSource> surf;
+		vtkALBASmartPointer<vtkConeSource> surf;
 		surf->SetHeight(m_ConeHeight);
 		surf->SetRadius(m_ConeRadius);
 		surf->SetCapping(m_ConeCapping);
 		surf->SetResolution(m_ConeRes);
 		surf->Update();
 
-		vtkMAFSmartPointer<vtkTransform> t;
+		vtkALBASmartPointer<vtkTransform> t;
 
 		switch (m_ConeOrientationAxis)
 		{
@@ -382,7 +382,7 @@ void appVMESurfaceParametric::InternalUpdate()
 
 		t->Update();
 
-		vtkMAFSmartPointer<vtkTransformPolyDataFilter> ptf;
+		vtkALBASmartPointer<vtkTransformPolyDataFilter> ptf;
 		ptf->SetTransform(t);
 		ptf->SetInput(surf->GetOutput());
 		ptf->Update();
@@ -393,13 +393,13 @@ void appVMESurfaceParametric::InternalUpdate()
 	break;
 	case PARAMETRIC_CYLINDER:
 	{
-		vtkMAFSmartPointer<vtkCylinderSource> surf;
+		vtkALBASmartPointer<vtkCylinderSource> surf;
 		surf->SetHeight(m_CylinderHeight);
 		surf->SetRadius(m_CylinderRadius);
 		surf->SetResolution(m_CylinderRes);
 		surf->Update();
 
-		vtkMAFSmartPointer<vtkTransform> t;
+		vtkALBASmartPointer<vtkTransform> t;
 
 		switch (m_CylinderOrientationAxis)
 		{
@@ -418,7 +418,7 @@ void appVMESurfaceParametric::InternalUpdate()
 
 		t->Update();
 
-		vtkMAFSmartPointer<vtkTransformPolyDataFilter> ptf;
+		vtkALBASmartPointer<vtkTransformPolyDataFilter> ptf;
 		ptf->SetTransform(t);
 		ptf->SetInput(surf->GetOutput());
 		ptf->Update();
@@ -430,7 +430,7 @@ void appVMESurfaceParametric::InternalUpdate()
 	break;
 	case PARAMETRIC_CUBE:
 	{
-		vtkMAFSmartPointer<vtkCubeSource> surf;
+		vtkALBASmartPointer<vtkCubeSource> surf;
 		surf->SetXLength(m_CubeXLength);
 		surf->SetYLength(m_CubeYLength);
 		surf->SetZLength(m_CubeZLength);
@@ -442,14 +442,14 @@ void appVMESurfaceParametric::InternalUpdate()
 
 	case PARAMETRIC_PLANE:
 	{
-		vtkMAFSmartPointer<vtkPlaneSource> surf;
+		vtkALBASmartPointer<vtkPlaneSource> surf;
 		surf->SetXResolution(m_PlaneXRes);
 		surf->SetYResolution(m_PlaneYRes);
 		surf->SetOrigin(m_PlaneOrigin);
 		surf->SetPoint1(m_PlanePoint1);
 		surf->SetPoint2(m_PlanePoint2);
 		surf->Update();
-		vtkMAFSmartPointer<vtkTriangleFilter> triangle;
+		vtkALBASmartPointer<vtkTriangleFilter> triangle;
 		triangle->SetInput(surf->GetOutput());
 		triangle->Update();
 		m_PolyData->DeepCopy(triangle->GetOutput());
@@ -459,13 +459,13 @@ void appVMESurfaceParametric::InternalUpdate()
 
 	case PARAMETRIC_ELLIPSOID:
 	{
-		vtkMAFSmartPointer<vtkSphereSource> surf;
+		vtkALBASmartPointer<vtkSphereSource> surf;
 		surf->SetRadius(m_EllipsoidYLenght);
 		surf->SetPhiResolution(m_EllipsoidPhiRes);
 		surf->SetThetaResolution(m_EllipsoidTheRes);
 		surf->Update();
 
-		vtkMAFSmartPointer<vtkTransform> t;
+		vtkALBASmartPointer<vtkTransform> t;
 
 		switch (m_EllipsoidOrientationAxis)
 		{
@@ -485,7 +485,7 @@ void appVMESurfaceParametric::InternalUpdate()
 		t->Scale(m_EllipsoidXLenght / m_EllipsoidYLenght, 1, m_EllipsoidZLenght / m_EllipsoidYLenght);
 		t->Update();
 
-		vtkMAFSmartPointer<vtkTransformPolyDataFilter> ptf;
+		vtkALBASmartPointer<vtkTransformPolyDataFilter> ptf;
 		ptf->SetTransform(t);
 		ptf->SetInput(surf->GetOutput());
 		ptf->Update();
@@ -497,51 +497,51 @@ void appVMESurfaceParametric::InternalUpdate()
 	}
 }
 //-----------------------------------------------------------------------
-int appVMESurfaceParametric::InternalStore(mafStorageElement *parent)
+int appVMESurfaceParametric::InternalStore(albaStorageElement *parent)
 {
-	if (Superclass::InternalStore(parent) == MAF_OK)
+	if (Superclass::InternalStore(parent) == ALBA_OK)
 	{
 		if (
-			parent->StoreMatrix("Transform", &m_Transform->GetMatrix()) == MAF_OK &&
-			parent->StoreInteger("Geometry", m_GeometryType) == MAF_OK &&
-			parent->StoreDouble("ShereRadius", m_SphereRadius) == MAF_OK &&
-			parent->StoreDouble("SpherePhiRes", m_SpherePhiRes) == MAF_OK &&
-			parent->StoreDouble("SphereThetaRes", m_SphereTheRes) == MAF_OK &&
-			parent->StoreDouble("ConeHieght", m_ConeHeight) == MAF_OK &&
-			parent->StoreDouble("ConeRadius", m_ConeRadius) == MAF_OK &&
-			parent->StoreInteger("ConeCapping", m_ConeCapping) == MAF_OK &&
-			parent->StoreDouble("ConeRes", m_ConeRes) == MAF_OK &&
-			parent->StoreInteger("ConeOrientationAxis", m_ConeOrientationAxis) == MAF_OK &&
-			parent->StoreDouble("CylinderHeight", m_CylinderHeight) == MAF_OK &&
-			parent->StoreDouble("CylinderRadius", m_CylinderRadius) == MAF_OK &&
-			parent->StoreDouble("CylinderRes", m_CylinderRes) == MAF_OK &&
-			parent->StoreInteger("CylinderOrientationAxis", m_CylinderOrientationAxis) == MAF_OK &&
-			parent->StoreDouble("CubeXLength", m_CubeXLength) == MAF_OK &&
-			parent->StoreDouble("CubeYLength", m_CubeYLength) == MAF_OK &&
-			parent->StoreDouble("CubeZLength", m_CubeZLength) == MAF_OK &&
-			parent->StoreDouble("PlaneXRes", m_PlaneXRes) == MAF_OK &&
-			parent->StoreDouble("PlaneYRes", m_PlaneYRes) == MAF_OK &&
-			parent->StoreVectorN("PlaneOrigin", m_PlaneOrigin, 3) == MAF_OK &&
-			parent->StoreVectorN("PlanePoint1", m_PlanePoint1, 3) == MAF_OK &&
-			parent->StoreVectorN("PlanePoint2", m_PlanePoint2, 3) == MAF_OK &&
-			parent->StoreDouble("EllipsoidXLenght", m_EllipsoidXLenght) == MAF_OK &&
-			parent->StoreDouble("EllipsoidYLenght", m_EllipsoidYLenght) == MAF_OK &&
-			parent->StoreDouble("EllipsoidZLenght", m_EllipsoidZLenght) == MAF_OK &&
-			parent->StoreDouble("EllipsoidTheRes", m_EllipsoidTheRes) == MAF_OK &&
-			parent->StoreDouble("EllipsoidPhiRes", m_EllipsoidPhiRes) == MAF_OK &&
-			parent->StoreInteger("EllipsoidOrientationAxis", m_CylinderOrientationAxis) == MAF_OK
+			parent->StoreMatrix("Transform", &m_Transform->GetMatrix()) == ALBA_OK &&
+			parent->StoreInteger("Geometry", m_GeometryType) == ALBA_OK &&
+			parent->StoreDouble("ShereRadius", m_SphereRadius) == ALBA_OK &&
+			parent->StoreDouble("SpherePhiRes", m_SpherePhiRes) == ALBA_OK &&
+			parent->StoreDouble("SphereThetaRes", m_SphereTheRes) == ALBA_OK &&
+			parent->StoreDouble("ConeHieght", m_ConeHeight) == ALBA_OK &&
+			parent->StoreDouble("ConeRadius", m_ConeRadius) == ALBA_OK &&
+			parent->StoreInteger("ConeCapping", m_ConeCapping) == ALBA_OK &&
+			parent->StoreDouble("ConeRes", m_ConeRes) == ALBA_OK &&
+			parent->StoreInteger("ConeOrientationAxis", m_ConeOrientationAxis) == ALBA_OK &&
+			parent->StoreDouble("CylinderHeight", m_CylinderHeight) == ALBA_OK &&
+			parent->StoreDouble("CylinderRadius", m_CylinderRadius) == ALBA_OK &&
+			parent->StoreDouble("CylinderRes", m_CylinderRes) == ALBA_OK &&
+			parent->StoreInteger("CylinderOrientationAxis", m_CylinderOrientationAxis) == ALBA_OK &&
+			parent->StoreDouble("CubeXLength", m_CubeXLength) == ALBA_OK &&
+			parent->StoreDouble("CubeYLength", m_CubeYLength) == ALBA_OK &&
+			parent->StoreDouble("CubeZLength", m_CubeZLength) == ALBA_OK &&
+			parent->StoreDouble("PlaneXRes", m_PlaneXRes) == ALBA_OK &&
+			parent->StoreDouble("PlaneYRes", m_PlaneYRes) == ALBA_OK &&
+			parent->StoreVectorN("PlaneOrigin", m_PlaneOrigin, 3) == ALBA_OK &&
+			parent->StoreVectorN("PlanePoint1", m_PlanePoint1, 3) == ALBA_OK &&
+			parent->StoreVectorN("PlanePoint2", m_PlanePoint2, 3) == ALBA_OK &&
+			parent->StoreDouble("EllipsoidXLenght", m_EllipsoidXLenght) == ALBA_OK &&
+			parent->StoreDouble("EllipsoidYLenght", m_EllipsoidYLenght) == ALBA_OK &&
+			parent->StoreDouble("EllipsoidZLenght", m_EllipsoidZLenght) == ALBA_OK &&
+			parent->StoreDouble("EllipsoidTheRes", m_EllipsoidTheRes) == ALBA_OK &&
+			parent->StoreDouble("EllipsoidPhiRes", m_EllipsoidPhiRes) == ALBA_OK &&
+			parent->StoreInteger("EllipsoidOrientationAxis", m_CylinderOrientationAxis) == ALBA_OK
 			)
-			return MAF_OK;
+			return ALBA_OK;
 	}
-	return MAF_ERROR;
+	return ALBA_ERROR;
 }
 //-----------------------------------------------------------------------
-int appVMESurfaceParametric::InternalRestore(mafStorageElement *node)
+int appVMESurfaceParametric::InternalRestore(albaStorageElement *node)
 {
-	if (Superclass::InternalRestore(node) == MAF_OK)
+	if (Superclass::InternalRestore(node) == ALBA_OK)
 	{
-		mafMatrix matrix;
-		if (node->RestoreMatrix("Transform", &matrix) == MAF_OK)
+		albaMatrix matrix;
+		if (node->RestoreMatrix("Transform", &matrix) == ALBA_OK)
 		{
 			m_Transform->SetMatrix(matrix);
 			node->RestoreInteger("Geometry", m_GeometryType);
@@ -571,18 +571,18 @@ int appVMESurfaceParametric::InternalRestore(mafStorageElement *node)
 			node->RestoreDouble("EllipsoidTheRes", m_EllipsoidTheRes);
 			node->RestoreDouble("EllipsoidPhiRes", m_EllipsoidPhiRes);
 			node->RestoreInteger("EllipsoidOrientationAxis", m_CylinderOrientationAxis);
-			return MAF_OK;
+			return ALBA_OK;
 		}
 	}
-	return MAF_ERROR;
+	return ALBA_ERROR;
 }
 
 // GUI //////////////////////////////////////////////////////////////////////////
 
 //-------------------------------------------------------------------------
-mafGUI* appVMESurfaceParametric::CreateGui()
+albaGUI* appVMESurfaceParametric::CreateGui()
 {
-	mafVME::CreateGui();
+	albaVME::CreateGui();
 	if (m_Gui)
 	{
 		wxString geometryType[6] = { "Sphere", "Cone", "Cylinder", "Cube", "Plane", "Ellipsoid" };
@@ -614,7 +614,7 @@ mafGUI* appVMESurfaceParametric::CreateGui()
 //-------------------------------------------------------------------------
 void appVMESurfaceParametric::CreateGuiPlane()
 {
-	m_GuiPlane = new mafGUI(this);
+	m_GuiPlane = new albaGUI(this);
 	m_GuiPlane->Label("Plane");
 	m_GuiPlane->Double(CHANGE_VALUE_PLANE, _("X Res"), &m_PlaneXRes);
 	m_GuiPlane->Double(CHANGE_VALUE_PLANE, _("Y Res"), &m_PlaneYRes);
@@ -627,7 +627,7 @@ void appVMESurfaceParametric::CreateGuiPlane()
 //-------------------------------------------------------------------------
 void appVMESurfaceParametric::CreateGuiCube()
 {
-	m_GuiCube = new mafGUI(this);
+	m_GuiCube = new albaGUI(this);
 	m_GuiCube->Label("Cube");
 	m_GuiCube->Double(CHANGE_VALUE_CUBE, _("X Length"), &m_CubeXLength);
 	m_GuiCube->Double(CHANGE_VALUE_CUBE, _("Y Length"), &m_CubeYLength);
@@ -638,7 +638,7 @@ void appVMESurfaceParametric::CreateGuiCube()
 //-------------------------------------------------------------------------
 void appVMESurfaceParametric::CreateGuiCylinder()
 {
-	m_GuiCylinder = new mafGUI(this);
+	m_GuiCylinder = new albaGUI(this);
 	m_GuiCylinder->Label("Cylinder");
 	m_GuiCylinder->Double(CHANGE_VALUE_CYLINDER, _("Height"), &m_CylinderHeight);
 	m_GuiCylinder->Double(CHANGE_VALUE_CYLINDER, _("Radius"), &m_CylinderRadius);
@@ -651,7 +651,7 @@ void appVMESurfaceParametric::CreateGuiCylinder()
 //-------------------------------------------------------------------------
 void appVMESurfaceParametric::CreateGuiCone()
 {
-	m_GuiCone = new mafGUI(this);
+	m_GuiCone = new albaGUI(this);
 	m_GuiCone->Label("Cone");
 	m_GuiCone->Double(CHANGE_VALUE_CONE, _("Height"), &m_ConeHeight);
 	m_GuiCone->Double(CHANGE_VALUE_CONE, _("Radius"), &m_ConeRadius);
@@ -665,7 +665,7 @@ void appVMESurfaceParametric::CreateGuiCone()
 //-------------------------------------------------------------------------
 void appVMESurfaceParametric::CreateGuiSphere()
 {
-	m_GuiSphere = new mafGUI(this);
+	m_GuiSphere = new albaGUI(this);
 	m_GuiSphere->Label("Sphere");
 	m_GuiSphere->Double(CHANGE_VALUE_SPHERE, _("Radius"), &m_SphereRadius);
 	m_GuiSphere->Double(CHANGE_VALUE_SPHERE, _("Phi res"), &m_SpherePhiRes);
@@ -676,7 +676,7 @@ void appVMESurfaceParametric::CreateGuiSphere()
 //-------------------------------------------------------------------------
 void appVMESurfaceParametric::CreateGuiEllipsoid()
 {
-	m_GuiEllipsoid = new mafGUI(this);
+	m_GuiEllipsoid = new albaGUI(this);
 	m_GuiEllipsoid->Label("Ellipsoid");
 	m_GuiEllipsoid->Double(CHANGE_VALUE_ELLIPSOID, _("X Length"), &m_EllipsoidXLenght);
 	m_GuiEllipsoid->Double(CHANGE_VALUE_ELLIPSOID, _("Y Length"), &m_EllipsoidYLenght);
@@ -702,7 +702,7 @@ void appVMESurfaceParametric::EnableParametricSurfaceGui(int surfaceTypeID)
 		{
 			std::ostringstream stringStream;
 			stringStream << "enabling Sphere gui" << std::endl;
-			mafLogMessage(stringStream.str().c_str());
+			albaLogMessage(stringStream.str().c_str());
 		}
 	}
 	break;
@@ -714,7 +714,7 @@ void appVMESurfaceParametric::EnableParametricSurfaceGui(int surfaceTypeID)
 		{
 			std::ostringstream stringStream;
 			stringStream << "enabling Cone gui" << std::endl;
-			mafLogMessage(stringStream.str().c_str());
+			albaLogMessage(stringStream.str().c_str());
 		}
 	}
 	break;
@@ -726,7 +726,7 @@ void appVMESurfaceParametric::EnableParametricSurfaceGui(int surfaceTypeID)
 		{
 			std::ostringstream stringStream;
 			stringStream << "enabling Cylinder gui" << std::endl;
-			mafLogMessage(stringStream.str().c_str());
+			albaLogMessage(stringStream.str().c_str());
 		}
 	}
 	break;
@@ -738,7 +738,7 @@ void appVMESurfaceParametric::EnableParametricSurfaceGui(int surfaceTypeID)
 		{
 			std::ostringstream stringStream;
 			stringStream << "enabling Cube gui" << std::endl;
-			mafLogMessage(stringStream.str().c_str());
+			albaLogMessage(stringStream.str().c_str());
 		}
 	}
 	break;
@@ -750,7 +750,7 @@ void appVMESurfaceParametric::EnableParametricSurfaceGui(int surfaceTypeID)
 		{
 			std::ostringstream stringStream;
 			stringStream << "enabling Plane gui" << std::endl;
-			mafLogMessage(stringStream.str().c_str());
+			albaLogMessage(stringStream.str().c_str());
 		}
 	}
 	break;
@@ -762,7 +762,7 @@ void appVMESurfaceParametric::EnableParametricSurfaceGui(int surfaceTypeID)
 		{
 			std::ostringstream stringStream;
 			stringStream << "enabling Ellipsoid gui" << std::endl;
-			mafLogMessage(stringStream.str().c_str());
+			albaLogMessage(stringStream.str().c_str());
 		}
 	}
 	break;

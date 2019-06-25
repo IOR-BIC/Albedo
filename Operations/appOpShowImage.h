@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpShowImage.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -19,34 +19,34 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 // Include :
 //----------------------------------------------------------------------------
-#include "mafOp.h"
+#include "albaOp.h"
 
 //----------------------------------------------------------------------------
 // Forward references :
 //----------------------------------------------------------------------------
-class mafGUICheckListBox;
-class mafGUIValidator;
+class albaGUICheckListBox;
+class albaGUIValidator;
 
 //----------------------------------------------------------------------------
 // Class Name: appOpShowImage
 //----------------------------------------------------------------------------
-class MAF_EXPORT appOpShowImage: public mafOp
+class ALBA_EXPORT appOpShowImage: public albaOp
 {
 public:
 
   appOpShowImage(const wxString &label = "Gui Sample");
   ~appOpShowImage(); 
 
-  mafTypeMacro(appOpShowImage, mafOp);
+  albaTypeMacro(appOpShowImage, albaOp);
 
   /** Receive events coming from the user interface.*/
-  void OnEvent(mafEventBase *maf_event);
+  void OnEvent(albaEventBase *alba_event);
 	
 	/** Return a copy of the operation.*/
-  mafOp* Copy();
+  albaOp* Copy();
 
   /** Return true for the acceptable vme type. */
-  bool Accept(mafVME*node);
+  bool Accept(albaVME*node);
 
   /** Builds operation's interface. */
   void OpRun();

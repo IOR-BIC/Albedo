@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpCursorTest.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -23,22 +23,22 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appDecl.h"
 
-#include "mafGUI.h"
-#include "mafVME.h"
+#include "albaGUI.h"
+#include "albaVME.h"
 #include "appGUIHintBox.h"
 #include "appGUI.h"
-#include "mafLogicWithManagers.h"
-#include "mafDecl.h"
-#include "mafViewManager.h"
-#include "mafServiceClient.h"
-#include "mafView.h"
+#include "albaLogicWithManagers.h"
+#include "albaDecl.h"
+#include "albaViewManager.h"
+#include "albaServiceClient.h"
+#include "albaView.h"
 #include "wx\motif\window.h"
 
 //----------------------------------------------------------------------------
-mafCxxTypeMacro(appOpCursorTest);
+albaCxxTypeMacro(appOpCursorTest);
 
 //----------------------------------------------------------------------------
-appOpCursorTest::appOpCursorTest(wxString label, bool enable) :mafOp(label)
+appOpCursorTest::appOpCursorTest(wxString label, bool enable) :albaOp(label)
 {
 	m_OpType = OPTYPE_OP;
 	m_Canundo = true;
@@ -54,14 +54,14 @@ appOpCursorTest::~appOpCursorTest()
 }
 
 //----------------------------------------------------------------------------
-bool appOpCursorTest::Accept(mafVME *node)
+bool appOpCursorTest::Accept(albaVME *node)
 {
 	//return node->IsA("...");
 	return m_Enabled;
 }
 
 //----------------------------------------------------------------------------
-mafOp* appOpCursorTest::Copy()
+albaOp* appOpCursorTest::Copy()
 {
 	appOpCursorTest *cp = new appOpCursorTest(m_Label, m_Enabled);
 	return cp;
@@ -70,11 +70,11 @@ mafOp* appOpCursorTest::Copy()
 void appOpCursorTest::OpRun()
 {
 	// Open View if necessary
-	mafEvent e(this, VIEW_SELECTED);
-	mafEventMacro(e);
+	albaEvent e(this, VIEW_SELECTED);
+	albaEventMacro(e);
 	if (!e.GetBool())
 	{		
-		mafEventMacro(mafEvent(this, ID_SHOW_IMAGE_VIEW));
+		albaEventMacro(albaEvent(this, ID_SHOW_IMAGE_VIEW));
 	}
 
 	if (!m_TestMode)
@@ -92,7 +92,7 @@ void appOpCursorTest::OpStop(int result)
 		HideGui();
 	}
 
-	mafEventMacro(mafEvent(this, result));
+	albaEventMacro(albaEvent(this, result));
 }
 //----------------------------------------------------------------------------
 void appOpCursorTest::OpDo()
@@ -109,9 +109,9 @@ enum TEST_ID
 };
 
 //----------------------------------------------------------------------------
-void appOpCursorTest::OnEvent(mafEventBase *maf_event)
+void appOpCursorTest::OnEvent(albaEventBase *alba_event)
 {
-	if (mafEvent *e = mafEvent::SafeDownCast(maf_event))
+	if (albaEvent *e = albaEvent::SafeDownCast(alba_event))
 	{
 		m_Gui->Update();
 		//if (e->GetSender() == m_Gui)
@@ -134,7 +134,7 @@ void appOpCursorTest::OnEvent(mafEventBase *maf_event)
 
 			case ID_MODE2:
 			{
-				wxString imagePath = mafGetAppDataDirectory().c_str();
+				wxString imagePath = albaGetAppDataDirectory().c_str();
 
 				wxImage *cursorImage;
 				cursorImage = new wxImage();
@@ -178,13 +178,13 @@ void appOpCursorTest::OnEvent(mafEventBase *maf_event)
 			}break;
 
 			default:
-				Superclass::OnEvent(maf_event);
+				Superclass::OnEvent(alba_event);
 				break;
 			}
 		}
 // 		else
 // 		{
-// 			Superclass::OnEvent(maf_event);
+// 			Superclass::OnEvent(alba_event);
 // 		}
 	}
 }
@@ -209,7 +209,7 @@ void appOpCursorTest::CreateGui()
 
 	ShowGui();
 
-	mafEvent e(this, VIEW_SELECTED);
-	mafEventMacro(e);
+	albaEvent e(this, VIEW_SELECTED);
+	albaEventMacro(e);
 	m_View = e.GetView();
 }

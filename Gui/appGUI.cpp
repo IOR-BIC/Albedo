@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appGUI.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -22,17 +22,17 @@ PURPOSE. See the above copyright notice for more information.
 #include "appGUI.h"
 #include "appGUIHyperLink.h"
 #include "appGUISeparator.h"
-#include "mafGUIValidator.h"
+#include "albaGUIValidator.h"
 
-#include "mafPics.h"
-#include "mafVME.h"
+#include "albaPics.h"
+#include "albaVME.h"
 
 enum APP_GUI_ID
 {
-	ID_LIST_DOUBLE_CLICK = mafVME::ID_LAST,
+	ID_LIST_DOUBLE_CLICK = albaVME::ID_LAST,
 };
 
-BEGIN_EVENT_TABLE(appGUI, mafGUI)
+BEGIN_EVENT_TABLE(appGUI, albaGUI)
 EVT_LISTBOX_DCLICK(wxID_ANY, appGUI::OnDClickList)
 END_EVENT_TABLE()
 
@@ -56,8 +56,8 @@ const int DW = EW + HM + EW + HM + EW;					// Data Width - Full Width without th
 static wxPoint dp = wxDefaultPosition;
 
 //-------------------------------------------------------------------------
-appGUI::appGUI(mafObserver *listener)
-	:mafGUI(listener)
+appGUI::appGUI(albaObserver *listener)
+	:albaGUI(listener)
 {
 }
 
@@ -69,7 +69,7 @@ appGUI::~appGUI()
 //-------------------------------------------------------------------------
 void appGUI::OnDClickList(wxCommandEvent& event)
 {
-	mafEventMacro(mafEvent(this, ID_LIST_DOUBLE_CLICK));
+	albaEventMacro(albaEvent(this, ID_LIST_DOUBLE_CLICK));
 }
 
 //----------------------------------------------------------------------------
@@ -80,9 +80,9 @@ void appGUI::HintBox(int id, wxString label, wxString title, bool showIcon)
 	if (showIcon)
 	{
 		int w_id = GetWidgetId(id);
-		wxBitmap bitmap = mafPictureFactory::GetPictureFactory()->GetBmp("HINT_IMAGE_ICON");
+		wxBitmap bitmap = albaPictureFactory::GetPictureFactory()->GetBmp("HINT_IMAGE_ICON");
 		wxBitmapButton *bmpButton = new wxBitmapButton(this, w_id, bitmap, wxPoint(0, 0), wxSize(19, 20));
-		bmpButton->SetValidator(mafGUIValidator(this, w_id, bmpButton));
+		bmpButton->SetValidator(albaGUIValidator(this, w_id, bmpButton));
 
 		boxSizer->Add(bmpButton);
 		boxSizer->Add(new wxStaticText(this, NULL, " ")); // Separator
@@ -146,7 +146,7 @@ void appGUI::Radio2(int id, wxString label, int* var, int numchoices, const wxSt
 	if (m_UseBackgroundColor)
 		radio->SetBackgroundColour(m_BackgroundColor);
 	
-	radio->SetValidator(mafGUIValidator(this, w_id, radio, var));
+	radio->SetValidator(albaGUIValidator(this, w_id, radio, var));
 	radio->SetFont(m_Font);
 	if (tooltip != "")
 		radio->SetToolTip(tooltip);
@@ -333,7 +333,7 @@ void appGUI::MultipleRadioButtons(int numButtons, int numColumns, std::vector<in
 //----------------------------------------------------------------------------
 void appGUI::MultipleRadioButtons2(int numButtons, std::vector<int> &ids, int *var, wxString label /*= ""*/, wxColour *bg_colour)
 {
-	mafGUI *myGui = new mafGUI(this);
+	albaGUI *myGui = new albaGUI(this);
 	
 	int cellDim = FW / (numButtons + 1);
 
@@ -343,7 +343,7 @@ void appGUI::MultipleRadioButtons2(int numButtons, std::vector<int> &ids, int *v
 		int w_id = GetWidgetId(ids[i]);
 
 		wxRadioButton *radioButton = new wxRadioButton(myGui, w_id, "", dp, wxSize(cellDim, BH));
-		//radioButton->SetValidator(mafGUIValidator(this, w_id, radioButton));
+		//radioButton->SetValidator(albaGUIValidator(this, w_id, radioButton));
 		radioButton->SetValue(var[i]);
 		button_list.push_back(radioButton);
 	}
@@ -543,7 +543,7 @@ void appGUI::Clock(int* hour, int* min, int* sec)
 		if (i == 2) text = IntToString(s);
 
 		wxStaticText* lab = new wxStaticText(this, -1, text, dp, wxSize(cellDim, LH), wxALIGN_RIGHT);
-		//lab->SetValidator(mafGUIValidator(this, -1, lab, &text));
+		//lab->SetValidator(albaGUIValidator(this, -1, lab, &text));
 		lab->SetFont(m_BoldFont);
 		//lab->SetBackgroundColour(wxColour(0, 255, 0));
 
@@ -566,17 +566,17 @@ void appGUI::Clock(int id, wxString label, int var[3])
 
 	w_id = GetWidgetId(id);
 	wxTextCtrl  *text1 = new wxTextCtrl(this, w_id, "", dp, wxSize(EW, LH), m_EntryStyle);
-	text1->SetValidator(mafGUIValidator(this, w_id, text1, var, MININT, MAXINT));
+	text1->SetValidator(albaGUIValidator(this, w_id, text1, var, MININT, MAXINT));
 	text1->SetFont(m_Font);
 
 	w_id = GetWidgetId(id);
 	wxTextCtrl  *text2 = new wxTextCtrl(this, w_id, "", dp, wxSize(EW, LH), m_EntryStyle);
-	text2->SetValidator(mafGUIValidator(this, w_id, text2, &(var[1]), MININT, MAXINT));
+	text2->SetValidator(albaGUIValidator(this, w_id, text2, &(var[1]), MININT, MAXINT));
 	text2->SetFont(m_Font);
 
 	w_id = GetWidgetId(id);
 	wxTextCtrl  *text3 = new wxTextCtrl(this, w_id, "", dp, wxSize(EW, LH), m_EntryStyle);
-	text3->SetValidator(mafGUIValidator(this, w_id, text3, &(var[2]), MININT, MAXINT));
+	text3->SetValidator(albaGUIValidator(this, w_id, text3, &(var[2]), MININT, MAXINT));
 	text3->SetFont(m_Font);
 
 	//if (tooltip != "")
@@ -603,9 +603,9 @@ void appGUI::Clock(int id, wxString label, int var[3])
 }
 
 //----------------------------------------------------------------------------
-void appGUI::Clock(int id, mafString *var)
+void appGUI::Clock(int id, albaString *var)
 {
-// 	mafString *varTxt = NULL;
+// 	albaString *varTxt = NULL;
 // 
 // 	*varTxt = *IntToString(var[0]);
 // 	varTxt += ':';
@@ -624,7 +624,7 @@ void appGUI::Clock(int id, mafString *var)
 	int w_id = GetWidgetId(id);
 	wxTextCtrl  *text = NULL;
 	text = new wxTextCtrl(this, w_id, "", dp, wxSize(DW, sw), e_style);
-	text->SetValidator(mafGUIValidator(this, w_id, text, var));
+	text->SetValidator(albaGUIValidator(this, w_id, text, var));
 	text->SetFont(m_Font);
 
 	wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);

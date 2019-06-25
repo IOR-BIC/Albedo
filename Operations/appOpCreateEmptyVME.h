@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpCreateEmptyVME.h
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -20,7 +20,7 @@ PURPOSE. See the above copyright notice for more information.
 // Includes :
 //----------------------------------------------------------------------------
 #include "appOperationsDefines.h"
-#include "mafOp.h"
+#include "albaOp.h"
 
 //----------------------------------------------------------------------------
 // Forward references :
@@ -30,18 +30,18 @@ class appEmptyVME;
 //----------------------------------------------------------------------------
 // Class Name: appOpCreateEmptyVME
 //----------------------------------------------------------------------------
-class APP_OPERATIONS_EXPORT appOpCreateEmptyVME: public mafOp
+class APP_OPERATIONS_EXPORT appOpCreateEmptyVME: public albaOp
 {
 public:
   appOpCreateEmptyVME(const wxString &label = "Create VME Empty");
   ~appOpCreateEmptyVME(); 
 
-  mafTypeMacro(appOpCreateEmptyVME, mafOp);
+  albaTypeMacro(appOpCreateEmptyVME, albaOp);
 
-  mafOp* Copy();
+  albaOp* Copy();
 
 	/** Return true for the acceptable VME type. */
-	/*virtual*/ bool Accept(mafVME *node);
+	/*virtual*/ bool Accept(albaVME *node);
 
 	/** Builds operation's interface. */
 	/*virtual*/ void OpRun();

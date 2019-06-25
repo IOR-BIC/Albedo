@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOperationsTests.h
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -20,25 +20,25 @@ PURPOSE. See the above copyright notice for more information.
 // Include:
 //----------------------------------------------------------------------------
 
-#include "mafDefines.h"
-#include "mafObserver.h"
-#include "mafVME.h"
+#include "albaDefines.h"
+#include "albaObserver.h"
+#include "albaVME.h"
 
 //----------------------------------------------------------------------------
 // Class Name: DummyVme
 //----------------------------------------------------------------------------
-class DummyVme : public mafVME
+class DummyVme : public albaVME
 {
 public:
 
 	DummyVme() {};
 	~DummyVme() {};
 
-	mafTypeMacro(DummyVme, mafVME);
+	albaTypeMacro(DummyVme, albaVME);
 
-	/*virtual*/ void SetMatrix(const mafMatrix &mat) {};
-	/*virtual*/ void GetLocalTimeStamps(std::vector<mafTimeStamp> &kframes) {};
-	/*virtual*/ mafVMEOutput *GetOutput();
+	/*virtual*/ void SetMatrix(const albaMatrix &mat) {};
+	/*virtual*/ void GetLocalTimeStamps(std::vector<albaTimeStamp> &kframes) {};
+	/*virtual*/ albaVMEOutput *GetOutput();
 
 protected:
 private:
@@ -47,14 +47,14 @@ private:
 //----------------------------------------------------------------------------
 // Class Name: DummyObserver
 //----------------------------------------------------------------------------
-class DummyObserver : public mafObserver
+class DummyObserver : public albaObserver
 {
 public:
 
 	DummyObserver() { m_DummyVme = new DummyVme(); };
 	~DummyObserver() { delete m_DummyVme; };
 
-	/*virtual*/ void OnEvent(mafEventBase *maf_event);
+	/*virtual*/ void OnEvent(albaEventBase *alba_event);
 
 protected:
 

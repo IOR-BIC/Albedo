@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpInteractorSample.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -21,20 +21,20 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 #include "appOperationsDefines.h"
 
-#include "mafOp.h"
+#include "albaOp.h"
 #include <string>
 #include <vector>
 
 //----------------------------------------------------------------------------
 // Forward references :
 //----------------------------------------------------------------------------
-class mafEvent;
-class mafVMEImage;
-class mafVMEVolumeRGB;
+class albaEvent;
+class albaVMEImage;
+class albaVMEVolumeRGB;
 class appInteractor2DSample;
 
 // Class Name: appOpInteractorSample
-class APP_OPERATIONS_EXPORT appOpInteractorSample: public mafOp
+class APP_OPERATIONS_EXPORT appOpInteractorSample: public albaOp
 {
 public:
 
@@ -47,20 +47,20 @@ public:
   appOpInteractorSample(const wxString &label = "Interactor Sample");
  ~appOpInteractorSample(); 
 
-	//virtual void OnEvent(mafEventBase *maf_event);
+	//virtual void OnEvent(albaEventBase *alba_event);
   
-  mafTypeMacro(appOpInteractorSample, mafOp);
+  albaTypeMacro(appOpInteractorSample, albaOp);
 
-  mafOp* Copy();
+  albaOp* Copy();
 
 	/** Return true for the acceptable vme type. */
-  bool Accept(mafVME *node);
+  bool Accept(albaVME *node);
 
 	/** Builds operation's interface. */
   void OpRun();
 
   /** Precess events coming from other objects */
-  void OnEvent(mafEventBase *maf_event);
+  void OnEvent(albaEventBase *alba_event);
 
   /** Set the image filename to import */
 	void SetFileName(const char *file_name) { m_FileName = file_name; };
@@ -80,7 +80,7 @@ protected:
 
 	appInteractor2DSample *m_Interactor;
 
-  mafVMEImage  *m_ImportedImage;
+  albaVMEImage  *m_ImportedImage;
   std::string		m_FileName;
 };
 #endif

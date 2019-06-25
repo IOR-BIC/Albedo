@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpCreateEmptyVME.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -24,11 +24,11 @@ PURPOSE. See the above copyright notice for more information.
 #include "appEmptyVME.h"
 
 //----------------------------------------------------------------------------
-mafCxxTypeMacro(appOpCreateEmptyVME);
+albaCxxTypeMacro(appOpCreateEmptyVME);
 
 //----------------------------------------------------------------------------
 appOpCreateEmptyVME::appOpCreateEmptyVME(const wxString &label) :
-mafOp(label)
+albaOp(label)
 {
   m_OpType	= OPTYPE_OP;
   m_Canundo = true;
@@ -38,22 +38,22 @@ mafOp(label)
 //----------------------------------------------------------------------------
 appOpCreateEmptyVME::~appOpCreateEmptyVME( ) 
 {
-  mafDEL(m_EmptyVME);
+  albaDEL(m_EmptyVME);
 }
 //----------------------------------------------------------------------------
-mafOp* appOpCreateEmptyVME::Copy()   
+albaOp* appOpCreateEmptyVME::Copy()   
 {
 	return new appOpCreateEmptyVME(m_Label);
 }
 //----------------------------------------------------------------------------
-bool appOpCreateEmptyVME::Accept(mafVME*node)
+bool appOpCreateEmptyVME::Accept(albaVME*node)
 {
-	return (node && node->IsMAFType(mafVME));
+	return (node && node->IsALBAType(albaVME));
 }
 //----------------------------------------------------------------------------
 void appOpCreateEmptyVME::OpRun()   
 {
-  mafNEW(m_EmptyVME);
+  albaNEW(m_EmptyVME);
 
 	m_EmptyVME->SetName("Empty VME");
 
@@ -67,5 +67,5 @@ void appOpCreateEmptyVME::OpDo()
 //----------------------------------------------------------------------------
 void appOpCreateEmptyVME::OpStop(int result)
 {
-	mafEventMacro(mafEvent(this, result));
+	albaEventMacro(albaEvent(this, result));
 }

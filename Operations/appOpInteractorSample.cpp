@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpInteractorSample.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -23,16 +23,16 @@ PURPOSE. See the above copyright notice for more information.
 #include "appDecl.h"
 #include "appInteractor2DSample.h"
 
-#include "mafDecl.h"
-#include "mafEvent.h"
-#include "mafGUI.h"
+#include "albaDecl.h"
+#include "albaEvent.h"
+#include "albaGUI.h"
 
-#include "mafTagArray.h"
-#include "mafVMEVolumeRGB.h"
-#include "mafVMEImage.h"
-#include "mafVMEItem.h"
+#include "albaTagArray.h"
+#include "albaVMEVolumeRGB.h"
+#include "albaVMEImage.h"
+#include "albaVMEItem.h"
 
-#include "vtkMAFSmartPointer.h"
+#include "vtkALBASmartPointer.h"
 #include "vtkImageData.h"
 #include "vtkBMPReader.h"
 #include "vtkJPEGReader.h"
@@ -45,12 +45,12 @@ PURPOSE. See the above copyright notice for more information.
 
 
 //----------------------------------------------------------------------------
-mafCxxTypeMacro(appOpInteractorSample);
+albaCxxTypeMacro(appOpInteractorSample);
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
 appOpInteractorSample::appOpInteractorSample(const wxString &label) :
-mafOp(label)
+albaOp(label)
 {
   m_OpType  = OPTYPE_OP;
   m_Canundo = true;
@@ -64,17 +64,17 @@ mafOp(label)
 //----------------------------------------------------------------------------
 appOpInteractorSample::~appOpInteractorSample()
 {
-  mafDEL(m_ImportedImage);
+  albaDEL(m_ImportedImage);
 }
 
 //----------------------------------------------------------------------------
-mafOp* appOpInteractorSample::Copy()
+albaOp* appOpInteractorSample::Copy()
 {
 	return (new appOpInteractorSample(m_Label));
 }
 
 //----------------------------------------------------------------------------
-bool appOpInteractorSample::Accept(mafVME *node)
+bool appOpInteractorSample::Accept(albaVME *node)
 {
   return true;
 }
@@ -83,27 +83,27 @@ bool appOpInteractorSample::Accept(mafVME *node)
 void appOpInteractorSample::OpRun()
 {
 	// Open View if necessary
-	mafEvent e(this, VIEW_SELECTED);
-	mafEventMacro(e);
+	albaEvent e(this, VIEW_SELECTED);
+	albaEventMacro(e);
 	if (!e.GetBool())
 	{
-		mafEventMacro(mafEvent(this,ID_SHOW_IMAGE_VIEW));
+		albaEventMacro(albaEvent(this,ID_SHOW_IMAGE_VIEW));
 	}
 	
 	// Create Interactor
 	m_Interactor = appInteractor2DSample::New();
-	mafEventMacro(mafEvent(this, PER_PUSH, (mafObject *)m_Interactor));
+	albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_Interactor));
 	m_Interactor->SetListener(this);
 	m_Interactor->SetColorSelection(0, 0, 1);
 	m_Interactor->CanEditLines(false);
 
-	mafString wildc = "Images (*.bmp;*.jpg;*.png;*.tif)| *.bmp;*.jpg;*.png;*.tif";
+	albaString wildc = "Images (*.bmp;*.jpg;*.png;*.tif)| *.bmp;*.jpg;*.png;*.tif";
 
 	if (!m_TestMode)
 	{
 		CreateGui();
 
-		m_FileName = mafGetOpenFile("", wildc.GetCStr(), "Open Image");
+		m_FileName = albaGetOpenFile("", wildc.GetCStr(), "Open Image");
 	}
 
 	if (m_FileName == "")
@@ -126,7 +126,7 @@ void appOpInteractorSample::OpRun()
 //----------------------------------------------------------------------------
 void appOpInteractorSample::CreateGui()
 {
-	m_Gui = new mafGUI(this);
+	m_Gui = new albaGUI(this);
 	m_Gui->SetListener(this);
 
 	m_Gui->Divider(2);
@@ -152,16 +152,16 @@ void appOpInteractorSample::OpStop(int result)
 	}
 	
 	// Remove Interactor
-	mafEventMacro(mafEvent(this, PER_POP));
-	mafDEL(m_Interactor);
+	albaEventMacro(albaEvent(this, PER_POP));
+	albaDEL(m_Interactor);
 
-	mafEventMacro(mafEvent(this, result));
+	albaEventMacro(albaEvent(this, result));
 }
 
 //----------------------------------------------------------------------------
-void appOpInteractorSample::OnEvent(mafEventBase *maf_event)
+void appOpInteractorSample::OnEvent(albaEventBase *alba_event)
 {
-	if (mafEvent *e = mafEvent::SafeDownCast(maf_event))
+	if (albaEvent *e = albaEvent::SafeDownCast(alba_event))
 	{
 		if (e->GetSender() == m_Gui)
 		{
@@ -211,7 +211,7 @@ void appOpInteractorSample::ImportImage()
 
 	wxString path, name, ext;
 
-	mafNEW(m_ImportedImage);
+	albaNEW(m_ImportedImage);
 
 	vtkImageReader2 *imageReader;
 
@@ -236,7 +236,7 @@ void appOpInteractorSample::ImportImage()
 	imageReader->SetFileName(m_FileName.c_str());
 	imageReader->Update();
 
-	vtkMAFSmartPointer<vtkImageFlip> imageFlipFilter;
+	vtkALBASmartPointer<vtkImageFlip> imageFlipFilter;
 
 	imageFlipFilter->SetFilteredAxis(1); // flip z axis
 	imageFlipFilter->SetInput(imageReader->GetOutput());
@@ -269,7 +269,7 @@ void appOpInteractorSample::ImportImage()
 	vtkDEL(imageReader);
 
 	// Set Tags
-	mafTagItem tag_Nature;
+	albaTagItem tag_Nature;
 	tag_Nature.SetName("VME_NATURE");
 	tag_Nature.SetValue("NATURAL");
 

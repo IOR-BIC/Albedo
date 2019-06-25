@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appOpDictionary.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -23,10 +23,10 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appDecl.h"
 
-#include "mafGUI.h"
-#include "mafGUIDictionaryWidget.h"
-#include "mafVME.h"
-#include "mafXMLString.h"
+#include "albaGUI.h"
+#include "albaGUIDictionaryWidget.h"
+#include "albaVME.h"
+#include "albaXMLString.h"
 
 #include "mmuDOMTreeErrorReporter.h"
 
@@ -37,10 +37,10 @@ PURPOSE. See the above copyright notice for more information.
 #include "xercesc\util\XercesDefs.hpp"
 
 //----------------------------------------------------------------------------
-mafCxxTypeMacro(appOpDictionary);
+albaCxxTypeMacro(appOpDictionary);
 
 //----------------------------------------------------------------------------
-appOpDictionary::appOpDictionary(wxString label) :mafOp(label)
+appOpDictionary::appOpDictionary(wxString label) :albaOp(label)
 {
 	m_OpType = OPTYPE_OP;
 	m_Canundo = true;
@@ -72,13 +72,13 @@ appOpDictionary::~appOpDictionary()
 }
 
 //----------------------------------------------------------------------------
-bool appOpDictionary::Accept(mafVME *node)
+bool appOpDictionary::Accept(albaVME *node)
 {
 	return true;
 }
 
 //----------------------------------------------------------------------------
-mafOp* appOpDictionary::Copy()
+albaOp* appOpDictionary::Copy()
 {
 	appOpDictionary *op = new appOpDictionary(m_Label);
 	op->m_OpType = m_OpType;
@@ -107,7 +107,7 @@ void appOpDictionary::OpStop(int result)
 		HideGui();
 	}
 
-	mafEventMacro(mafEvent(this, result));
+	albaEventMacro(albaEvent(this, result));
 }
 //----------------------------------------------------------------------------
 void appOpDictionary::OpDo()
@@ -119,7 +119,7 @@ void appOpDictionary::OpDo()
 void appOpDictionary::CreateGui()
 {
 	// Interface:
-	m_Gui = new mafGUI(this);
+	m_Gui = new albaGUI(this);
 	m_Gui->SetListener(this);
 
 	// Dictionary
@@ -147,7 +147,7 @@ void appOpDictionary::CreateGui()
 	m_Gui->Divider(2);
 
 	// Setup GUI Dictionary
-	m_ElementDict = new mafGUIDictionaryWidget(m_Gui, -1);
+	m_ElementDict = new albaGUIDictionaryWidget(m_Gui, -1);
 	m_ElementDict->SetListener(this);
 	//m_Dict->SetCloud(m_Cloud);
 	m_ElementDict->InitDictionary(NULL);
@@ -244,9 +244,9 @@ void appOpDictionary::EnableDisableGui()
 }
 
 //----------------------------------------------------------------------------
-void appOpDictionary::OnEvent(mafEventBase *maf_event)
+void appOpDictionary::OnEvent(albaEventBase *alba_event)
 {
-	if (mafEvent *e = mafEvent::SafeDownCast(maf_event))
+	if (albaEvent *e = albaEvent::SafeDownCast(alba_event))
 	{
 		{
 			switch (e->GetId())
@@ -256,14 +256,14 @@ void appOpDictionary::OnEvent(mafEventBase *maf_event)
 			{
 				// Select Dictionary File
 				wxString wild_dict = "Dictionary file (*.dic)|*.dic|All files (*.*)|*.*";
-				wxString folder = mafGetLastUserFolder().c_str();
+				wxString folder = albaGetLastUserFolder().c_str();
 
-				wxString fileName = mafGetOpenFile(folder, wild_dict, "Choose Dictionary File").c_str();
+				wxString fileName = albaGetOpenFile(folder, wild_dict, "Choose Dictionary File").c_str();
 
 				// Load
 				if (fileName != "")
 				{
-					if (LoadDictionary(fileName) == MAF_OK)
+					if (LoadDictionary(fileName) == ALBA_OK)
 					{
 						if (!m_TestMode)	// Update GUI
 						{
@@ -288,11 +288,11 @@ void appOpDictionary::OnEvent(mafEventBase *maf_event)
 			case ID_SAVE_DICTIONARY:
 			{
 				// Select Dictionary File
-				mafString wild_dict = "Dictionary file (*.dic)|*.dic|All files (*.*)|*.*";
-				mafString initialFileName = mafGetLastUserFolder().c_str();
+				albaString wild_dict = "Dictionary file (*.dic)|*.dic|All files (*.*)|*.*";
+				albaString initialFileName = albaGetLastUserFolder().c_str();
 				initialFileName.Append("\\newDictionary.xml");
 
-				wxString fileName = mafGetSaveFile(initialFileName.GetCStr(), wild_dict).c_str();
+				wxString fileName = albaGetSaveFile(initialFileName.GetCStr(), wild_dict).c_str();
 
 				// Save
 				if (fileName != "")
@@ -384,7 +384,7 @@ void appOpDictionary::OnEvent(mafEventBase *maf_event)
 				break;
 
 			default:
-				Superclass::OnEvent(maf_event);
+				Superclass::OnEvent(alba_event);
 				break;
 			}
 		}
@@ -478,7 +478,7 @@ void appOpDictionary::ResetGroup()
 
 // ELEMENT
 //----------------------------------------------------------------------------
-void appOpDictionary::SelectElement(mafString selection)
+void appOpDictionary::SelectElement(albaString selection)
 {
 	m_ElementDict->DeselectItem(m_SelectedElement);
 	m_ElementDict->SelectItem(selection);
@@ -613,7 +613,7 @@ int appOpDictionary::LoadDictionary(wxString fileName)
 	catch (const XERCES_CPP_NAMESPACE_QUALIFIER XMLException& toCatch)
 	{
 		// Do your failure processing here
-		return MAF_ERROR;
+		return ALBA_ERROR;
 	}
 
 	XERCES_CPP_NAMESPACE_QUALIFIER XercesDOMParser *XMLParser = new  XERCES_CPP_NAMESPACE_QUALIFIER XercesDOMParser;
@@ -634,19 +634,19 @@ int appOpDictionary::LoadDictionary(wxString fileName)
 		if (errorCount != 0)
 		{
 			// Errors while parsing...
-			mafErrorMessage("Errors while parsing XML file");
-			return MAF_ERROR;
+			albaErrorMessage("Errors while parsing XML file");
+			return ALBA_ERROR;
 		}
 
-		// extract the root element and wrap inside a mafXMLElement
+		// extract the root element and wrap inside a albaXMLElement
 		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *doc = XMLParser->getDocument();
 		XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *root = doc->getDocumentElement();
 		assert(root);
 
 		if (CheckNodeElement(root, m_DictionaryTypeName))
 		{
-			mafString name = GetElementAttribute(root, "Name");
-			mafString version = GetElementAttribute(root, "Version");
+			albaString name = GetElementAttribute(root, "Name");
+			albaString version = GetElementAttribute(root, "Version");
 
 			m_DictionaryName = name;
 			m_DictionaryVersion = version;
@@ -654,14 +654,14 @@ int appOpDictionary::LoadDictionary(wxString fileName)
 			// Check file version
 			if (version != "1.0")
 			{
-				mafLogMessage("Wrong file Version:\n version:%s", version.GetCStr());
-				return MAF_ERROR;
+				albaLogMessage("Wrong file Version:\n version:%s", version.GetCStr());
+				return ALBA_ERROR;
 			}
 		}
 		else
 		{
-			mafLogMessage("Wrong check root node");
-			return MAF_ERROR;
+			albaLogMessage("Wrong check root node");
+			return ALBA_ERROR;
 		}
 
 		XERCES_CPP_NAMESPACE_QUALIFIER DOMNodeList *typesChildren = root->getChildNodes();
@@ -698,15 +698,15 @@ int appOpDictionary::LoadDictionary(wxString fileName)
 	}
 	catch (const  XERCES_CPP_NAMESPACE_QUALIFIER XMLException& toCatch)
 	{
-		return MAF_ERROR;
+		return ALBA_ERROR;
 	}
 	catch (const  XERCES_CPP_NAMESPACE_QUALIFIER DOMException& toCatch)
 	{
-		return MAF_ERROR;
+		return ALBA_ERROR;
 	}
 	catch (...)
 	{
-		return MAF_ERROR;
+		return ALBA_ERROR;
 	}
 
 	cppDEL(errReporter);
@@ -715,9 +715,9 @@ int appOpDictionary::LoadDictionary(wxString fileName)
 	// Terminate the XML library
 	XERCES_CPP_NAMESPACE_QUALIFIER XMLPlatformUtils::Terminate();
 
-	mafLogMessage(_("Dictionary file Loaded"));
+	albaLogMessage(_("Dictionary file Loaded"));
 
-	return MAF_OK;
+	return ALBA_OK;
 }
 
 //---------------------------------------------------------------------------
@@ -730,7 +730,7 @@ int appOpDictionary::SaveDictionary(const char *dictionaryFileName)
 	catch (const XERCES_CPP_NAMESPACE_QUALIFIER XMLException& toCatch)
 	{
 		// Do your failure processing here
-		return MAF_ERROR;
+		return ALBA_ERROR;
 	}
 
 	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *doc;
@@ -738,40 +738,40 @@ int appOpDictionary::SaveDictionary(const char *dictionaryFileName)
 	XERCES_CPP_NAMESPACE_QUALIFIER XMLString::transcode("LS", tempStr, 99);
 	XERCES_CPP_NAMESPACE_QUALIFIER DOMImplementation *impl = XERCES_CPP_NAMESPACE_QUALIFIER DOMImplementationRegistry::getDOMImplementation(tempStr);
 	XERCES_CPP_NAMESPACE_QUALIFIER DOMWriter* theSerializer = ((XERCES_CPP_NAMESPACE_QUALIFIER DOMImplementationLS*)impl)->createDOMWriter();
-	theSerializer->setNewLine(mafXMLString("\r"));
+	theSerializer->setNewLine(albaXMLString("\r"));
 
 	if (theSerializer->canSetFeature(XERCES_CPP_NAMESPACE_QUALIFIER XMLUni::fgDOMWRTFormatPrettyPrint, true))
 		theSerializer->setFeature(XERCES_CPP_NAMESPACE_QUALIFIER XMLUni::fgDOMWRTFormatPrettyPrint, true);
 
-	doc = impl->createDocument(NULL, mafXMLString(m_DictionaryTypeName), NULL);
+	doc = impl->createDocument(NULL, albaXMLString(m_DictionaryTypeName), NULL);
 
-	doc->setEncoding(mafXMLString("UTF-8"));
+	doc->setEncoding(albaXMLString("UTF-8"));
 	doc->setStandalone(true);
-	doc->setVersion(mafXMLString("1.0"));
+	doc->setVersion(albaXMLString("1.0"));
 
-	// Extract root element and wrap it with an mafXMLElement object
+	// Extract root element and wrap it with an albaXMLElement object
 	XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *root = doc->getDocumentElement();
 	assert(root);
 
 	// Attach version attribute to the root node
-	root->setAttribute(mafXMLString("Name"), mafXMLString(m_DictionaryName));
-	root->setAttribute(mafXMLString("Version"), mafXMLString(m_DictionaryVersion));
+	root->setAttribute(albaXMLString("Name"), albaXMLString(m_DictionaryName));
+	root->setAttribute(albaXMLString("Version"), albaXMLString(m_DictionaryVersion));
 
 	for (int i = 0; i < m_ElementVect.size(); i++)
 	{
 		wxString groupName = m_GroupVect[i];
 
 		// GROUP
-		XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *group = doc->createElement(mafXMLString(m_DictionaryGroupTypeName));
-		group->setAttribute(mafXMLString("Name"), mafXMLString(groupName));
+		XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *group = doc->createElement(albaXMLString(m_DictionaryGroupTypeName));
+		group->setAttribute(albaXMLString("Name"), albaXMLString(groupName));
 
 		for (int j = 0; j < m_ElementVect[i].size(); j++)
 		{
 			// ELEMENTS
-			XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem = doc->createElement(mafXMLString(m_DictionaryElementTypeName));
+			XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem = doc->createElement(albaXMLString(m_DictionaryElementTypeName));
 
-			XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node = doc->createTextNode(mafXMLString(m_DictionaryElementTypeName));
-			node->setNodeValue(mafXMLString(m_ElementVect[i][j]));
+			XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node = doc->createTextNode(albaXMLString(m_DictionaryElementTypeName));
+			node->setNodeValue(albaXMLString(m_ElementVect[i][j]));
 			elem->appendChild(node);
 
 			group->appendChild(elem);
@@ -782,7 +782,7 @@ int appOpDictionary::SaveDictionary(const char *dictionaryFileName)
 	//
 
 	XERCES_CPP_NAMESPACE_QUALIFIER XMLFormatTarget *XMLTarget;
-	mafString fileName = dictionaryFileName;
+	albaString fileName = dictionaryFileName;
 
 	XMLTarget = new XERCES_CPP_NAMESPACE_QUALIFIER LocalFileFormatTarget(fileName);
 
@@ -795,17 +795,17 @@ int appOpDictionary::SaveDictionary(const char *dictionaryFileName)
 	{
 		char* message = XERCES_CPP_NAMESPACE_QUALIFIER XMLString::transcode(toCatch.getMessage());
 		XERCES_CPP_NAMESPACE_QUALIFIER XMLString::release(&message);
-		return MAF_ERROR;
+		return ALBA_ERROR;
 	}
 	catch (const XERCES_CPP_NAMESPACE_QUALIFIER DOMException& toCatch)
 	{
 		char* message = XERCES_CPP_NAMESPACE_QUALIFIER XMLString::transcode(toCatch.msg);
 		XERCES_CPP_NAMESPACE_QUALIFIER XMLString::release(&message);
-		return MAF_ERROR;
+		return ALBA_ERROR;
 	}
 	catch (...)
 	{
-		return MAF_ERROR;
+		return ALBA_ERROR;
 	}
 
 	theSerializer->release();
@@ -814,9 +814,9 @@ int appOpDictionary::SaveDictionary(const char *dictionaryFileName)
 
 	XERCES_CPP_NAMESPACE_QUALIFIER XMLPlatformUtils::Terminate();
 
-	mafLogMessage(wxString::Format("Dictionary has been written %s", fileName.GetCStr()));
+	albaLogMessage(wxString::Format("Dictionary has been written %s", fileName.GetCStr()));
 
-	return MAF_OK;
+	return ALBA_OK;
 }
 
 //---------------------------------------------------------------------------
@@ -827,18 +827,18 @@ bool appOpDictionary::CheckNodeElement(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *n
 		return false;
 
 	XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *nodeElement = (XERCES_CPP_NAMESPACE_QUALIFIER DOMElement*)node;
-	mafString nameElement = "";
-	nameElement = mafXMLString(nodeElement->getTagName());
+	albaString nameElement = "";
+	nameElement = albaXMLString(nodeElement->getTagName());
 
 	return (nameElement == elementName);
 }
 //--------------------------------------------------------------------------
-mafString appOpDictionary::GetElementAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node, const char *attributeName)
+albaString appOpDictionary::GetElementAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node, const char *attributeName)
 {
 	if (node->getNodeType() != XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::ELEMENT_NODE)
 		return "";
 
-	return mafXMLString(((XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *)node)->getAttribute(mafXMLString(attributeName)));
+	return albaXMLString(((XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *)node)->getAttribute(albaXMLString(attributeName)));
 }
 
 

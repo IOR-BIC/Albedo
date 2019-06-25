@@ -2,11 +2,11 @@
 # Program:   Albedo
 # Module:    CMakeLists.txt
 # Language:  CMake
-# Date:      $Date: 2018-01-01 12:00:00 $
+# Date:      $Date: 2019-01-01 12:00:00 $
 # Version:   $Revision: 1.0.0.0 $
 # Authors:   Nicola Vanella
 #==========================================================================
-# Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+# Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 #
 # This software is distributed WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -25,7 +25,7 @@ IF(ALBEDO_BUILD_DLL)
   ADD_DEFINITIONS(-DALBEDO_COMMON_EXPORTS)
   # Create the library.
   ADD_LIBRARY(${PROJECT_NAME} ${PROJECT_SRCS})
-  TARGET_LINK_LIBRARIES(${PROJECT_NAME} mafDLL XercesC)
+  TARGET_LINK_LIBRARIES(${PROJECT_NAME} albaDLL XercesC)
 ELSE(ALBEDO_BUILD_DLL)
   # Create the library.
   ADD_LIBRARY(${PROJECT_NAME} ${PROJECT_SRCS})

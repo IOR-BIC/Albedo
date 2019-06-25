@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appTest.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -73,7 +73,7 @@ void appTest::setUp()
 	m_App = new TestApp();  // Instantiate the application class
 	m_App->argc = 0;        // set the number of input argument to 0
 	m_App->argv = NULL;     // set to NULL the input argument's parameters
-	wxTheApp->SetAppName("mafUserTest"); // Set the name for the application
+	wxTheApp->SetAppName("albaUserTest"); // Set the name for the application
 
 	//NOTE, wxLog produces some memory leaks, set false during test
 	wxLog::EnableLogging(true);
@@ -92,7 +92,7 @@ void appTest::tearDown()
 }
 
 //----------------------------------------------------------------------------
-void appTest::CompareImage(mafString suiteName, mafString imageName, int index)
+void appTest::CompareImage(albaString suiteName, albaString imageName, int index)
 {
 	if (!m_RenderWindow) 
 		return;
@@ -107,7 +107,7 @@ void appTest::CompareImage(mafString suiteName, mafString imageName, int index)
 	m_RenderWindow->OffScreenRenderingOff();
 
 	wxString imageFolder = GetTestDataDir(suiteName);
-	mafString imageFileBase;
+	albaString imageFileBase;
 	if (index >= 0)
 	{
 		imageFileBase.Printf("%s\\%s%d", imageFolder.c_str(), imageName.GetCStr(), index);
@@ -164,7 +164,7 @@ void appTest::CompareImage(mafString suiteName, mafString imageName, int index)
 			imageWriter->SetFileName(imageFileNew);
 			imageWriter->Write();
 
-			mafLogMessage("CompareImages has found differences. File %s stored.", imageFileNew);
+			albaLogMessage("CompareImages has found differences. File %s stored.", imageFileNew);
 		}
 
 		CPPUNIT_ASSERT(result);
@@ -187,7 +187,7 @@ void appTest::CompareImage(mafString suiteName, mafString imageName, int index)
 }
 
 //----------------------------------------------------------------------------
-mafString appTest::GetTestDataDir(mafString suiteName)
+albaString appTest::GetTestDataDir(albaString suiteName)
 {
 	wxString testDataFolder = m_WorkingDir;
 	testDataFolder += "\\" + suiteName;

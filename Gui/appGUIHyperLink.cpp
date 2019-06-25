@@ -2,11 +2,11 @@
 Program:   Albedo
 Module:    appGUIHyperLink.cpp
 Language:  C++
-Date:      $Date: 2018-01-01 12:00:00 $
+Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
 Authors:   Nicola Vanella
 ==========================================================================
-Copyright (c) LTM-IOR 2018 (https://github.com/IOR-BIC)
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
 
 This software is distributed WITHOUT ANY WARRANTY; without even
 the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -23,7 +23,7 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "math.h"
 #include "wx/event.h"
-#include "mafLogicWithManagers.h"
+#include "albaLogicWithManagers.h"
 
 BEGIN_EVENT_TABLE(appGUIHyperLink, wxControl)
   EVT_LEFT_DOWN(appGUIHyperLink::OnMouse)	
@@ -80,6 +80,6 @@ void appGUIHyperLink::OnMouse(wxMouseEvent &event)
 		SetLabel(m_ValueString);
 
 		if (m_URL != "")
-			mafLogicWithManagers::ShowWebSite(m_URL);
+			albaLogicWithManagers::ShowWebSite(m_URL);
 	}
 }
