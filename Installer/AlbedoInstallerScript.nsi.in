@@ -26,6 +26,18 @@
 
 !include InstallerCommon.nsh
 
+!macro EditLicencePage
+
+	; Change the Defult License Agreement to Look like a Readme Dialog
+	;!define MUI_TEXT_LICENSE_TITLE "HIPOP TITLE" 
+	;!define MUI_TEXT_LICENSE_SUBTITLE "HIPOP SUBTITLE $(^NameDA)."
+	;!define MUI_INNERTEXT_LICENSE_TOP "HIPOP INNERTEXT"
+	;!define MUI_INNERTEXT_LICENSE_BOTTOM "HIPOP INNERTEXT LICENSE BOTTOM"
+	;!define MUI_LICENSEPAGE_TEXT_BOTTOM "HIPOP TEXT BOTTOM"	
+	
+	!define MUI_LICENSEPAGE_CHECKBOX
+!macroend
+
 !insertmacro Init_MUI 
 
 !macro AddExtraFiles
