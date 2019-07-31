@@ -72,6 +72,7 @@ void appOpCursorTest::OpRun()
 	// Open View if necessary
 	albaEvent e(this, VIEW_SELECTED);
 	albaEventMacro(e);
+
 	if (!e.GetBool())
 	{		
 		albaEventMacro(albaEvent(this, ID_SHOW_IMAGE_VIEW));
@@ -134,23 +135,34 @@ void appOpCursorTest::OnEvent(albaEventBase *alba_event)
 
 			case ID_MODE2:
 			{
-				wxString imagePath = albaGetAppDataDirectory().c_str();
+				int ret_code;
+				wxString imagePath;
+				wxString name;
+				wxString wildcard = "File bitmap (*.bmp)|*.bmp";
 
-				wxImage *cursorImage;
-				cursorImage = new wxImage();
+				wxFileDialog dialog(NULL, "Open File", imagePath, name, wildcard, wxOPEN | wxFILE_MUST_EXIST | wxHIDE_READONLY);
+				dialog.SetReturnCode(wxID_OK);
+				ret_code = dialog.ShowModal();
+				if (ret_code == wxID_OK)
+				{
+					imagePath = dialog.GetPath();
 
-				cursorImage->LoadFile(imagePath + "\\Pencil.bmp", wxBITMAP_TYPE_ANY);
-				cursorImage->SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_X, 6);
-				cursorImage->SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, 6);
-				
-				wxCursor cursor = wxCursor(cursorImage);
-				m_View->GetWindow()->SetCursor(cursor);
+					wxImage *cursorImage;
+					cursorImage = new wxImage();
+
+					cursorImage->LoadFile(imagePath, wxBITMAP_TYPE_ANY);
+					cursorImage->SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_X, 6);
+					cursorImage->SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, 6);
+
+					wxCursor cursor = wxCursor(cursorImage);
+					m_View->GetWindow()->SetCursor(cursor);
+				}
+
 			}break;
 
 			case ID_MODE3:
 			{
-#include "C:/Users/vanella/AppData/Roaming/Albedo/Pencil.xpm"
-
+			#include "pic/Cursor/Pencil.xpm"
 				// 	wxBitmap *b_curs = new wxBitmap(imagePath + "\\Pencil_xpm");
 				// 	int h = b_curs->GetHeight(), w = b_curs->GetWidth();
 				// 
@@ -163,9 +175,8 @@ void appOpCursorTest::OnEvent(albaEventBase *alba_event)
 
 			case ID_MODE4:
 			{
-#include "C:/Users/vanella/AppData/Roaming/Albedo/Pencil2.xpm"
-				
-				wxImage image = wxImage(Pencil2_xpm);
+				#include "pic/Cursor/Pencil_Erase.xpm"
+				wxImage image = wxImage(Pencil_Erase_xpm);
 
 				int h = image.GetHeight();
 				int w = image.GetWidth();
@@ -199,7 +210,7 @@ void appOpCursorTest::CreateGui()
 
 	
 	m_Gui->Button(ID_MODE1, "Default");
-	m_Gui->Button(ID_MODE2, "Bitmap");
+	m_Gui->Button(ID_MODE2, "Load Bitmap");
 	m_Gui->Button(ID_MODE3, "xpm");
 	m_Gui->Button(ID_MODE4, "xpm (2)");
 
