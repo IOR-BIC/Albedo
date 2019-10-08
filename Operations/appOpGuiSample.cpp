@@ -216,7 +216,7 @@ void appOpGuiSample::GuiLabels()
 	m_Gui2->Label("Label bold", true);
 	m_Gui2->Divider(1);
 
-	m_Gui2->Label("Label\nString1\nString2\nString3", true, false);
+	m_Gui2->Label("Label Multiline\nString1\nString2\nString3", false, true);
 	m_Gui2->Divider(1);
 
 	// Var, Bold_Var, Multiline_Var
@@ -224,14 +224,14 @@ void appOpGuiSample::GuiLabels()
 	m_Gui2->Divider(1);
 
 	// Label1, Label2, Bold_Label1, Bold_Label2
-	m_Gui2->Label("Label1", "Label2", true, false);
+	m_Gui2->Label("Label1", "Label2", true, false,0.5);
 	m_Gui2->Divider(1);
 
 	// Label, Var, Bold_Label, Bold_Var
-	m_Gui2->Label("Label", &m_String);
+	m_Gui2->Label("Label\nLabel\nLabel", &m_String, false, false, true, 0.4);
 	m_Gui2->Divider(1);
 
-	m_Gui2->Label("Label", &m_StringMultiline, true, false);
+	m_Gui2->Label("Label\nLabel\nLabel", &m_StringMultiline, true, false, true, 0.5);
 	m_Gui2->Divider(1);
 
 	m_Gui2->Add(new appGUILabel(m_Gui2, ID_GUI_WIDGET, "appGUILabel"));
@@ -246,10 +246,21 @@ void appOpGuiSample::GuiEntry()
 	m_Gui2->String(ID_GUI_WIDGET, "Password", &m_String, "Tooltip", false, true);
 	m_Gui2->Divider(1);
 
+	m_Gui2->String(ID_GUI_WIDGET, "Label", &m_String, "Tooltip", false, false, false, 0.20);
+	m_Gui2->String(ID_GUI_WIDGET, "Label Multiline", &m_StringMultiline, "Tooltip", true, false, false, 0.45);
+	m_Gui2->String(ID_GUI_WIDGET, "Password", &m_String, "Tooltip", false, true, false, 0.5);
+	m_Gui2->Divider(1);
+
 	m_Gui2->Integer(ID_GUI_WIDGET, "Integer", &m_Interger, -100, 100, "Tooltip", false);
 	m_Gui2->Float(ID_GUI_WIDGET, "Float", &m_Float);
 	m_Gui2->Double(ID_GUI_WIDGET, "Double", &m_Double, 0.0);
 	m_Gui2->DoubleUpDown(ID_GUI_WIDGET, ID_GUI_WIDGET_FIRST, ID_GUI_WIDGET_SECOND, "UpDown", &m_Double);
+	m_Gui2->DoubleUpDown(ID_GUI_WIDGET, ID_GUI_WIDGET_FIRST, ID_GUI_WIDGET_SECOND, "", &m_Double);
+	m_Gui2->Divider(1);
+
+	m_Gui2->Integer(ID_GUI_WIDGET, "Integer", &m_Interger, -100, 100, "Tooltip", false, 0.4);
+	m_Gui2->Float(ID_GUI_WIDGET, "Float", &m_Float, MINFLOAT, MAXFLOAT, 0, -1, "Tooltip", 0.45);
+	m_Gui2->Double(ID_GUI_WIDGET, "Double", &m_Double, 0.0, MAXDOUBLE, MINDOUBLE, "Tooltip", false, 0.5);
 	m_Gui2->Divider(1);
 
 	m_Gui2->Vector(ID_GUI_WIDGET, "Vector", m_DoubleVector, 0.0000000001);
@@ -258,7 +269,8 @@ void appOpGuiSample::GuiEntry()
 	//ID, Label, int|double var, numElem, min, max, tooltip 
 	m_Gui2->VectorN(ID_GUI_WIDGET, "VectorN", m_IntVector, 5);// , -100.0, 100.0, "tooltip");
 
-	m_Gui2->Bool(ID_GUI_WIDGET, "Bool", &m_Interger, 0, "Tooltip");
+	m_Gui2->Bool(ID_GUI_WIDGET, "Bool Right", &m_Interger, 0, "Tooltip");
+	m_Gui2->Bool(ID_GUI_WIDGET, "Bool Left", &m_Interger, 1, "Tooltip");
 	m_Gui2->Divider(1);
 
 	std::vector<int> idList;
@@ -305,7 +317,9 @@ void appOpGuiSample::GuiButtons()
 	m_Gui2->Divider(1);
 
 	// Id, label, var, numChoises, choises, tooltip
+	m_Gui2->Combo(ID_GUI_WIDGET, "", &m_Interger, 3, choises, "Tooltip");
 	m_Gui2->Combo(ID_GUI_WIDGET, "Combo", &m_Interger, 3, choises, "Tooltip");
+	m_Gui2->Combo(ID_GUI_WIDGET, "Combo", &m_Interger, 3, choises, "Tooltip", 0.5);
 	m_Gui2->Divider(1);
 
 	// Id, label, valColor, tooltip

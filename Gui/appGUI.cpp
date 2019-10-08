@@ -111,8 +111,6 @@ void appGUI::Separator(long style, const wxSize& size /*= wxDefaultSize*/)
 	Add(new appGUISeparator(this, style, size));
 }
 
-
-
 //----------------------------------------------------------------------------
 void appGUI::Radio2(int id, wxString label, int* var, int numchoices, const wxString choices[], int dim, wxString tooltip, int style)
 {
@@ -373,8 +371,6 @@ void appGUI::MultipleRadioButtons2(int numButtons, std::vector<int> &ids, int *v
 	Add(myGui);
 }
 
-
-
 //----------------------------------------------------------------------------
 void appGUI::MultipleLabel(int numColumns, std::vector<const char*> &labels, bool bold)
 {
@@ -456,7 +452,7 @@ void appGUI::Calendar(int day, int month, int year, int dayOfWeek)
 	}
 
 
-	for (int i = 1; i < dayOfWeek; i++) // Empty Columns
+	for (int i = 0; i < dayOfWeek; i++) // Empty Columns
 	{
 		wxStaticText* lab = new wxStaticText(this, -1, " ", dp, wxSize(cellDim, LH), wxALIGN_LEFT);
 
@@ -555,7 +551,7 @@ void appGUI::Clock(int* hour, int* min, int* sec)
 	Add(textSizer, 0, wxALL, M);
 }
 
-
+//----------------------------------------------------------------------------
 void appGUI::Clock(int id, wxString label, int var[3])
 {
 	int w_id;
