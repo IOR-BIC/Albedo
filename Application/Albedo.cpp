@@ -33,6 +33,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "appOpCreateEmptyVME.h"
 #include "appOpCursorTest.h"
 #include "appOpDictionary.h"
+#include "appOpMeasure2D.h"
 #include "appOpShowDialog.h"
 #include "appUtils.h"
 #include "appViewImageCompound.h"
@@ -171,6 +172,9 @@ bool Albedo::OnInit()
 	// Test Show Dialog (Vertical) Operation
 	m_Logic->Plug(new appOpCursorTest("Cursor Test"), _("Test"));
 
+	// Test Interactor Operation
+	m_Logic->Plug(new appOpMeasure2D("Measure 2D"));
+
 	//////////////////////////////////////////////////////////////////////////
 	//Views
 	//////////////////////////////////////////////////////////////////////////
@@ -235,6 +239,12 @@ void Albedo::InitializeIcons()
 	albaADDPIC(FRAME_ICON16x16);
 #include "pic/FRAME_ICON32x32.xpm"
 	albaADDPIC(FRAME_ICON32x32);
+#include "pic/FRAME_ICON64x64.xpm"
+	albaADDPIC(FRAME_ICON64x64);
+#include "pic/FRAME_ICON128x128.xpm"
+	albaADDPIC(FRAME_ICON128x128);
+#include "pic/FRAME_ICON256x256.xpm"
+	albaADDPIC(FRAME_ICON256x256);
 #include "pic/MDICHILD_ICON.xpm"
 	albaADDPIC(MDICHILD_ICON);
 
