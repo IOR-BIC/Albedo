@@ -1,0 +1,556 @@
+/*=========================================================================
+Program:   Albedo
+Module:    appOpMeasure2D.cpp
+Language:  C++
+Date:      $Date: 2019-01-01 12:00:00 $
+Version:   $Revision: 1.0.0.0 $
+Authors:   Nicola Vanella
+==========================================================================
+Copyright (c) BIC-IOR 2019 (https://github.com/IOR-BIC)
+
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE. See the above copyright notice for more information.
+=========================================================================*/
+
+#include "appDefines.h" 
+//----------------------------------------------------------------------------
+// NOTE: Every CPP file in the APP must include "appDefines.h" as first.
+// This force to include Window, wxWidgets and VTK exactly in this order.
+//----------------------------------------------------------------------------
+
+#include "appOpMeasure2D.h"
+#include "appDecl.h"
+
+#include "appInteractor2DMeasure_Point.h"
+#include "appInteractor2DMeasure_Distance.h"
+#include "appInteractor2DMeasure_Angle.h"
+#include "appInteractor2DMeasure_Indicator.h"
+
+#include "albaDecl.h"
+#include "albaEvent.h"
+#include "albaGUI.h"
+#include "albaGUIValidator.h"
+#include "albaTagArray.h"
+#include "albaVMEImage.h"
+#include "albaVMEItem.h"
+#include "albaVMEVolumeRGB.h"
+
+#include "vtkBMPReader.h"
+#include "vtkImageData.h"
+#include "vtkImageFlip.h"
+#include "vtkImageResample.h"
+#include "vtkJPEGReader.h"
+#include "vtkPNGReader.h"
+#include "vtkPointData.h"
+#include "vtkTIFFReader.h"
+
+//----------------------------------------------------------------------------
+albaCxxTypeMacro(appOpMeasure2D);
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+appOpMeasure2D::appOpMeasure2D(const wxString &label) :
+albaOp(label)
+{
+  m_OpType  = OPTYPE_OP;
+  m_Canundo = true;
+
+	m_NumLines = 5;
+
+	m_SelectedMeasure = -1;
+	m_Measure = 0;
+	m_MeasureText = "";
+
+	m_MeasureType = INTERACTION_TYPE::POINT;
+	m_MeasureTypeText = "POINT";
+
+  m_ImportedImage = NULL;
+
+	m_MeasureListBox = NULL;
+
+	m_InteractorPoint = NULL;
+	m_InteractorDistance = NULL;
+	m_InteractorAngle = NULL;
+	m_InteractorIndicator = NULL;
+
+	m_SelectedInteractor = m_CurrentInteractor = 0;
+}
+//----------------------------------------------------------------------------
+appOpMeasure2D::~appOpMeasure2D()
+{
+  albaDEL(m_ImportedImage);
+}
+
+//----------------------------------------------------------------------------
+albaOp* appOpMeasure2D::Copy()
+{
+	return (new appOpMeasure2D(m_Label));
+}
+
+//----------------------------------------------------------------------------
+bool appOpMeasure2D::Accept(albaVME *node)
+{
+  return true;
+	//return node && node->IsA("albaVMEImage");
+}
+
+//----------------------------------------------------------------------------
+void appOpMeasure2D::OpRun()
+{
+	// Open View if necessary
+	albaEvent e(this, VIEW_SELECTED);
+	albaEventMacro(e);
+	if (!e.GetBool())
+	{
+		albaEventMacro(albaEvent(this,ID_SHOW_IMAGE_VIEW));
+	}
+
+	// Create Interactor Distance
+	m_InteractorPoint = appInteractor2DMeasure_Point::New();
+	albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorPoint));
+	m_InteractorPoint->SetListener(this);
+	m_InteractorPoint->SetColor(0.5, 1, 0.5);
+	//m_InteractorPoint->EnableEditMeasure(true);
+
+	// Create Interactor Distance
+	m_InteractorDistance = appInteractor2DMeasure_Distance::New();
+	m_InteractorDistance->SetListener(this);
+	m_InteractorDistance->SetColor(1, 1, 0);
+	m_InteractorDistance->EnableEditMeasure(true);
+		
+	// Create Interactor Angle
+	m_InteractorAngle = appInteractor2DMeasure_Angle::New();
+	//m_InteractorAngle->SetListener(this);
+	m_InteractorAngle->SetColor(1, 0, 1);
+	m_InteractorAngle->EnableEditMeasure(true);
+
+	// Create Interactor Indicator
+	m_InteractorIndicator = appInteractor2DMeasure_Indicator::New();
+	m_InteractorIndicator->SetListener(this);
+	m_InteractorIndicator->SetColor(0, 1, 1);
+	m_InteractorIndicator->EnableEditMeasure(true);
+
+	m_InteractorVector.push_back(m_InteractorDistance);
+	m_InteractorVector.push_back(m_InteractorAngle);
+	m_InteractorVector.push_back(m_InteractorIndicator);
+
+	m_MeasureTypeText = m_InteractorVector[m_CurrentInteractor]->GetMeasureType();
+
+	//////////////////////////////////////////////////////////////////////////
+	albaString wildc = "Images (*.bmp;*.jpg;*.png;*.tif)| *.bmp;*.jpg;*.png;*.tif";
+
+	bool res  = m_Input && m_Input->IsA("albaVMEImage");
+
+	if (!m_TestMode)
+	{
+		CreateGui();
+
+		if(!res) m_FileName = albaGetOpenFile("", wildc.GetCStr(), "Open Image");
+	}
+
+	if (m_FileName == "" && (!res))
+	{
+		OpStop(OP_RUN_CANCEL);
+	}
+	else
+	{
+		if (!res)
+		{
+			ImportImage();
+		}
+		GetLogicManager()->VmeShow(m_ImportedImage, true);
+		GetLogicManager()->VmeSelect(m_Output);
+
+		if (!m_TestMode)
+		{
+			ShowGui();
+
+			albaEvent e(this, VIEW_SELECTED);
+			albaEventMacro(e);
+
+			if (e.GetBool())
+			{
+				m_InteractorDistance->SetRendererByView(e.GetView());
+				m_InteractorAngle->SetRendererByView(e.GetView());
+				m_InteractorIndicator->SetRendererByView(e.GetView());
+			}
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+// 	if (m_Input->GetTagArray() && m_Input->GetTagArray()->IsTagPresent("MeasureLineType"))
+// 	{
+// 		wxString description = "Trovate Misure. \nCaricarle?";
+// 		int result = wxMessageBox(description, "Load Measures", wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP);
+// 
+// 		if (result == wxYES)
+// 		{ 
+// 			Load();
+// 		}
+// 	}
+}
+
+//----------------------------------------------------------------------------
+void appOpMeasure2D::CreateGui()
+{
+	m_Gui = new albaGUI(this);
+	m_Gui->SetListener(this);
+
+	m_Gui->Divider(1);
+	wxString choises[4] = { _("Point"),_("Distance"),_("Angle") ,_("Indicator") };
+	m_Gui->Combo(ID_SELECT_INTERACTOR, "", &m_SelectedInteractor, 4, choises, "Select Measure Type");
+	
+	m_MeasureListBox = m_Gui->ListBox(ID_MEASURE_LIST, "", 200);
+	m_Gui->Divider();
+	m_Gui->Button(ID_REMOVE_MEASURE, _("Remove"));
+
+	m_Gui->Divider(1);
+	m_Gui->Label("Measure", true);
+	m_Gui->String(ID_MEASURE, "Type", &m_MeasureTypeText);
+	m_Gui->Integer(ID_MEASURE, "Selected", &m_SelectedMeasure);
+	m_Gui->Double(ID_MEASURE, "Measure", &m_Measure);
+
+	m_Gui->Divider(1);
+	m_Gui->Label("Storage", true);
+	m_Gui->TwoButtons(ID_LOAD_MEASURES, ID_SAVE_MEASURES, "Load", "Save");
+
+	//////////////////////////////////////////////////////////////////////////
+	m_Gui->Enable(ID_MEASURE, false);
+	m_Gui->Enable(ID_REMOVE_MEASURE, m_MeasureListBox->GetCount() != 0);
+
+	m_Gui->Label("");
+	m_Gui->Label("");
+	m_Gui->Divider(1);
+
+	m_Gui->OkCancel();
+	m_Gui->Label("");
+}
+
+//----------------------------------------------------------------------------
+void appOpMeasure2D::OpStop(int result)
+{
+	if (!m_TestMode)
+	{
+		HideGui();
+	}
+	
+	// Remove Interactor
+	albaEventMacro(albaEvent(this, PER_POP));
+	albaDEL(m_InteractorDistance);
+	albaDEL(m_InteractorAngle);
+	albaDEL(m_InteractorIndicator);
+
+	m_InteractorVector.clear();
+
+	albaEventMacro(albaEvent(this, result));
+}
+
+//----------------------------------------------------------------------------
+void appOpMeasure2D::OnEvent(albaEventBase *alba_event)
+{
+	if (albaEvent *e = albaEvent::SafeDownCast(alba_event))
+	{
+		if (e->GetSender() == m_Gui)
+		{
+			switch (e->GetId())
+			{
+			case ID_SELECT_INTERACTOR:
+			{
+				SetMeasureInteractor(m_SelectedInteractor);
+			}
+			break;
+			case ID_MEASURE_LIST:
+			{
+				int selection = m_MeasureListBox->GetSelection();
+				m_InteractorVector[m_CurrentInteractor]->SelectMeasure(selection);
+				m_Gui->Update();
+			}
+			break;
+			case ID_REMOVE_MEASURE:
+			{
+				RemoveMeasure();
+			}
+			break;
+
+			case ID_LOAD_MEASURES:
+			{
+				RemoveMeasure(true);
+				Load();
+			}
+			break;
+			case ID_SAVE_MEASURES:
+			{
+				Save();
+			}
+			break;
+
+			case wxOK:
+				OpStop(OP_RUN_OK);
+				break;
+
+			case wxCANCEL:
+				OpStop(OP_RUN_CANCEL);
+				break;
+			}
+		}
+		else
+		{
+			switch (e->GetId())
+			{
+			case appInteractor2DMeasure::ID_LINE_ADDED:
+			case appInteractor2DMeasure::ID_LINE_CHANGED:
+			{
+				// Update Measure Gui Entry
+				m_SelectedMeasure = m_InteractorVector[m_CurrentInteractor]->GetSelectedMeasureIndex();
+				m_Measure = RoundValue(e->GetDouble());
+				m_Gui->Update();
+
+				UpdateMeasureList();
+			}
+			break;
+			case appInteractor2DMeasure::ID_LINE_SELECTED:
+			{				
+				// Update Measure Gui Entry
+				m_SelectedMeasure = m_InteractorVector[m_CurrentInteractor]->GetSelectedMeasureIndex();
+				m_Measure = m_InteractorDistance->GetMeasure(m_SelectedMeasure);
+
+				m_MeasureListBox->Select(m_SelectedMeasure);
+				m_Gui->Update();
+			}
+			break;
+			}
+		}
+	}
+}
+
+//----------------------------------------------------------------------------
+void appOpMeasure2D::SetMeasureInteractor(int index)
+{
+	m_InteractorVector[m_CurrentInteractor]->SetOpacity(0.35);
+	m_InteractorVector[m_CurrentInteractor]->SelectMeasure(-1);
+
+	m_CurrentInteractor = index;
+
+	albaEventMacro(albaEvent(this, PER_POP));
+	albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorVector[m_CurrentInteractor]));
+
+	//m_InteractorVector[m_CurrentInteractor]->SetListener(this);
+	m_InteractorVector[m_CurrentInteractor]->SetOpacity(1);
+
+	UpdateMeasureList();
+}
+
+//----------------------------------------------------------------------------
+void appOpMeasure2D::UpdateMeasureList()
+{
+	m_MeasureListBox->Clear();
+
+	for (int i = 0; i < m_InteractorVector[m_CurrentInteractor]->GetMeasureCount(); i++)
+	{
+		m_MeasureListBox->Append(_(m_InteractorVector[m_CurrentInteractor]->GetMeasureText(i)));
+	}
+
+	m_Gui->Enable(ID_REMOVE_MEASURE, m_MeasureListBox->GetCount() != 0);
+	
+	GetLogicManager()->CameraUpdate();
+}
+
+//----------------------------------------------------------------------------
+void appOpMeasure2D::RemoveMeasure(bool clearAll /*Default = false*/)
+{
+	if (clearAll)
+	{
+		m_InteractorVector[m_CurrentInteractor]->RemoveAllMeasures();
+		m_MeasureListBox->Clear();
+	}
+	else
+	{
+		int sel = m_MeasureListBox->GetSelection();
+
+		m_InteractorVector[m_CurrentInteractor]->RemoveMeasure(sel);
+		m_MeasureListBox->Delete(sel);
+
+		m_InteractorVector[m_CurrentInteractor]->SelectMeasure(sel - 1);
+		m_MeasureListBox->Select(sel - 1);
+
+		((albaGUIValidator *)m_MeasureListBox->GetValidator())->TransferFromWindow();
+		m_MeasureListBox->Update();
+	}
+
+	m_Gui->Enable(ID_REMOVE_MEASURE, m_MeasureListBox->GetCount() != 0);
+}
+
+//----------------------------------------------------------------------------
+void appOpMeasure2D::ImportImage()
+{
+	// Build image sequence
+
+	wxString path, name, ext;
+
+	albaNEW(m_ImportedImage);
+
+	vtkImageReader2 *imageReader;
+
+	wxSplitPath(m_FileName.c_str(), &path, &name, &ext);
+	ext.MakeUpper();
+
+	if (ext == "BMP")
+		imageReader = vtkImageReader::New();
+	else if (ext == "JPG" || ext == "JPEG")
+		imageReader = vtkJPEGReader::New();
+	else if (ext == "PNG")
+		imageReader = vtkPNGReader::New();
+	else if (ext == "TIF" || ext == "TIFF")
+		imageReader = vtkTIFFReader::New();
+	else
+	{
+		wxMessageBox("Unable to import %s, unrecognized type", m_FileName.c_str());
+		m_ImportedImage->ReparentTo(NULL);
+		return;
+	}
+
+	imageReader->SetFileName(m_FileName.c_str());
+	imageReader->Update();
+
+	vtkALBASmartPointer<vtkImageFlip> imageFlipFilter;
+
+	imageFlipFilter->SetFilteredAxis(1); // flip z axis
+	imageFlipFilter->SetInput(imageReader->GetOutput());
+	imageFlipFilter->Update();
+
+	vtkImageData *grayScaleImage;
+	vtkNEW(grayScaleImage);
+
+	grayScaleImage->DeepCopy(imageFlipFilter->GetOutput());
+	grayScaleImage->Update();
+
+	for (int i = 0; i < grayScaleImage->GetNumberOfPoints(); i++)
+	{
+		double *values, meanValue;
+		values = grayScaleImage->GetPointData()->GetScalars()->GetTuple3(i);
+		meanValue = (values[0] + values[1] + values[2]) / 3.0;
+		grayScaleImage->GetPointData()->GetScalars()->SetTuple3(i, meanValue, meanValue, meanValue);
+	}
+	grayScaleImage->Update();
+
+	m_ImportedImage->SetData(grayScaleImage, 0);
+	m_ImportedImage->SetName(name);
+
+	m_ImportedImage->SetTimeStamp(0);
+	m_ImportedImage->ReparentTo(m_Input);
+
+	m_Output = m_ImportedImage;
+
+	vtkDEL(grayScaleImage);
+	vtkDEL(imageReader);
+
+	// Set Tags
+	albaTagItem tag_Nature;
+	tag_Nature.SetName("VME_NATURE");
+	tag_Nature.SetValue("NATURAL");
+
+	m_Output->GetTagArray()->SetTag(tag_Nature);
+}
+
+//----------------------------------------------------------------------------
+void appOpMeasure2D::Load()
+{
+	wxString tag = "";
+	albaVME *input = m_Input->GetRoot();
+
+	if (input->GetTagArray()->IsTagPresent(tag + "MeasureLineP1") &&
+		input->GetTagArray()->IsTagPresent(tag + "MeasureLineP2"))
+	{
+		double point1[3], point2[3];
+		albaTagItem *measureLineTypeTag = input->GetTagArray()->GetTag(tag + "MeasureLineType");
+		albaTagItem *measureLineP1Tag = input->GetTagArray()->GetTag(tag + "MeasureLineP1");
+		albaTagItem *measureLineP2Tag = input->GetTagArray()->GetTag(tag + "MeasureLineP2");
+
+		int nLines = measureLineP1Tag->GetNumberOfComponents() / 2;
+
+		// Reload line points
+		for (int i = 0; i < nLines; i++)
+		{
+			point1[0] = measureLineP1Tag->GetValueAsDouble(i * 2 + 0);
+			point1[1] = measureLineP1Tag->GetValueAsDouble(i * 2 + 1);
+			point1[2] = 0.0;
+
+			point2[0] = measureLineP2Tag->GetValueAsDouble(i * 2 + 0);
+			point2[1] = measureLineP2Tag->GetValueAsDouble(i * 2 + 1);
+			point2[2] = 0.0;
+
+			albaString measureType = measureLineTypeTag->GetValue(i);
+
+			if (measureType == "DISTANCE")
+			{
+				m_MeasureType = INTERACTION_TYPE::DISTANCE;
+				m_InteractorDistance->AddMeasure(point1, point2);
+				m_MeasureTypeText = measureType;
+			}
+			if (measureType == "INDICATOR")
+			{
+				m_MeasureType = INTERACTION_TYPE::INDICATOR;
+				m_InteractorDistance->AddMeasure(point1, point2);
+				m_MeasureTypeText = measureType;
+			}
+		}
+		m_Gui->Update();
+		m_InteractorDistance->SelectMeasure(-1);
+		GetLogicManager()->CameraUpdate();
+	}
+}
+//----------------------------------------------------------------------------
+void appOpMeasure2D::Save()
+{
+	wxString tag = "";
+	albaVME *input = m_Input->GetRoot();
+
+	// Saving lines to image tag to restore them on operation recall
+	int nLines = m_InteractorDistance->GetMeasureCount();
+
+	albaTagItem measureLineTypeTag;
+	measureLineTypeTag.SetName(tag + "MeasureLineType");
+	measureLineTypeTag.SetNumberOfComponents(nLines);
+
+	albaTagItem measureLineP1Tag;
+	measureLineP1Tag.SetName(tag + "MeasureLineP1");
+	measureLineP1Tag.SetNumberOfComponents(nLines * 2);
+
+	albaTagItem measureLineP2Tag;
+	measureLineP2Tag.SetName(tag + "MeasureLineP2");
+	measureLineP2Tag.SetNumberOfComponents(nLines * 2);
+
+	for (int i = 0; i < nLines; i++)
+	{
+		double point1[3], point2[3];
+		m_InteractorDistance->GetMeasureLinePoints(i, point1, point2);
+
+		albaString measureType = "DISTANCE";
+
+		if (m_MeasureType == INTERACTION_TYPE::DISTANCE)
+			measureType = "DISTANCE";
+		if (m_MeasureType == INTERACTION_TYPE::INDICATOR)
+			measureType = "INDICATOR";
+
+		measureLineTypeTag.SetValue(measureType, i);
+
+		measureLineP1Tag.SetValue(point1[0], i * 2 + 0);
+		measureLineP1Tag.SetValue(point1[1], i * 2 + 1);
+		measureLineP2Tag.SetValue(point2[0], i * 2 + 0);
+		measureLineP2Tag.SetValue(point2[1], i * 2 + 1);
+	}
+
+	if (input->GetTagArray()->IsTagPresent(tag + "MeasureLineType"))
+		input->GetTagArray()->DeleteTag(tag + "MeasureLineType");
+
+	if (input->GetTagArray()->IsTagPresent(tag + "MeasureLineP1"))
+		input->GetTagArray()->DeleteTag(tag + "MeasureLine1P1");
+
+	if (input->GetTagArray()->IsTagPresent(tag + "MeasureLineP2"))
+		input->GetTagArray()->DeleteTag(tag + "MeasureLine1P2");
+
+	input->GetTagArray()->SetTag(measureLineTypeTag);
+	input->GetTagArray()->SetTag(measureLineP1Tag);
+	input->GetTagArray()->SetTag(measureLineP2Tag);
+}

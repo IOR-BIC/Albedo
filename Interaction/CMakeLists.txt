@@ -17,7 +17,12 @@ PROJECT(appInteraction)
 
 # Set your list of sources here.
 SET(PROJECT_SRCS
-appInteractor2DSample.cpp	appInteractor2DSample.h
+appInteractor2DSample.cpp							appInteractor2DSample.h
+appInteractor2DMeasure.cpp						appInteractor2DMeasure.h
+appInteractor2DMeasure_Point.cpp			appInteractor2DMeasure_Point.h
+appInteractor2DMeasure_Distance.cpp		appInteractor2DMeasure_Distance.h
+appInteractor2DMeasure_Angle.cpp			appInteractor2DMeasure_Angle.h
+appInteractor2DMeasure_Indicator.cpp	appInteractor2DMeasure_Indicator.h
 )
 
 SET(PROJECT_LIBS ${PROJECT_LIBS})
