@@ -610,7 +610,6 @@ albaGUI* appVMESurfaceParametric::CreateGui()
 	m_Gui->Divider();
 	return m_Gui;
 }
-
 //-------------------------------------------------------------------------
 void appVMESurfaceParametric::CreateGuiPlane()
 {
