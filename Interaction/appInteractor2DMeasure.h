@@ -41,7 +41,6 @@ class vtkTextActor;
 class vtkRendererCollection;
 class vtkALBATextActorMeter;
 class vtkPointSource;
-class vtkConeSource;
 
 #define TEXT_H_SHIFT     10
 
@@ -56,21 +55,21 @@ public:
 
 	albaTypeMacro(appInteractor2DMeasure, albaInteractorPER);
 
-	enum LINE_INTERACTIONS
+	enum MEASURE_INTERACTIONS
 	{
 		ID_RESULT_LINE = MINID,
-		ID_LINE_ADDED,
-		ID_LINE_CHANGED,
-		ID_LINE_MOVED,
-		ID_LINE_SELECTED,
+		ID_MEASURE_ADDED,
+		ID_MEASURE_CHANGED,
+		ID_MEASURE_MOVED,
+		ID_MEASURE_SELECTED,
 	};
 
-	enum LINE_ACTIONS
+	enum MEASURE_ACTIONS
 	{
 		ID_NO_ACTION = 0,
-		ID_ADD_LINE,
-		ID_EDIT_LINE,
-		ID_MOVE_LINE,
+		ID_ADD_MEASURE,
+		ID_EDIT_MEASURE,
+		ID_MOVE_MEASURE,
 	};
 
 	virtual void OnEvent(albaEventBase *event);
@@ -79,28 +78,25 @@ public:
 
 	// Measures
 	/** Add Measure*/
-	void AddMeasure(double point1[3], double point2[3]);
+	virtual void AddMeasure(double point1[3], double point2[3]);
 	/** Edit Measure*/
 	virtual void EditMeasure(int index, double point1[3], double point2[3]);
 	/** Delete the Measure*/
-	void RemoveMeasure(int index);
+	virtual void RemoveMeasure(int index);
 	/** Delete all Measures*/
-	void RemoveAllMeasures();
+	virtual void RemoveAllMeasures();
 	/** Select a Measure*/
-	void SelectMeasure(int index);
+	virtual void SelectMeasure(int index);
 
 	/** Get Measure Value*/
-	double GetMeasure(int index);
-	/* Get Measure as Text*/
-	albaString GetMeasureText(int index);
+	albaString GetMeasure(int index);
+	
 	/** Get Number of Measures*/
 	int GetMeasureCount() {	return m_MeasuresCount; };
 	/** Returns the last Edited Measure index*/
 	int GetLastEditedMeasureIndex() { return m_LastEditing; }
 	/** Returns the Current Measure Selected index*/
 	int GetSelectedMeasureIndex() { return m_LastSelection; }
-	/** Get measure line extremity points*/
-	void GetMeasureLinePoints(int index, double *point1, double *point2);
 
 	/*Set Renderer by View needed*/
 	void SetRendererByView(albaView * view);
@@ -121,8 +117,6 @@ public:
 	
 	/** Show/Hide Text Labels*/
 	void ShowText(bool show);
-	/** Show/Hide Arrow Indicator*/
-	void ShowArrow(bool show);
 
 protected:
 
@@ -135,62 +129,48 @@ protected:
 	virtual void OnMove(albaEventInteraction *e);
 
 	void InitRenderer(albaEventInteraction *e);
-
-	// Draw the Line
-	virtual void DrawMeasure(double * wp);
-	void MoveMeasure(int index, double * pointCoord);
-
 	void ScreenToWorld(double screen[2], double world[3]);
 
+	// Draw Measure
+	virtual void DrawMeasure(double * wp);
+	virtual void MoveMeasure(int index, double * pointCoord);
+	
 	void SetAction(int action);
 
-	virtual void UpdateLineActor(int index, double * point1, double * point2);
-	virtual void UpdateTextActor(int index, double * point1, double * point2);
-	virtual void UpdateConeActor(int index, double * point1, double * point2);
+	virtual void UpdateTextActor(int index, double * point);
 	virtual void UpdatePointActor(double * point);
 
-	double CalculateDistance(double *point1, double *point2);
+	virtual void DisableMeasure(int index);
+	virtual void FindAndHighlightCurrentPoint(double * pointCoord);
 
-	void FindAndHighlightCurrentPoint(double * pointCoord);
+	virtual void ShowEditActors();
+	virtual void HideEditActors();
 
+	virtual void UpdateEditActors(double * point1, double * point2);
+
+	double DistanceBetweenPoints(double *point1, double *point2);
 	float DistancePointToLine(double * point, double * lineP1, double * lineP2);
 
 	bool IsInBound(double *pos);
 
-	// Persistent line BEGIN
-	std::vector<vtkLineSource *>				m_LineSourceVector;
-	std::vector<vtkPolyDataMapper2D *>	m_LineMapperVector;
-	std::vector<vtkActor2D *>						m_LineActorVector;
-
-	std::vector<vtkALBATextActorMeter *> m_TextActorVector;
-
-	std::vector<vtkConeSource *>				m_ConeSourceVector;
-	std::vector<vtkPolyDataMapper2D *>	m_ConeMapperVector;
-	std::vector<vtkActor2D *>						m_ConeActorVector;
+	std::vector<albaString> m_MeasureVector;
+	albaString m_MeasureTypeText;
 
 	albaDeviceButtonsPadMouse	*m_Mouse;
 	vtkRenderer								*m_Renderer;
 	albaView									*m_View;
 
-	albaString						m_MeasureTypeText;
-
 	vtkCoordinate					*m_Coordinate;
 
-	// Edit Actors
-	vtkLineSource					*m_EditLineSource;
-	vtkPolyDataMapper2D		*m_EditLineMapper;
-	vtkActor2D						*m_EditLineActor;
-
+		// Text Vector
+	std::vector<vtkALBATextActorMeter *> m_TextActorVector;
+	
+	// EDIT ATORS
 	vtkALBATextActorMeter	*m_EditTextActor;
-
-	vtkConeSource					*m_EditConeSource;
-	vtkPolyDataMapper2D		*m_EditConeMapper;
-	vtkActor2D						*m_EditConeActor;
 
 	vtkPointSource				*m_EditPointSource;
 	vtkPolyDataMapper2D		*m_EditPointMapper;
 	vtkActor2D						*m_EditPointActor;
-
 
 	double m_Opacity;
 	double m_ColorDefault[3];
@@ -199,25 +179,22 @@ protected:
 
 	int m_TextSide;
 
-	int m_LineAction;
+	int m_Action; // Measure Action
 
-	int m_CurrentLineIndex;
-	int m_CurrentPointIndex;
+	int m_CurrentMeasureIndex;
 	int m_MeasuresCount;
-	int m_TotalPoints;
+	
+	double m_OldLineP1[3];
+	double m_OldLineP2[3];
 
 	double *m_Bounds;
 	bool m_IsInBound;
 	bool m_ButtonDownInside;
 
 	double m_StartMousePosition[3];
-
-	double m_OldLineP1[3];
-	double m_OldLineP2[3];
-
+	
 	bool m_EndMeasure;
 	bool m_ParallelView;
-	bool m_RegisterMeasure;
 
 	long m_AddMeasurePhase_Counter;
 	bool m_ActorAdded;
@@ -225,10 +202,11 @@ protected:
 	double m_Distance;
 	int m_LastSelection;
 	int m_LastEditing;
-	bool m_CanEditLine;
+	bool m_MovingMeasure;
 	bool m_EditMeasureEnable;
+
 	bool m_ShowText;
-	bool m_ShowArrow;
+	bool m_ShowPoint;
 
 private:
 	appInteractor2DMeasure(const appInteractor2DMeasure&);   // Not implemented.

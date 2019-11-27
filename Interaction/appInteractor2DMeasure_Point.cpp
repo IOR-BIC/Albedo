@@ -31,10 +31,9 @@ albaCxxTypeMacro(appInteractor2DMeasure_Point)
 //----------------------------------------------------------------------------
 appInteractor2DMeasure_Point::appInteractor2DMeasure_Point() : appInteractor2DMeasure()
 {
-	m_ShowArrow = false;
 	m_ShowText = true;
 	m_TextSide = -2;
-	m_CanEditLine = false;
+	m_MovingMeasure = false;
 	m_EditMeasureEnable = false;
 
 	m_MeasureTypeText = "POINT";
@@ -46,14 +45,12 @@ appInteractor2DMeasure_Point::~appInteractor2DMeasure_Point()
 
 	vtkDEL(m_Coordinate);
 
-	m_Renderer->RemoveActor2D(m_EditTextActor);
 	m_Renderer->RemoveActor2D(m_EditPointActor);
 
 	// Edit Actor
 	vtkDEL(m_EditPointSource);
 	vtkDEL(m_EditPointMapper);
 	vtkDEL(m_EditPointActor);
-	vtkDEL(m_EditTextActor);
 
 	for (int i = 0; i < m_PointActorVector.size(); i++)
 	{
@@ -62,10 +59,6 @@ appInteractor2DMeasure_Point::~appInteractor2DMeasure_Point()
 		vtkDEL(m_PointActorVector[i]);
 		vtkDEL(m_PointMapperVector[i]);
 		vtkDEL(m_PointSourceVector[i]);
-
-		// Texts
-		m_Renderer->RemoveActor2D(m_TextActorVector[i]);
-		vtkDEL(m_TextActorVector[i]);
 	}
 
 	m_Renderer->GetRenderWindow()->Render();
@@ -73,8 +66,6 @@ appInteractor2DMeasure_Point::~appInteractor2DMeasure_Point()
 	m_PointSourceVector.clear();
 	m_PointMapperVector.clear();
 	m_PointActorVector.clear();
-
-	m_TextActorVector.clear();
 }
 
 // RENDERING
@@ -97,12 +88,8 @@ void appInteractor2DMeasure_Point::DrawMeasure(double * wp)
 			m_Renderer->AddActor2D(m_EditPointActor);
 		}
 
-// 		m_EditPointSource->SetCenter(wp);
-// 		m_EditPointSource->Update();
-
 		UpdatePointActor(-1,wp);
 		UpdateTextActor(-1, wp);
-		m_EditPointSource->Update();
 
 		m_AddMeasurePhase_Counter++;
 	}
@@ -118,15 +105,15 @@ void appInteractor2DMeasure_Point::DrawMeasure(double * wp)
 		double tmpPt[3];
 		m_EditPointSource->GetCenter(tmpPt);
 
-			if (m_CurrentLineIndex >= 0)
+			if (m_CurrentMeasureIndex >= 0)
 			{
-				//EditMeasure(m_CurrentLineIndex, tmpPt1, tmpPt1);
-				//albaEventMacro(albaEvent(this, ID_LINE_CHANGED, m_Distance));
+				EditMeasure(m_CurrentMeasureIndex, tmpPt);
+				albaEventMacro(albaEvent(this, ID_MEASURE_CHANGED, GetMeasure(m_CurrentMeasureIndex)));
 			}
 			else
 			{
 				AddMeasure(tmpPt);
-				albaEventMacro(albaEvent(this, ID_LINE_ADDED, m_Distance));
+				albaEventMacro(albaEvent(this, ID_MEASURE_ADDED, GetMeasure(m_MeasuresCount - 1)));
 			}
 
 		m_AddMeasurePhase_Counter++;
@@ -143,48 +130,64 @@ void appInteractor2DMeasure_Point::DrawMeasure(double * wp)
 		m_ActorAdded = false;
 	}
 
-	SetAction(ID_ADD_LINE);
+	SetAction(ID_ADD_MEASURE);
 
 	m_Renderer->GetRenderWindow()->Render();
 }
-
 //----------------------------------------------------------------------------
-void appInteractor2DMeasure_Point::UpdateTextActor(int index, double * point)
+void appInteractor2DMeasure_Point::MoveMeasure(int index, double * pointCoord)
 {
-	albaString ds = "Text";
-// 	ds = wxString::Format(_("%.2f° | %.2f"), m_Angle, m_StartTheta);
-// 	ds = m_TestText; // TO REMOVE
+	if (index < 0)
+		return;
 
-	double text_pos[3] = { 0,0,0 };
+	double point[3];
 
-	if (point)
+	m_PointSourceVector[index]->GetCenter(point);
+
+	if (!m_MovingMeasure)
 	{
-		text_pos[0] = point[0];
-		text_pos[1] = point[1];
-		text_pos[2] = point[2];
+		m_OldLineP1[0] = point[0] - m_StartMousePosition[0];
+		m_OldLineP1[1] = point[1] - m_StartMousePosition[1];
+
+		m_MovingMeasure = true;
 	}
 
-	text_pos[0] -= m_TextSide *TEXT_H_SHIFT;
-
-	if (index > -1)
+	if (m_DraggingLeft)
 	{
-		m_TextActorVector[index]->SetText(ds);
-		m_TextActorVector[index]->SetTextPosition(text_pos);
+		if (!m_ActorAdded)
+		{
+			// Add Edit Actors
+			m_ActorAdded = true;
+			m_Renderer->AddActor2D(m_EditPointActor);
+			m_Renderer->AddActor2D(m_EditTextActor);
+		}
 
-		if (m_LastSelection == index)
-			m_TextActorVector[index]->SetColor(m_ColorSelection[0], m_ColorSelection[1], m_ColorSelection[2]);
-		else
-			m_TextActorVector[index]->SetColor(m_ColorDefault[0], m_ColorDefault[1], m_ColorDefault[2]);
+		double tmp_pos[3];
 
-		m_TextActorVector[index]->SetOpacity(m_Opacity);
-		m_TextActorVector[index]->SetVisibility(m_ShowText && (index % 2) == 1);
+		tmp_pos[0] = pointCoord[0] + m_OldLineP1[0];
+		tmp_pos[1] = pointCoord[1] + m_OldLineP1[1];
+		tmp_pos[2] = 0.0;
+
+		// Update Edit Actors
+		UpdatePointActor(-1, tmp_pos);
+		UpdateTextActor(-1, tmp_pos);
 	}
-	else
+	else if (m_EditPointSource)
 	{
-		m_EditTextActor->SetText(ds);
-		m_EditTextActor->SetTextPosition(text_pos);
-		m_EditTextActor->SetVisibility(m_ShowText);
+		// Remove Edit Actors
+		m_Renderer->RemoveActor2D(m_EditPointActor);
+		m_Renderer->RemoveActor2D(m_EditTextActor);
+
+		double tmpPt[3];
+		m_EditPointSource->GetCenter(tmpPt);
+
+		EditMeasure(index, tmpPt);
+		albaEventMacro(albaEvent(this, ID_MEASURE_CHANGED, m_Distance)); // TODO
+
+		m_ActorAdded = false;
 	}
+
+	m_Renderer->GetRenderWindow()->Render();
 }
 
 //----------------------------------------------------------------------------
@@ -225,7 +228,13 @@ void appInteractor2DMeasure_Point::AddMeasure(double *point)
 	UpdateTextActor(-1, point);
 
 	//////////////////////////////////////////////////////////////////////////
-	// Add Line
+	// Add Measure
+	albaString text;
+	text.Printf("Point n. %d ", m_MeasuresCount + 1);
+	m_MeasureVector.push_back(text);
+
+	//////////////////////////////////////////////////////////////////////////
+	// Add Point
 	m_PointSourceVector.push_back(vtkPointSource::New());
 	m_PointMapperVector.push_back(vtkPolyDataMapper2D::New());
 	m_PointActorVector.push_back(vtkActor2D::New());
@@ -246,4 +255,151 @@ void appInteractor2DMeasure_Point::AddMeasure(double *point)
 	m_MeasuresCount++;
 
 	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::EditMeasure(int index, double *point)
+{
+	if (index < 0 || index >= m_MeasuresCount)
+		return;
+
+	m_MovingMeasure = true;
+
+	point[2] = 0;
+
+	m_LastEditing = index;
+
+	//////////////////////////////////////////////////////////////////////////
+
+	// Edit Actors
+	UpdatePointActor(-1, point);
+	UpdateTextActor(-1, point);
+
+	// Point
+	UpdatePointActor(index, point);
+
+	// Text
+	UpdateTextActor(index, point);
+
+	//////////////////////////////////////////////////////////////////////////
+
+	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::RemoveMeasure(int index)
+{
+	if (m_Renderer && index < m_MeasuresCount)
+	{
+		//////////////////////////////////////////////////////////////////////////
+		// Measure
+		m_MeasureVector.erase(m_MeasureVector.begin() + index);
+
+		//////////////////////////////////////////////////////////////////////////
+		// Point
+		m_Renderer->RemoveActor2D(m_PointActorVector[index]);
+		vtkDEL(m_PointActorVector[index]);
+		m_PointActorVector.erase(m_PointActorVector.begin() + index);
+
+		vtkDEL(m_PointMapperVector[index]);
+		m_PointMapperVector.erase(m_PointMapperVector.begin() + index);
+
+		vtkDEL(m_PointSourceVector[index]);
+		m_PointSourceVector.erase(m_PointSourceVector.begin() + index);
+
+		//////////////////////////////////////////////////////////////////////////
+		// Text
+		m_Renderer->RemoveActor2D(m_TextActorVector[index]);
+		vtkDEL(m_TextActorVector[index]);
+		m_TextActorVector.erase(m_TextActorVector.begin() + index);
+
+		//////////////////////////////////////////////////////////////////////////
+
+		m_Renderer->GetRenderWindow()->Render();
+
+		m_MeasuresCount--;
+
+		albaEventMacro(albaEvent(this, CAMERA_UPDATE));
+	}
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::SelectMeasure(int index)
+{
+	if (m_MeasuresCount > 0)
+	{
+		// Deselect all
+		for (int i = 0; i < m_MeasuresCount; i++)
+		{
+			if (m_PointActorVector[i] != NULL)
+			{
+				m_PointActorVector[i]->GetProperty()->SetColor(m_ColorDefault[0], m_ColorDefault[1], m_ColorDefault[2]);
+				m_PointActorVector[i]->GetProperty()->SetLineWidth(1.0);
+				m_PointActorVector[i]->GetProperty()->SetOpacity(m_Opacity);
+
+				m_TextActorVector[i]->SetColor(m_ColorDefault[0], m_ColorDefault[1], m_ColorDefault[2]);
+				m_TextActorVector[i]->GetProperty()->SetOpacity(m_Opacity);
+			}
+		}
+
+		if (index != -1 && m_PointActorVector[index] != NULL)
+		{
+			m_PointActorVector[index]->GetProperty()->SetColor(m_ColorSelection[0], m_ColorSelection[1], m_ColorSelection[2]);
+			m_PointActorVector[index]->GetProperty()->SetLineWidth(3.0);
+
+			m_TextActorVector[index]->SetColor(m_ColorSelection[0], m_ColorSelection[1], m_ColorSelection[2]);
+
+			m_LastSelection = index;
+			m_LastEditing = -1;
+		}
+
+		if (m_Renderer)
+			m_Renderer->GetRenderWindow()->Render();
+
+		albaEventMacro(albaEvent(this, CAMERA_UPDATE));
+		albaEventMacro(albaEvent(this, ID_MEASURE_SELECTED));
+	}
+}
+
+//---------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::GetMeasurePoint(int index, double *point)
+{
+	// Return point value
+	if (index >= 0 && index < m_MeasuresCount)
+	{
+		m_PointSourceVector[index]->GetCenter(point);
+	}
+}
+
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::FindAndHighlightCurrentPoint(double * pointCoord)
+{
+	SetAction(ID_ADD_MEASURE);
+
+	if (m_EditMeasureEnable)
+	{
+		for (int i = 0; i < m_MeasuresCount; i++)
+		{
+			double tmpPoint[3];
+
+			m_PointSourceVector[i]->GetCenter(tmpPoint);
+
+			if (DistanceBetweenPoints(pointCoord, tmpPoint) < LINE_UPDATE_DISTANCE)
+			{
+				SelectMeasure(i);
+
+				m_CurrentMeasureIndex = i;
+
+				m_Renderer->AddActor2D(m_EditPointActor);
+				UpdatePointActor(-1, tmpPoint);
+				m_Renderer->GetRenderWindow()->Render();
+
+				SetAction(ID_MOVE_MEASURE);
+			}
+		}
+
+		if (m_CurrentMeasureIndex >= 0)
+		{
+			m_Renderer->RemoveActor2D(m_EditPointActor);
+			m_Renderer->GetRenderWindow()->Render();
+			m_CurrentMeasureIndex = -1;
+		}
+	}
 }

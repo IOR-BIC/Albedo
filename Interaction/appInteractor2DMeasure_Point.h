@@ -35,6 +35,11 @@ public:
 	
 	void AddMeasure(double *point);
 
+	void EditMeasure(int index, double *point);
+	void RemoveMeasure(int index);
+	void SelectMeasure(int index);
+	void GetMeasurePoint(int index, double *point);
+
 protected:
 
 	appInteractor2DMeasure_Point();
@@ -43,9 +48,10 @@ protected:
 	//void EditMeasure(int index, double *point);
 	void DrawMeasure(double * wp);
 
-	void UpdateTextActor(int index, double * point);
-
+	void MoveMeasure(int index, double * pointCoord);
 	void UpdatePointActor(int index, double * point);
+
+	void FindAndHighlightCurrentPoint(double * pointCoord);
 
 	// Persistent Point
 	std::vector<vtkPointSource *>				m_PointSourceVector;

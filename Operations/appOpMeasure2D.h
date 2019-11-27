@@ -46,7 +46,7 @@ public:
 	{
 		POINT,
 		DISTANCE,
-		ANGLE,
+/*		ANGLE,*/
 		INDICATOR,
 	};
 
@@ -78,6 +78,8 @@ public:
 
 	/** Builds operation's interface. */
   void OpRun();
+
+	void InitInteractors();
 
   /** Precess events coming from other objects */
   void OnEvent(albaEventBase *alba_event);
@@ -111,11 +113,11 @@ protected:
 
 	int m_NumLines;
 
-	int m_MeasureType;
 	int m_SelectedMeasure;
-	double m_Measure;
-	wxString m_MeasureText;
-	albaString m_MeasureTypeText;
+
+	albaString m_Measure;
+
+	albaString m_MeasureType;
 
 	wxListBox *m_MeasureListBox;
 

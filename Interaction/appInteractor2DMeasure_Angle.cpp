@@ -39,10 +39,9 @@ albaCxxTypeMacro(appInteractor2DMeasure_Angle)
 //----------------------------------------------------------------------------
 appInteractor2DMeasure_Angle::appInteractor2DMeasure_Angle() : appInteractor2DMeasure()
 {
-	m_ShowArrow = false;
 	m_ShowText = true;
 	m_TextSide = 1;
-	m_CanEditLine = false;
+	m_CanEdit = false;
 
 	// Angle tool
 	vtkNEW(m_EditSphereSource);
@@ -95,7 +94,7 @@ void appInteractor2DMeasure_Angle::EditMeasure(int index, double *point1, double
 	if (index < 0 || index >= m_MeasuresCount)
 		return;
 
-	m_CanEditLine = true;
+	m_CanEdit = true;
 
 	point1[2] = point2[2] = 0;
 
@@ -111,7 +110,7 @@ void appInteractor2DMeasure_Angle::EditMeasure(int index, double *point1, double
 	//UpdateConeActor(-1, point1, point2);
 
 	// Distance
-	m_Distance = CalculateDistance(point1, point2);
+	m_Distance = DistanceBetweenPoints(point1, point2);
 
 	GetMeasureLinePoints(index, m_Point1, m_Point2, m_Point3, m_Point4);
 
@@ -168,18 +167,18 @@ void appInteractor2DMeasure_Angle::DrawMeasure(double * wp)
 		m_EditLineSource->SetPoint1(wp);
 
 		// Edit Line
-		if (m_CurrentLineIndex >= 0)
+		if (m_CurrentMeasureIndex >= 0)
 		{
 			// if m_CurrentPointIndex == 0 // common point not edit // TODO
 			double tmp_point[3];
 			if (m_CurrentPointIndex == 1)
 			{
-				m_LineSourceVector[m_CurrentLineIndex]->GetPoint2(tmp_point);
+				m_LineSourceVector[m_CurrentMeasureIndex]->GetPoint2(tmp_point);
 				m_EditLineSource->SetPoint1(tmp_point);
 			}
 			else if (m_CurrentPointIndex == 2)
 			{
-				m_LineSourceVector[m_CurrentLineIndex]->GetPoint1(tmp_point);
+				m_LineSourceVector[m_CurrentMeasureIndex]->GetPoint1(tmp_point);
 				m_EditLineSource->SetPoint1(tmp_point);
 			}
 		}
@@ -205,7 +204,7 @@ void appInteractor2DMeasure_Angle::DrawMeasure(double * wp)
 
 		UpdateLineActor(-1, m_Point1, wp);
 
-		m_Distance = CalculateDistance(m_Point1, wp);
+		m_Distance = DistanceBetweenPoints(m_Point1, wp);
 	}
 	// Finished dragging the second point
 	else if (m_AddMeasurePhase_Counter == 1)
@@ -214,9 +213,9 @@ void appInteractor2DMeasure_Angle::DrawMeasure(double * wp)
 		{
 			m_EditLineSource->GetPoint2(m_Point2); // Store Point2
 
-			if (m_CurrentLineIndex >= 0)
+			if (m_CurrentMeasureIndex >= 0)
 			{
-				EditMeasure(m_CurrentLineIndex, m_Point1, m_Point2);
+				EditMeasure(m_CurrentMeasureIndex, m_Point1, m_Point2);
 				m_AddMeasurePhase_Counter = 2;
 				m_EndMeasure = true;
 			}
@@ -252,7 +251,7 @@ void appInteractor2DMeasure_Angle::DrawMeasure(double * wp)
 	// Finished dragging the third point
 	else if (m_AddMeasurePhase_Counter == 2)
 	{
-		m_Distance = CalculateDistance(m_Point3, m_Point4);
+		m_Distance = DistanceBetweenPoints(m_Point3, m_Point4);
 
 		m_AddMeasurePhase_Counter++;
 		m_EndMeasure = true;
@@ -272,9 +271,9 @@ void appInteractor2DMeasure_Angle::DrawMeasure(double * wp)
 		{
 			m_EditLineSource->GetPoint2(m_Point4); // Store Point4
 
-			if (m_CurrentLineIndex >= 0)
+			if (m_CurrentMeasureIndex >= 0)
 			{
-				EditMeasure(m_CurrentLineIndex, m_Point3, m_Point4);
+				EditMeasure(m_CurrentMeasureIndex, m_Point3, m_Point4);
 				//albaEventMacro(albaEvent(this, ID_LINE_CHANGED, m_Distance));
 			}
 			else
@@ -293,7 +292,7 @@ void appInteractor2DMeasure_Angle::DrawMeasure(double * wp)
 		m_ActorAdded = false;
 	}
 
-	SetAction(ID_ADD_LINE);
+	SetAction(ID_ADD_MEASURE);
 
 	m_Renderer->GetRenderWindow()->Render();
 }

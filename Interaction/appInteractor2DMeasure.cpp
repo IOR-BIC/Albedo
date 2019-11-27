@@ -26,34 +26,27 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "vtkALBASmartPointer.h"
 #include "vtkMath.h"
-#include "vtkLine.h"
 #include "vtkPolyData.h"
 #include "vtkPointData.h"
-#include "vtkLineSource.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
 #include "vtkActor2D.h"
-#include "vtkTextActor.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkProbeFilter.h"
-#include "vtkXYPlotActor.h"
 #include "vtkTextProperty.h"
-#include "vtkImageImport.h"
-#include "vtkImageAccumulate.h"
 #include "vtkTransform.h"
 #include "vtkRendererCollection.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkAppendPolyData.h"
-#include "vtkConeSource.h"
 #include "vtkALBATextActorMeter.h"
 #include "vtkPointSource.h"
-#include "vtkConeSource.h"
+
 
 //------------------------------------------------------------------------------
 albaCxxTypeMacro(appInteractor2DMeasure)
@@ -74,21 +67,20 @@ appInteractor2DMeasure::appInteractor2DMeasure()
 
 	m_TextSide = 1;
 	m_Opacity = 1;
-	m_CurrentLineIndex = -1;
-	m_CurrentPointIndex = -1;
+	m_CurrentMeasureIndex = -1;
 	m_MeasuresCount = 0;
 
 	m_DraggingLeft = false;
 	m_EndMeasure = false;
 	m_ParallelView = false;
-	m_RegisterMeasure = false;
 
 	m_EditMeasureEnable = true;
-	m_CanEditLine = false;
-	m_ShowText = false;
-	m_ShowArrow = false;
+	m_MovingMeasure = false;
 
-	m_LineAction = ID_NO_ACTION;
+	m_ShowText = false;
+	m_ShowPoint = true;
+
+	m_Action = ID_NO_ACTION;
 
 	m_AddMeasurePhase_Counter = 0;
 
@@ -105,38 +97,11 @@ appInteractor2DMeasure::appInteractor2DMeasure()
 	m_ColorDisable[1] = 0;
 	m_ColorDisable[2] = 0;
 
-	// Line tool
-	vtkNEW(m_EditLineSource);
-	m_EditLineSource->SetPoint1(0, 0, 0);
-	m_EditLineSource->SetPoint2(0.5, 0.5, 0);
-	m_EditLineSource->Update();
-
-	vtkNEW(m_EditLineMapper);
-	m_EditLineMapper->SetInput(m_EditLineSource->GetOutput());
-	m_EditLineMapper->SetTransformCoordinate(m_Coordinate);
-
-	vtkNEW(m_EditLineActor);
-	m_EditLineActor->SetMapper(m_EditLineMapper);
-	m_EditLineActor->GetProperty()->SetColor(m_ColorSelection[0], m_ColorSelection[1], m_ColorSelection[2]);
-	m_EditLineActor->GetProperty()->SetOpacity(m_Opacity);
-	m_EditLineActor->GetProperty()->SetLineWidth(1.0);
-
+	// EDIT ACTORS
 	// Text tool
 	vtkNEW(m_EditTextActor);
 	m_EditTextActor->SetColor(m_ColorSelection[0], m_ColorSelection[1], m_ColorSelection[2]);
 	m_EditTextActor->SetOpacity(m_Opacity);
-
-	// Arrow tool
-	vtkNEW(m_EditConeSource);
-	vtkNEW(m_EditConeMapper);
-	m_EditConeMapper->SetInput(m_EditConeSource->GetOutput());
-	m_EditConeMapper->SetTransformCoordinate(m_Coordinate);
-
-	vtkNEW(m_EditConeActor);
-	m_EditConeActor->SetMapper(m_EditConeMapper);
-	m_EditConeActor->GetProperty()->SetColor(m_ColorSelection[0], m_ColorSelection[1], m_ColorSelection[2]);
-	m_EditConeActor->GetProperty()->SetOpacity(m_Opacity);
-	m_EditConeActor->GetProperty()->SetLineWidth(1.0);
 
 	// Point tool
 	vtkNEW(m_EditPointSource);
@@ -158,53 +123,25 @@ appInteractor2DMeasure::~appInteractor2DMeasure()
 
 	vtkDEL(m_Coordinate);
 
-	m_Renderer->RemoveActor2D(m_EditLineActor);
 	m_Renderer->RemoveActor2D(m_EditTextActor);
-	m_Renderer->RemoveActor2D(m_EditConeActor);
 	m_Renderer->RemoveActor2D(m_EditPointActor);
 
 	// Edit Actor
-	vtkDEL(m_EditLineSource);
-	vtkDEL(m_EditLineMapper);
-	vtkDEL(m_EditLineActor);
 	vtkDEL(m_EditTextActor);
-	vtkDEL(m_EditConeSource);
-	vtkDEL(m_EditConeMapper);
-	vtkDEL(m_EditConeActor);
 	vtkDEL(m_EditPointSource);
 	vtkDEL(m_EditPointMapper);
 	vtkDEL(m_EditPointActor);
 
-	for (int i = 0; i < m_LineActorVector.size(); i++)
+	for (int i = 0; i < m_MeasuresCount; i++)
 	{
-		// Lines
-		m_Renderer->RemoveActor2D(m_LineActorVector[i]);
-		vtkDEL(m_LineActorVector[i]);
-		vtkDEL(m_LineMapperVector[i]);
-		vtkDEL(m_LineSourceVector[i]);
-
 		// Texts
 		m_Renderer->RemoveActor2D(m_TextActorVector[i]);
 		vtkDEL(m_TextActorVector[i]);
-
-		// Arrows
-		m_Renderer->RemoveActor2D(m_ConeActorVector[i]);
-		vtkDEL(m_ConeActorVector[i]);
-		vtkDEL(m_ConeMapperVector[i]);
-		vtkDEL(m_ConeSourceVector[i]);
 	}
 
 	m_Renderer->GetRenderWindow()->Render();
 
-	m_LineSourceVector.clear();
-	m_LineMapperVector.clear();
-	m_LineActorVector.clear();
-
 	m_TextActorVector.clear();
-
-	m_ConeSourceVector.clear();
-	m_ConeMapperVector.clear();
-	m_ConeActorVector.clear();
 }
 
 // MOUSE EVENTS
@@ -236,26 +173,19 @@ void appInteractor2DMeasure::OnLeftButtonDown(albaEventInteraction *e)
 
 		SelectMeasure(-1);
 
-		if (m_LineAction == ID_ADD_LINE || m_LineAction == ID_EDIT_LINE)
+		if (m_Action == ID_ADD_MEASURE || m_Action == ID_EDIT_MEASURE)
 		{
 			DrawMeasure(pointCoord);
 		}
-		else if (m_LineAction == ID_MOVE_LINE)
+		else if (m_Action == ID_MOVE_MEASURE)
 		{
 			ScreenToWorld(pos_2d, m_StartMousePosition);
-			MoveMeasure(m_CurrentLineIndex, m_StartMousePosition);
+			MoveMeasure(m_CurrentMeasureIndex, m_StartMousePosition);
 		}
 
-		if (m_CurrentLineIndex >= 0)
-		{
-			// Old Line Actor
-			m_LineActorVector[m_CurrentLineIndex]->GetProperty()->SetColor(m_ColorDisable[0], m_ColorDisable[1], m_ColorDisable[2]);
-			// Old Text Actor
-			m_TextActorVector[m_CurrentLineIndex]->SetColor(m_ColorDisable[0], m_ColorDisable[1], m_ColorDisable[2]);
-			// Old Arrow Actor
-			m_ConeActorVector[m_CurrentLineIndex]->GetProperty()->SetColor(m_ColorDisable[0], m_ColorDisable[1], m_ColorDisable[2]);
-			
-			if (m_EditPointSource && m_LineAction == ID_EDIT_LINE)
+		if (m_CurrentMeasureIndex >= 0)
+		{	
+			if (m_EditPointSource && m_Action == ID_EDIT_MEASURE)
 				UpdatePointActor(pos_2d);
 
 			m_Renderer->GetRenderWindow()->Render();
@@ -277,10 +207,10 @@ void appInteractor2DMeasure::OnLeftButtonUp(albaEventInteraction *e)
 		e->Get2DPosition(pos_2d);
 		ScreenToWorld(pos_2d, pointCoord);
 
-		switch (m_LineAction)
+		switch (m_Action)
 		{
-		case ID_ADD_LINE:
-		case ID_EDIT_LINE:
+		case ID_ADD_MEASURE:
+		case ID_EDIT_MEASURE:
 		{
 			double nullCoord[4] = { -1.0, -1.0, 0.0, 0.0 };
 			DrawMeasure(nullCoord);
@@ -288,10 +218,10 @@ void appInteractor2DMeasure::OnLeftButtonUp(albaEventInteraction *e)
 		}
 		break;
 
-		case ID_MOVE_LINE:
+		case ID_MOVE_MEASURE:
 		{
 			m_EndMeasure = true;
-			MoveMeasure(m_CurrentLineIndex, pointCoord);
+			MoveMeasure(m_CurrentMeasureIndex, pointCoord);
 		}
 		break;
 
@@ -301,21 +231,19 @@ void appInteractor2DMeasure::OnLeftButtonUp(albaEventInteraction *e)
 
 		if (m_EndMeasure)
 		{
-			m_RegisterMeasure = false;
-
 			if (m_Renderer)
 				m_Renderer->GetRenderWindow()->Render();
 		}
 
-		if (m_CanEditLine)
+		if (m_MovingMeasure)
 		{
-			SelectMeasure(m_CurrentLineIndex);
-			m_CurrentLineIndex = -1;
+			SelectMeasure(m_CurrentMeasureIndex);
+			m_CurrentMeasureIndex = -1;
 
 			m_Renderer->RemoveActor2D(m_EditPointActor);
 			m_Renderer->GetRenderWindow()->Render();
 
-			m_CanEditLine = false;
+			m_MovingMeasure = false;
 		}
 	}
 }
@@ -341,7 +269,7 @@ void appInteractor2DMeasure::OnMove(albaEventInteraction *e)
 				m_Renderer->GetRenderWindow()->Render();
 
 			if (m_IsInBound)
-				SetAction(ID_ADD_LINE);
+				SetAction(ID_ADD_MEASURE);
 			else
 				SetAction(ID_NO_ACTION);
 		}
@@ -354,15 +282,14 @@ void appInteractor2DMeasure::OnMove(albaEventInteraction *e)
 			}
 			else
 			{
-				if (m_LineAction == ID_ADD_LINE)
+				if (m_Action == ID_ADD_MEASURE)
 					DrawMeasure(pointCoord);
-				else if (m_LineAction == ID_MOVE_LINE)
-					MoveMeasure(m_CurrentLineIndex, pointCoord);
+				else if (m_Action == ID_MOVE_MEASURE)
+					MoveMeasure(m_CurrentMeasureIndex, pointCoord);
 			}
 		}
 	}
 }
-
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::OnEvent(albaEventBase *event)
 {
@@ -382,7 +309,37 @@ void appInteractor2DMeasure::OnEvent(albaEventBase *event)
 	Superclass::OnEvent(event);
 }
 
-// RENDERING
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::SetAction(int action)
+{
+	if (m_Action == action)
+		return;
+
+	m_Action = action;
+
+	// Set Mouse Cursor
+	wxCursor cursor = wxCursor(wxCURSOR_ARROW);
+
+	switch (m_Action)
+	{
+	case ID_ADD_MEASURE:
+	case ID_EDIT_MEASURE:
+		cursor = wxCursor(wxCURSOR_PENCIL);
+		break;
+
+	case ID_MOVE_MEASURE:
+		cursor = wxCursor(wxCURSOR_SIZING);
+		break;
+
+	default:
+		break;
+	}
+
+	if (m_View)
+		m_View->GetWindow()->SetCursor(cursor);
+}
+
+// RENDERING //////////////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::DrawMeasure(double * wp)
 {
@@ -392,55 +349,37 @@ void appInteractor2DMeasure::DrawMeasure(double * wp)
 		// Initialization
 		m_EndMeasure = false;
 		m_ActorAdded = false;
-		m_Distance = 0.0;
-		m_EditLineSource->SetPoint1(wp);
 
-		// Edit Line
-		if (m_CurrentLineIndex >= 0)
+		ShowEditActors();
+
+		m_EditPointSource->SetCenter(wp);
+
+		/// Edit Measure
+		if (m_CurrentMeasureIndex >= 0)
 		{
-			if (m_CurrentPointIndex == 1)
-			{
-				double tmp_p2[3];
-				m_LineSourceVector[m_CurrentLineIndex]->GetPoint2(tmp_p2);
-				m_EditLineSource->SetPoint1(tmp_p2);
-			}
-			else if (m_CurrentPointIndex == 2)
-			{
-				double tmp_p1[3];
-				m_LineSourceVector[m_CurrentLineIndex]->GetPoint1(tmp_p1);
-				m_EditLineSource->SetPoint1(tmp_p1);
-			}
+			/// Select Component for editing  
 		}
 
-		m_EditLineSource->SetPoint2(wp);
-		m_EditLineSource->Update();
+		m_EditPointSource->Update();
 
 		m_AddMeasurePhase_Counter++;
 	}
 	// First point has been picked and the second one is being dragged
 	else if (m_AddMeasurePhase_Counter == 1 && m_DraggingLeft)
 	{
-		if (!m_ActorAdded)
-		{
-			m_ActorAdded = true;
-			m_Renderer->AddActor2D(m_EditLineActor);
-			m_Renderer->AddActor2D(m_EditTextActor);
-		}
+		/// Modify Measure
+		double editPoint[3];
+		m_EditPointSource->GetCenter(editPoint);
+			
+		m_Distance = DistanceBetweenPoints(editPoint, wp);
 
-		double editPoint1[3];
-		m_EditLineSource->GetPoint1(editPoint1);
-		UpdateLineActor(-1, editPoint1, wp);
-		
-		m_Distance = CalculateDistance(editPoint1, wp);
-
-		UpdateTextActor(-1, editPoint1, wp);
-		UpdateConeActor(-1, editPoint1, wp);
-		UpdatePointActor(wp);
+		UpdateEditActors(editPoint, NULL);
 	}
 
 	// Finished dragging the second point
 	else if (m_AddMeasurePhase_Counter == 1)
 	{
+		/// End Measure
 		m_EndMeasure = true;
 		m_AddMeasurePhase_Counter++;
 	}
@@ -449,36 +388,31 @@ void appInteractor2DMeasure::DrawMeasure(double * wp)
 	{
 		m_AddMeasurePhase_Counter = 0;
 
-		// Delete temporary Line and Text
-		m_Renderer->RemoveActor2D(m_EditLineActor);
-		m_Renderer->RemoveActor2D(m_EditTextActor);
+		HideEditActors();
 
 		if (m_Distance > 0.0)
 		{
-			double tmpPt1[3], tmpPt2[3];
-			m_EditLineSource->GetPoint1(tmpPt1);
-			m_EditLineSource->GetPoint2(tmpPt2);
+			double editPoint[3];
+			m_EditPointSource->GetCenter(editPoint);
 
-			if (m_CurrentLineIndex >= 0)
+			if (m_CurrentMeasureIndex >= 0)
 			{
-				EditMeasure(m_CurrentLineIndex, tmpPt1, tmpPt2);
-				albaEventMacro(albaEvent(this, ID_LINE_CHANGED, m_Distance));
+				EditMeasure(m_CurrentMeasureIndex, editPoint, NULL);
+				albaEventMacro(albaEvent(this, ID_MEASURE_CHANGED, m_Distance));
 			}
 			else
 			{
-				AddMeasure(tmpPt1, tmpPt2);
-				albaEventMacro(albaEvent(this, ID_LINE_ADDED, m_Distance));
+				AddMeasure(editPoint, NULL);
+				albaEventMacro(albaEvent(this, ID_MEASURE_ADDED, m_Distance));
 			}
 		}
 		else
 		{
 			SelectMeasure(m_LastSelection);
 		}
-
-		m_ActorAdded = false;
 	}
 
-	SetAction(ID_ADD_LINE);
+	SetAction(ID_ADD_MEASURE);
 
 	m_Renderer->GetRenderWindow()->Render();
 }
@@ -488,114 +422,55 @@ void appInteractor2DMeasure::MoveMeasure(int index, double * pointCoord)
 	if (index < 0)
 		return;
 
-	double linePoint1[3];
-	double linePoint2[3];
+	double point[3];
 
-	m_LineSourceVector[index]->GetPoint1(linePoint1);
-	m_LineSourceVector[index]->GetPoint2(linePoint2);
+	m_EditPointSource->GetCenter(point);
 
-	if (!m_CanEditLine)
-	{
-		m_OldLineP1[0] = linePoint1[0] - m_StartMousePosition[0];
-		m_OldLineP1[1] = linePoint1[1] - m_StartMousePosition[1];
-		m_OldLineP2[0] = linePoint2[0] - m_StartMousePosition[0];
-		m_OldLineP2[1] = linePoint2[1] - m_StartMousePosition[1];
+	if (!m_MovingMeasure)
+	{ 
+		// Save Old Position
+		m_OldLineP1[0] = point[0] - m_StartMousePosition[0];
+		m_OldLineP1[1] = point[1] - m_StartMousePosition[1];
 
-		m_CanEditLine = true;
+		m_MovingMeasure = true;
 	}
 
 	if (m_DraggingLeft)
 	{
-		if (!m_ActorAdded)
-		{
-			// Add Edit Actors
-			m_ActorAdded = true;
-			m_Renderer->AddActor2D(m_EditLineActor);
-			m_Renderer->AddActor2D(m_EditTextActor);
-			m_Renderer->AddActor2D(m_EditConeActor);
-		}
+		ShowEditActors();
 
-		// Initialization
-		m_Distance = 0.0;
+		double tmp_pos[3];
 
-		double tmp_pos1[3];
-		double tmp_pos2[3];
+		tmp_pos[0] = pointCoord[0] + m_OldLineP1[0];
+		tmp_pos[1] = pointCoord[1] + m_OldLineP1[1];
+		tmp_pos[2] = 0.0;
 
-		tmp_pos1[0] = pointCoord[0] + m_OldLineP1[0];
-		tmp_pos1[1] = pointCoord[1] + m_OldLineP1[1];
-		tmp_pos1[2] = 0.0;
-
-		tmp_pos2[0] = pointCoord[0] + m_OldLineP2[0];
-		tmp_pos2[1] = pointCoord[1] + m_OldLineP2[1];
-		tmp_pos2[2] = 0.0;
-
-		UpdateLineActor(-1, tmp_pos1, tmp_pos2);
-
-		m_Distance = CalculateDistance(tmp_pos1, tmp_pos2);
-
-		UpdateTextActor(-1, tmp_pos1, tmp_pos2);
-		UpdateConeActor(-1, tmp_pos1, tmp_pos2);
+		UpdateEditActors(tmp_pos, tmp_pos);
 	}
-	else if (m_EditLineSource)
+	else if (m_EditPointSource)
 	{
-		// Remove Edit Actors
-		m_Renderer->RemoveActor2D(m_EditLineActor);
-		m_Renderer->RemoveActor2D(m_EditTextActor);
-		m_Renderer->RemoveActor2D(m_EditConeActor);
+		HideEditActors();
 
-		double tmpPt[3], tmpPt2[3];
-		m_EditLineSource->GetPoint1(tmpPt);
-		m_EditLineSource->GetPoint2(tmpPt2);
+		double tmpPt[3];
+		m_EditPointSource->GetCenter(tmpPt);
 
-		EditMeasure(index, tmpPt, tmpPt2);
-		albaEventMacro(albaEvent(this, ID_LINE_CHANGED, m_Distance));
-
-		m_ActorAdded = false;
+		EditMeasure(index, tmpPt, NULL);
+		albaEventMacro(albaEvent(this, ID_MEASURE_CHANGED, m_Distance));
 	}
 
 	m_Renderer->GetRenderWindow()->Render();
 }
 
 //----------------------------------------------------------------------------
-void appInteractor2DMeasure::UpdateLineActor(int index, double * point1, double * point2)
-{
-	if (index > -1)
-	{
-		m_LineSourceVector[index]->SetPoint1(point1);
-		m_LineSourceVector[index]->SetPoint2(point2);
-		m_LineSourceVector[index]->Update();
-
-		m_LineMapperVector[index]->SetTransformCoordinate(m_Coordinate);
-		m_LineMapperVector[index]->SetInput(m_LineSourceVector[index]->GetOutput());
-
-		m_LineActorVector[index]->SetMapper(m_LineMapperVector[index]);
-
-		if (m_LastSelection == index)
-			m_LineActorVector[index]->GetProperty()->SetColor(m_ColorSelection[0], m_ColorSelection[1], m_ColorSelection[2]);
-		else
-			m_LineActorVector[index]->GetProperty()->SetColor(m_ColorDefault[0], m_ColorDefault[1], m_ColorDefault[2]);
-
-		m_LineActorVector[index]->GetProperty()->SetOpacity(m_Opacity);
-	}
-	else
-	{
-		m_EditLineSource->SetPoint1(point1);
-		m_EditLineSource->SetPoint2(point2);
-		m_EditLineSource->Update();
-
-		m_EditLineMapper->SetTransformCoordinate(m_Coordinate);
-	}
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::UpdateTextActor(int index, double * point1, double * point2)
+void appInteractor2DMeasure::UpdateTextActor(int index, double * point)
 {
 	albaString ds = "Text";
 	ds = wxString::Format(_("%.2f"), m_Distance);
 
 	double text_pos[3];
-	text_pos[0] = (point1[0] + point2[0]) / 2;
-	text_pos[1] = (point1[1] + point2[1]) / 2;
-	text_pos[2] = (point1[2] + point2[2]) / 2;
+	text_pos[0] = point[0];
+	text_pos[1] = point[1];
+	text_pos[2] = point[2];
 
 	text_pos[0] -= m_TextSide *TEXT_H_SHIFT;
 
@@ -620,99 +495,84 @@ void appInteractor2DMeasure::UpdateTextActor(int index, double * point1, double 
 	}
 }
 //----------------------------------------------------------------------------
-void appInteractor2DMeasure::UpdateConeActor(int index, double * point1, double * point2)
-{
-	double distance = 0;
-	distance = sqrt(vtkMath::Distance2BetweenPoints(point1, point2));
-
-	double direction[3];
-	direction[0] = point2[0] - point1[0];
-	direction[1] = point2[1] - point1[1];
-	direction[2] = point2[2] - point1[2];
-
-	if (index > -1)
-	{
-		m_ConeSourceVector[index]->SetCenter(point2);
-		m_ConeSourceVector[index]->SetDirection(direction);
-		m_ConeSourceVector[index]->SetRadius(distance / 30.0);
-		m_ConeSourceVector[index]->SetHeight(distance / 20.0);
-		m_ConeSourceVector[index]->SetResolution(8);
-		m_ConeSourceVector[index]->Update();
-
-		m_ConeMapperVector[index]->SetTransformCoordinate(m_Coordinate);
-		m_ConeMapperVector[index]->SetInput(m_ConeSourceVector[index]->GetOutput());
-
-		m_ConeActorVector[index]->SetMapper(m_ConeMapperVector[index]);
-
-		if (m_LastSelection == index)
-			m_ConeActorVector[index]->GetProperty()->SetColor(m_ColorSelection[0], m_ColorSelection[1], m_ColorSelection[2]);
-		else
-			m_ConeActorVector[index]->GetProperty()->SetColor(m_ColorDefault[0], m_ColorDefault[1], m_ColorDefault[2]);
-
-		m_ConeActorVector[index]->GetProperty()->SetOpacity(m_Opacity);
-		m_ConeActorVector[index]->SetVisibility(m_ShowArrow);
-	}
-	else
-	{
-		m_EditConeSource->SetCenter(point2);
-		m_EditConeSource->SetDirection(direction);
-		m_EditConeSource->SetRadius(distance / 30.0);
-		m_EditConeSource->SetHeight(distance / 20.0);
-		m_EditConeSource->SetResolution(8);
-		m_EditConeSource->Update();
-
-		m_EditConeMapper->SetTransformCoordinate(m_Coordinate);
-		m_EditConeMapper->SetInput(m_EditConeSource->GetOutput());
-
-		m_EditConeActor->SetMapper(m_EditConeMapper);
-		m_EditConeActor->SetVisibility(m_ShowArrow);
-	}
-}
-//----------------------------------------------------------------------------
 void appInteractor2DMeasure::UpdatePointActor(double * point)
 {
 	m_EditPointSource->SetCenter(point);
 	m_EditPointSource->Update();
 }
 
-// MEASURE
+void appInteractor2DMeasure::DisableMeasure(int index)
+{
+	// Old Text
+	m_TextActorVector[m_CurrentMeasureIndex]->SetColor(m_ColorDisable[0], m_ColorDisable[1], m_ColorDisable[2]);
+}
+// SET
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::SetColor(double r, double g, double b)
+{
+	m_ColorDefault[0] = r;
+	m_ColorDefault[1] = g;
+	m_ColorDefault[2] = b;
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::SetColorSelection(double r, double g, double b)
+{
+	m_ColorSelection[0] = r;
+	m_ColorSelection[1] = g;
+	m_ColorSelection[2] = b;
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::SetColorDisable(double r, double g, double b)
+{
+	m_ColorDisable[0] = r;
+	m_ColorDisable[1] = g;
+	m_ColorDisable[2] = b;
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::SetOpacity(double opacity)
+{
+	m_Opacity = opacity;
+
+	m_EditTextActor->SetOpacity(opacity);
+}
+
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::SetTextSide(int side)
+{
+	m_TextSide = side;
+}
+
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::ShowText(bool show)
+{
+	m_ShowText = show;
+
+	for (int i = 0; i < m_TextActorVector.size(); i++)
+	{
+		m_TextActorVector[i]->SetVisibility(show);
+	}
+
+	m_EditTextActor->SetVisibility(show);
+}
+
+// MEASURE //////////////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::AddMeasure(double *point1, double *point2)
 {
-	point1[2] = point2[2] = 0;
+	point1[2] = 0;
+	point2[2] = 0; //Not used
 
 	// Update Edit Actors
-	m_EditLineSource->SetPoint1(point1);
-	m_EditLineSource->SetPoint2(point2);
-	m_EditLineSource->Update();
-
-	m_Distance = CalculateDistance(point1, point2);
-
-	//////////////////////////////////////////////////////////////////////////
-	// Add Line
-	m_LineSourceVector.push_back(vtkLineSource::New());
-	m_LineMapperVector.push_back(vtkPolyDataMapper2D::New());
-	m_LineActorVector.push_back(vtkActor2D::New());
-
-	m_Renderer->AddActor2D(m_LineActorVector[m_LineActorVector.size() - 1]);
-
-	UpdateLineActor(m_LineSourceVector.size() - 1, point1, point2);
+	UpdatePointActor(point1);
+	UpdateTextActor(-1, point1);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Add Text
 	m_TextActorVector.push_back(vtkALBATextActorMeter::New());
 	m_Renderer->AddActor2D(m_TextActorVector[m_TextActorVector.size() - 1]);
 
-	UpdateTextActor(m_TextActorVector.size() - 1, point1, point2);
+	UpdateTextActor(m_TextActorVector.size() - 1, point1);
 
-	//////////////////////////////////////////////////////////////////////////
-	// Add Arrow
-	m_ConeSourceVector.push_back(vtkConeSource::New());
-	m_ConeMapperVector.push_back(vtkPolyDataMapper2D::New());
-	m_ConeActorVector.push_back(vtkActor2D::New());
-	m_Renderer->AddActor2D(m_ConeActorVector[m_ConeActorVector.size() - 1]);
-
-	UpdateConeActor(m_ConeActorVector.size() - 1, point1, point2);
 	//////////////////////////////////////////////////////////////////////////
 
 	m_MeasuresCount++;
@@ -725,30 +585,21 @@ void appInteractor2DMeasure::EditMeasure(int index, double *point1, double *poin
 	if (index < 0 || index >= m_MeasuresCount)
 		return;
 
-	m_CanEditLine = true;
+	m_MovingMeasure = true;
 
-	point1[2] = point2[2] = 0;
+	point1[2] = 0;
+	point2[2] = 0; //Not used
 
 	m_LastEditing = index;
 
 	//////////////////////////////////////////////////////////////////////////
 
 	// Edit Actors
-	UpdateLineActor(-1, point1, point2);
-	UpdateTextActor(-1, point1, point2);
-	UpdateConeActor(-1, point1, point2);
-
-	// Distance
-	m_Distance = CalculateDistance(point1, point2);
-
-	// Line
-	UpdateLineActor(index, point1, point2);
+	UpdatePointActor(point1);
+	UpdateTextActor(-1, point1);
 
 	// Text
-	UpdateTextActor(index, point1, point2);
-
-	// Arrow
-	UpdateConeActor(index, point1, point2);
+	UpdateTextActor(index, point1);
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -760,34 +611,11 @@ void appInteractor2DMeasure::RemoveMeasure(int index)
 	if (m_Renderer && index < m_MeasuresCount)
 	{
 		//////////////////////////////////////////////////////////////////////////
-		// Line
-		m_Renderer->RemoveActor2D(m_LineActorVector[index]);
-		vtkDEL(m_LineActorVector[index]);
-		m_LineActorVector.erase(m_LineActorVector.begin() + index);
-
-		vtkDEL(m_LineMapperVector[index]);
-		m_LineMapperVector.erase(m_LineMapperVector.begin() + index);
-
-		vtkDEL(m_LineSourceVector[index]);
-		m_LineSourceVector.erase(m_LineSourceVector.begin() + index);
-
-		//////////////////////////////////////////////////////////////////////////
 		// Text
 		m_Renderer->RemoveActor2D(m_TextActorVector[index]);
 		vtkDEL(m_TextActorVector[index]);
 		m_TextActorVector.erase(m_TextActorVector.begin() + index);
 
-		//////////////////////////////////////////////////////////////////////////
-		// Arrow
-		m_Renderer->RemoveActor2D(m_ConeActorVector[index]);
-		vtkDEL(m_ConeActorVector[index]);
-		m_ConeActorVector.erase(m_ConeActorVector.begin() + index);
-
-		vtkDEL(m_ConeMapperVector[index]);
-		m_ConeMapperVector.erase(m_ConeMapperVector.begin() + index);
-
-		vtkDEL(m_ConeSourceVector[index]);
-		m_ConeSourceVector.erase(m_ConeSourceVector.begin() + index);
 		//////////////////////////////////////////////////////////////////////////
 
 		m_Renderer->GetRenderWindow()->Render();
@@ -812,34 +640,10 @@ void appInteractor2DMeasure::RemoveAllMeasures()
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::SelectMeasure(int index)
 {
-	if (m_LineActorVector.size() != 0)
+	if (m_MeasuresCount > 0)
 	{
-		// Deselect all
-		for (int i = 0; i < m_LineActorVector.size(); i++)
+		if (index > 0 && index < m_MeasuresCount)
 		{
-			if (m_LineActorVector[i] != NULL)
-			{
-				m_LineActorVector[i]->GetProperty()->SetColor(m_ColorDefault[0], m_ColorDefault[1], m_ColorDefault[2]);
-				m_LineActorVector[i]->GetProperty()->SetLineWidth(1.0);
-				m_LineActorVector[i]->GetProperty()->SetOpacity(m_Opacity);
-
-				m_TextActorVector[i]->SetColor(m_ColorDefault[0], m_ColorDefault[1], m_ColorDefault[2]);
-				m_TextActorVector[i]->GetProperty()->SetOpacity(m_Opacity);
-
-				m_ConeActorVector[i]->GetProperty()->SetColor(m_ColorDefault[0], m_ColorDefault[1], m_ColorDefault[2]);
-				m_ConeActorVector[i]->GetProperty()->SetOpacity(m_Opacity);
-			}
-		}
-
-		if (index != -1 && m_LineActorVector[index] != NULL)
-		{
-			m_LineActorVector[index]->GetProperty()->SetColor(m_ColorSelection[0], m_ColorSelection[1], m_ColorSelection[2]);
-			m_LineActorVector[index]->GetProperty()->SetLineWidth(3.0);
-
-			m_TextActorVector[index]->SetColor(m_ColorSelection[0], m_ColorSelection[1], m_ColorSelection[2]);
-
-			m_ConeActorVector[index]->GetProperty()->SetColor(m_ColorSelection[0], m_ColorSelection[1], m_ColorSelection[2]);
-
 			m_LastSelection = index;
 			m_LastEditing = -1;
 		}
@@ -848,48 +652,19 @@ void appInteractor2DMeasure::SelectMeasure(int index)
 			m_Renderer->GetRenderWindow()->Render();
 
 		albaEventMacro(albaEvent(this, CAMERA_UPDATE));
-		albaEventMacro(albaEvent(this, ID_LINE_SELECTED));
+		albaEventMacro(albaEvent(this, ID_MEASURE_SELECTED));
 	}
 }
 
 //---------------------------------------------------------------------------
-double appInteractor2DMeasure::GetMeasure(int index)
-{
-	if (index > 0 && index < m_MeasuresCount)
-	{
-		double point1[3], point2[3];
-		GetMeasureLinePoints(index, point1, point2);
-		return CalculateDistance(point1, point2);
-	}
-
-	return -1;
-}
-//---------------------------------------------------------------------------
-albaString appInteractor2DMeasure::GetMeasureText(int index)
+albaString appInteractor2DMeasure::GetMeasure(int index)
 {
 	albaString text = "No Measure";
 
 	if (index > 0 && index < m_MeasuresCount)
-		text.Printf("%.2f mm", GetMeasure(index));
+		return m_MeasureVector[index];
 
-	return text;
-}
-//---------------------------------------------------------------------------
-void appInteractor2DMeasure::GetMeasureLinePoints(int index, double *point1, double *point2)
-{
-	// Return line points values
-	if (index >= 0 && index < m_LineSourceVector.size())
-	{
-		m_LineSourceVector[index]->GetPoint1(point1);
-		m_LineSourceVector[index]->GetPoint2(point2);
-	}
-}
-
-//----------------------------------------------------------------------------
-double appInteractor2DMeasure::CalculateDistance(double *point1, double *point2)
-{
-	return sqrt(vtkMath::Distance2BetweenPoints(point1, point2));
-	//albaEventMacro(albaEvent(this, ID_RESULT_LINE, m_Distance));
+	return "No Measure";
 }
 
 //----------------------------------------------------------------------------
@@ -946,15 +721,15 @@ void appInteractor2DMeasure::SetRendererByView(albaView * view)
 		// Adding to new renderer
 		if (newRenderer)
 		{
-			double p1[3];
-			double p2[3];
-
-			for (int i = 0; i < m_LineSourceVector.size(); i++)
-			{
-				m_LineSourceVector[i]->GetPoint1(p1);
-				m_LineSourceVector[i]->GetPoint2(p2);
-				AddMeasure(p1, p2);
-			}
+// 			double p1[3];
+// 			double p2[3];
+// 
+// 			for (int i = 0; i < m_LineSourceVector.size(); i++)
+// 			{
+// 				m_LineSourceVector[i]->GetPoint1(p1);
+// 				m_LineSourceVector[i]->GetPoint2(p2);
+// 				AddMeasure(p1, p2);
+// 			}
 		}
 	}
 
@@ -975,163 +750,74 @@ void appInteractor2DMeasure::ScreenToWorld(double screen[2], double world[3])
 	world[2] = 0;
 }
 
-// SET
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::SetColor(double r, double g, double b)
-{
-	m_ColorDefault[0] = r;
-	m_ColorDefault[1] = g;
-	m_ColorDefault[2] = b;
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::SetColorSelection(double r, double g, double b)
-{
-	m_ColorSelection[0] = r;
-	m_ColorSelection[1] = g;
-	m_ColorSelection[2] = b;
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::SetColorDisable(double r, double g, double b)
-{
-	m_ColorDisable[0] = r;
-	m_ColorDisable[1] = g;
-	m_ColorDisable[2] = b;
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::SetOpacity(double opacity)
-{
-	m_Opacity = opacity;
-
-	m_EditTextActor->SetOpacity(opacity);
-	m_EditConeActor->GetProperty()->SetOpacity(opacity);
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::SetTextSide(int side)
-{
-	m_TextSide = side;
-}
-
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::ShowText(bool show)
-{
-	m_ShowText = show;
-
-	for (int i = 0; i < m_TextActorVector.size(); i++)
-	{
-		m_TextActorVector[i]->SetVisibility(show);
-	}
-
-	m_EditTextActor->SetVisibility(show);
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::ShowArrow(bool show)
-{
-	m_ShowArrow = show;
-
-	for (int i = 0; i < m_ConeActorVector.size(); i++)
-	{
-		m_ConeActorVector[i]->SetVisibility(show);
-	}
-
-	m_EditConeActor->SetVisibility(show);
-}
-
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::SetAction(int action)
-{
-	if (m_LineAction == action)
-		return;
-
-	m_LineAction = action;
-
-	// Set Mouse Cursor
-	wxCursor cursor = wxCursor(wxCURSOR_ARROW);
-
-	switch (m_LineAction)
-	{
-	case ID_ADD_LINE:
-	case ID_EDIT_LINE:
-		cursor = wxCursor(wxCURSOR_PENCIL);
-		break;
-
-	case ID_MOVE_LINE:
-		cursor = wxCursor(wxCURSOR_SIZING);
-		break;
-
-	default:
-		break;
-	}
-
-	if (m_View)
-		m_View->GetWindow()->SetCursor(cursor);
-}
-
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::FindAndHighlightCurrentPoint(double * pointCoord)
 {
-	SetAction(ID_ADD_LINE);
+	SetAction(ID_ADD_MEASURE);
 
 	if (m_EditMeasureEnable)
 	{
 		for (int i = 0; i < m_MeasuresCount; i++)
 		{
-			double linePoint1[3];
-			double linePoint2[3];
-			m_LineSourceVector[i]->GetPoint1(linePoint1);
-			m_LineSourceVector[i]->GetPoint2(linePoint2);
+			double tmpPoint[3];
 
-			if (DistancePointToLine(pointCoord, linePoint1, linePoint2) < LINE_UPDATE_DISTANCE)
+			m_EditPointSource->GetCenter(tmpPoint);
+
+			if (DistanceBetweenPoints(pointCoord, tmpPoint) < LINE_UPDATE_DISTANCE)
 			{
 				SelectMeasure(i);
 
-				if (vtkMath::Distance2BetweenPoints(linePoint1, pointCoord) < POINT_UPDATE_DISTANCE_2)
-				{
-					if (m_CurrentLineIndex != i)
-					{
-						SetAction(ID_EDIT_LINE);
+				m_CurrentMeasureIndex = i;
 
-						m_CurrentLineIndex = i;
-						m_CurrentPointIndex = 1;
+				m_Renderer->AddActor2D(m_EditPointActor);
+				UpdatePointActor(tmpPoint);
+				m_Renderer->GetRenderWindow()->Render();
 
-						m_Renderer->AddActor2D(m_EditPointActor);
-						UpdatePointActor(linePoint1);
-						m_Renderer->GetRenderWindow()->Render();
-					}
-					return;
-				}
-
-				if (vtkMath::Distance2BetweenPoints(linePoint2, pointCoord) < POINT_UPDATE_DISTANCE_2)
-				{
-					if (m_CurrentLineIndex != i)
-					{
-						SetAction(ID_EDIT_LINE);
-
-						m_CurrentLineIndex = i;
-						m_CurrentPointIndex = 2;
-
-						m_Renderer->AddActor2D(m_EditPointActor);
-						UpdatePointActor(linePoint2);
-						m_Renderer->GetRenderWindow()->Render();
-					}
-					return;
-				}
-
-				m_CurrentLineIndex = i;
-				SetAction(ID_MOVE_LINE);
-				return;
+				SetAction(ID_MOVE_MEASURE);
 			}
 		}
 
-		if (m_CurrentLineIndex >= 0)
+		if (m_CurrentMeasureIndex >= 0)
 		{
 			m_Renderer->RemoveActor2D(m_EditPointActor);
 			m_Renderer->GetRenderWindow()->Render();
-			m_CurrentLineIndex = -1;
-			m_CurrentPointIndex = -1;
+			m_CurrentMeasureIndex = -1;
 		}
 	}
 }
 
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::ShowEditActors()
+{
+	if (!m_ActorAdded)
+	{
+		// Add Edit Actors
+		m_Renderer->AddActor2D(m_EditPointActor);
+		m_Renderer->AddActor2D(m_EditTextActor);
+		m_ActorAdded = true;
+	}
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::HideEditActors()
+{
+	// Remove Edit Actors
+	m_Renderer->RemoveActor2D(m_EditPointActor);
+	m_Renderer->RemoveActor2D(m_EditTextActor);
+	m_ActorAdded = false;
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::UpdateEditActors(double * point1, double * point2)
+{
+	// Update Edit Actors
+	UpdatePointActor(point1);
+	UpdateTextActor(-1, point1);
+}
+
+//----------------------------------------------------------------------------
+double appInteractor2DMeasure::DistanceBetweenPoints(double *point1, double *point2)
+{
+	return sqrt(vtkMath::Distance2BetweenPoints(point1, point2));
+}
 //----------------------------------------------------------------------------
 float appInteractor2DMeasure::DistancePointToLine(double * point, double * lineP1, double * lineP2)
 {

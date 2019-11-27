@@ -24,7 +24,7 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appInteractor2DMeasure_Point.h"
 #include "appInteractor2DMeasure_Distance.h"
-#include "appInteractor2DMeasure_Angle.h"
+//#include "appInteractor2DMeasure_Angle.h"
 #include "appInteractor2DMeasure_Indicator.h"
 
 #include "albaDecl.h"
@@ -59,11 +59,8 @@ albaOp(label)
 	m_NumLines = 5;
 
 	m_SelectedMeasure = -1;
-	m_Measure = 0;
-	m_MeasureText = "";
-
-	m_MeasureType = INTERACTION_TYPE::POINT;
-	m_MeasureTypeText = "POINT";
+	m_Measure = "";
+	m_MeasureType = "";
 
   m_ImportedImage = NULL;
 
@@ -71,10 +68,10 @@ albaOp(label)
 
 	m_InteractorPoint = NULL;
 	m_InteractorDistance = NULL;
-	m_InteractorAngle = NULL;
+	//m_InteractorAngle = NULL;
 	m_InteractorIndicator = NULL;
 
-	m_SelectedInteractor = m_CurrentInteractor = 0;
+	m_SelectedInteractor = m_CurrentInteractor = INTERACTION_TYPE::INDICATOR;
 }
 //----------------------------------------------------------------------------
 appOpMeasure2D::~appOpMeasure2D()
@@ -106,36 +103,9 @@ void appOpMeasure2D::OpRun()
 		albaEventMacro(albaEvent(this,ID_SHOW_IMAGE_VIEW));
 	}
 
-	// Create Interactor Distance
-	m_InteractorPoint = appInteractor2DMeasure_Point::New();
-	albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorPoint));
-	m_InteractorPoint->SetListener(this);
-	m_InteractorPoint->SetColor(0.5, 1, 0.5);
-	//m_InteractorPoint->EnableEditMeasure(true);
+	InitInteractors();
 
-	// Create Interactor Distance
-	m_InteractorDistance = appInteractor2DMeasure_Distance::New();
-	m_InteractorDistance->SetListener(this);
-	m_InteractorDistance->SetColor(1, 1, 0);
-	m_InteractorDistance->EnableEditMeasure(true);
-		
-	// Create Interactor Angle
-	m_InteractorAngle = appInteractor2DMeasure_Angle::New();
-	//m_InteractorAngle->SetListener(this);
-	m_InteractorAngle->SetColor(1, 0, 1);
-	m_InteractorAngle->EnableEditMeasure(true);
-
-	// Create Interactor Indicator
-	m_InteractorIndicator = appInteractor2DMeasure_Indicator::New();
-	m_InteractorIndicator->SetListener(this);
-	m_InteractorIndicator->SetColor(0, 1, 1);
-	m_InteractorIndicator->EnableEditMeasure(true);
-
-	m_InteractorVector.push_back(m_InteractorDistance);
-	m_InteractorVector.push_back(m_InteractorAngle);
-	m_InteractorVector.push_back(m_InteractorIndicator);
-
-	m_MeasureTypeText = m_InteractorVector[m_CurrentInteractor]->GetMeasureType();
+	//SetMeasureInteractor(m_SelectedInteractor);
 
 	//////////////////////////////////////////////////////////////////////////
 	albaString wildc = "Images (*.bmp;*.jpg;*.png;*.tif)| *.bmp;*.jpg;*.png;*.tif";
@@ -171,8 +141,9 @@ void appOpMeasure2D::OpRun()
 
 			if (e.GetBool())
 			{
+				m_InteractorPoint->SetRendererByView(e.GetView());
 				m_InteractorDistance->SetRendererByView(e.GetView());
-				m_InteractorAngle->SetRendererByView(e.GetView());
+				//m_InteractorAngle->SetRendererByView(e.GetView());
 				m_InteractorIndicator->SetRendererByView(e.GetView());
 			}
 		}
@@ -192,14 +163,52 @@ void appOpMeasure2D::OpRun()
 }
 
 //----------------------------------------------------------------------------
+void appOpMeasure2D::InitInteractors()
+{
+	// Create Interactor Point
+	m_InteractorPoint = appInteractor2DMeasure_Point::New();
+	if (m_CurrentInteractor == 0) albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorPoint));
+	m_InteractorPoint->SetListener(this);
+	m_InteractorPoint->SetColor(0.5, 0, 1);
+	m_InteractorPoint->EnableEditMeasure(true);
+	m_InteractorVector.push_back(m_InteractorPoint);
+
+	// Create Interactor Distance
+	m_InteractorDistance = appInteractor2DMeasure_Distance::New();
+	if (m_CurrentInteractor == 1)	albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorDistance));
+	m_InteractorDistance->SetListener(this);
+	m_InteractorDistance->SetColor(0, 0, 1);
+	m_InteractorDistance->EnableEditMeasure(true);
+	m_InteractorVector.push_back(m_InteractorDistance);
+
+	// Create Interactor Angle
+// 	m_InteractorAngle = appInteractor2DMeasure_Angle::New();
+//	if (m_CurrentInteractor == 2)	albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorAngle));
+// 	m_InteractorAngle->SetListener(this);
+// 	m_InteractorAngle->SetColor(1, 0, 1);
+// 	m_InteractorAngle->EnableEditMeasure(true);
+//  m_InteractorVector.push_back(m_InteractorAngle);
+
+	// Create Interactor Indicator
+	m_InteractorIndicator = appInteractor2DMeasure_Indicator::New();
+	if (m_CurrentInteractor == 2) albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorIndicator));
+	m_InteractorIndicator->SetListener(this);
+	m_InteractorIndicator->SetColor(0, 1, 1);
+	m_InteractorIndicator->EnableEditMeasure(true);
+	m_InteractorVector.push_back(m_InteractorIndicator);
+
+	m_MeasureType = m_InteractorVector[m_CurrentInteractor]->GetMeasureType();
+}
+
+//----------------------------------------------------------------------------
 void appOpMeasure2D::CreateGui()
 {
 	m_Gui = new albaGUI(this);
 	m_Gui->SetListener(this);
 
 	m_Gui->Divider(1);
-	wxString choises[4] = { _("Point"),_("Distance"),_("Angle") ,_("Indicator") };
-	m_Gui->Combo(ID_SELECT_INTERACTOR, "", &m_SelectedInteractor, 4, choises, "Select Measure Type");
+	wxString choises[4] = { _("Point"),_("Distance")/*,_("Angle")*/ ,_("Indicator") };
+	m_Gui->Combo(ID_SELECT_INTERACTOR, "", &m_SelectedInteractor, 3, choises, "Select Measure Type");
 	
 	m_MeasureListBox = m_Gui->ListBox(ID_MEASURE_LIST, "", 200);
 	m_Gui->Divider();
@@ -207,9 +216,9 @@ void appOpMeasure2D::CreateGui()
 
 	m_Gui->Divider(1);
 	m_Gui->Label("Measure", true);
-	m_Gui->String(ID_MEASURE, "Type", &m_MeasureTypeText);
+	m_Gui->String(ID_MEASURE, "Type", &m_MeasureType);
 	m_Gui->Integer(ID_MEASURE, "Selected", &m_SelectedMeasure);
-	m_Gui->Double(ID_MEASURE, "Measure", &m_Measure);
+	m_Gui->String(ID_MEASURE, "Measure", &m_Measure);
 
 	m_Gui->Divider(1);
 	m_Gui->Label("Storage", true);
@@ -237,8 +246,9 @@ void appOpMeasure2D::OpStop(int result)
 	
 	// Remove Interactor
 	albaEventMacro(albaEvent(this, PER_POP));
+	albaDEL(m_InteractorPoint);
 	albaDEL(m_InteractorDistance);
-	albaDEL(m_InteractorAngle);
+	//albaDEL(m_InteractorAngle);
 	albaDEL(m_InteractorIndicator);
 
 	m_InteractorVector.clear();
@@ -298,8 +308,8 @@ void appOpMeasure2D::OnEvent(albaEventBase *alba_event)
 		{
 			switch (e->GetId())
 			{
-			case appInteractor2DMeasure::ID_LINE_ADDED:
-			case appInteractor2DMeasure::ID_LINE_CHANGED:
+			case appInteractor2DMeasure::ID_MEASURE_ADDED:
+			case appInteractor2DMeasure::ID_MEASURE_CHANGED:
 			{
 				// Update Measure Gui Entry
 				m_SelectedMeasure = m_InteractorVector[m_CurrentInteractor]->GetSelectedMeasureIndex();
@@ -309,11 +319,11 @@ void appOpMeasure2D::OnEvent(albaEventBase *alba_event)
 				UpdateMeasureList();
 			}
 			break;
-			case appInteractor2DMeasure::ID_LINE_SELECTED:
+			case appInteractor2DMeasure::ID_MEASURE_SELECTED:
 			{				
 				// Update Measure Gui Entry
 				m_SelectedMeasure = m_InteractorVector[m_CurrentInteractor]->GetSelectedMeasureIndex();
-				m_Measure = m_InteractorDistance->GetMeasure(m_SelectedMeasure);
+				m_Measure = m_InteractorVector[m_CurrentInteractor]->GetMeasure(m_SelectedMeasure);
 
 				m_MeasureListBox->Select(m_SelectedMeasure);
 				m_Gui->Update();
@@ -338,22 +348,28 @@ void appOpMeasure2D::SetMeasureInteractor(int index)
 	//m_InteractorVector[m_CurrentInteractor]->SetListener(this);
 	m_InteractorVector[m_CurrentInteractor]->SetOpacity(1);
 
+	m_MeasureType = m_InteractorVector[m_CurrentInteractor]->GetMeasureType();
+
 	UpdateMeasureList();
 }
 
 //----------------------------------------------------------------------------
 void appOpMeasure2D::UpdateMeasureList()
 {
-	m_MeasureListBox->Clear();
-
-	for (int i = 0; i < m_InteractorVector[m_CurrentInteractor]->GetMeasureCount(); i++)
+	if (m_MeasureListBox)
 	{
-		m_MeasureListBox->Append(_(m_InteractorVector[m_CurrentInteractor]->GetMeasureText(i)));
-	}
+		m_MeasureListBox->Clear();
 
-	m_Gui->Enable(ID_REMOVE_MEASURE, m_MeasureListBox->GetCount() != 0);
-	
-	GetLogicManager()->CameraUpdate();
+		if (m_InteractorVector.size() > 0)
+			for (int i = 0; i < m_InteractorVector[m_CurrentInteractor]->GetMeasureCount(); i++)
+			{
+				m_MeasureListBox->Append(_(m_InteractorVector[m_CurrentInteractor]->GetMeasure(i)));
+			}
+
+		m_Gui->Enable(ID_REMOVE_MEASURE, m_MeasureListBox->GetCount() != 0);
+
+		GetLogicManager()->CameraUpdate();
+	}
 }
 
 //----------------------------------------------------------------------------
@@ -486,13 +502,13 @@ void appOpMeasure2D::Load()
 			{
 				m_MeasureType = INTERACTION_TYPE::DISTANCE;
 				m_InteractorDistance->AddMeasure(point1, point2);
-				m_MeasureTypeText = measureType;
+				m_MeasureType = measureType;
 			}
 			if (measureType == "INDICATOR")
 			{
 				m_MeasureType = INTERACTION_TYPE::INDICATOR;
 				m_InteractorDistance->AddMeasure(point1, point2);
-				m_MeasureTypeText = measureType;
+				m_MeasureType = measureType;
 			}
 		}
 		m_Gui->Update();
@@ -526,14 +542,7 @@ void appOpMeasure2D::Save()
 		double point1[3], point2[3];
 		m_InteractorDistance->GetMeasureLinePoints(i, point1, point2);
 
-		albaString measureType = "DISTANCE";
-
-		if (m_MeasureType == INTERACTION_TYPE::DISTANCE)
-			measureType = "DISTANCE";
-		if (m_MeasureType == INTERACTION_TYPE::INDICATOR)
-			measureType = "INDICATOR";
-
-		measureLineTypeTag.SetValue(measureType, i);
+		measureLineTypeTag.SetValue(m_MeasureType, i);
 
 		measureLineP1Tag.SetValue(point1[0], i * 2 + 0);
 		measureLineP1Tag.SetValue(point1[1], i * 2 + 1);
