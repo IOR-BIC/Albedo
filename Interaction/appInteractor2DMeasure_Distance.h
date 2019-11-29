@@ -28,6 +28,9 @@ class vtkLineSource;
 class vtkPolyDataMapper2D;
 class vtkActor2D;
 
+#define POINT_UPDATE_DISTANCE 2.5
+#define POINT_UPDATE_DISTANCE_2 (POINT_UPDATE_DISTANCE * POINT_UPDATE_DISTANCE)
+
 // Class Name: appInteractor2DMeasure_Distance
 class APP_INTERACTION_EXPORT appInteractor2DMeasure_Distance : public appInteractor2DMeasure
 {
@@ -43,36 +46,43 @@ public:
 
 	albaTypeMacro(appInteractor2DMeasure_Distance, appInteractor2DMeasure);
 
-	/** Show/Hide Line*/
-	void ShowLine(bool show);
-
+	// MEASURE
+	/** Add Measure*/
 	virtual void AddMeasure(double *point1, double *point2);
+	/** Edit Measure*/
 	virtual void EditMeasure(int index, double *point1, double *point2);
+	/** Delete the Measure*/
 	virtual void RemoveMeasure(int index);
+	/** Select a Measure*/
 	virtual void SelectMeasure(int index);
 
 	/** Get measure line extremity points*/
 	void GetMeasureLinePoints(int index, double *point1, double *point2);
+
+	/** Show/Hide Measure Line*/
+	void ShowLine(bool show);
 
 protected:
 
 	appInteractor2DMeasure_Distance();
 	virtual ~appInteractor2DMeasure_Distance();
 
+	// Draw Measure
 	void DrawMeasure(double * wp);
 	void MoveMeasure(int index, double * point);
 
+	// RENDERING
 	virtual void UpdateLineActor(int index, double * point1, double * point2);
 	void UpdateTextActor(int index, double * point1, double * point2);
-	virtual void DisableMeasure(int index);
-	
-	virtual void FindAndHighlightCurrentPoint(double * point);
-
+	virtual void UpdateEditActors(double * point1, double * point2);
 	virtual void ShowEditActors();
 	virtual void HideEditActors();
-	virtual void UpdateEditActors(double * point1, double * point2);
-
-	// Persistent line BEGIN
+	virtual void DisableMeasure(int index);
+	
+	//UTILS
+	virtual void FindAndHighlightCurrentPoint(double * point);
+	
+	// Persistent line
 	std::vector<vtkLineSource *>				m_LineSourceVector;
 	std::vector<vtkPolyDataMapper2D *>	m_LineMapperVector;
 	std::vector<vtkActor2D *>						m_LineActorVector;

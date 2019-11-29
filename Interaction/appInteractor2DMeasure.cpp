@@ -17,36 +17,35 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "albaDecl.h"
 #include "albaDeviceButtonsPadMouse.h"
+#include "albaDeviceButtonsPadTracker.h"
+#include "albaEventInteraction.h"
 #include "albaRWI.h"
-#include "albaView.h"
 #include "albaVME.h"
 #include "albaVMEOutput.h"
-#include "albaEventInteraction.h"
-#include "albaDeviceButtonsPadTracker.h"
+#include "albaView.h"
 
 #include "vtkALBASmartPointer.h"
-#include "vtkMath.h"
-#include "vtkPolyData.h"
-#include "vtkPointData.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkProperty2D.h"
+#include "vtkALBATextActorMeter.h"
 #include "vtkActor2D.h"
-#include "vtkObjectFactory.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
+#include "vtkAppendPolyData.h"
 #include "vtkCamera.h"
-#include "vtkProbeFilter.h"
-#include "vtkTextProperty.h"
-#include "vtkTransform.h"
-#include "vtkRendererCollection.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointSource.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkAppendPolyData.h"
-#include "vtkALBATextActorMeter.h"
-#include "vtkPointSource.h"
-
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkProbeFilter.h"
+#include "vtkProperty2D.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
+#include "vtkTextProperty.h"
+#include "vtkTransform.h"
+#include "vtkTransformPolyDataFilter.h"
 
 //------------------------------------------------------------------------------
 albaCxxTypeMacro(appInteractor2DMeasure)
@@ -142,6 +141,27 @@ appInteractor2DMeasure::~appInteractor2DMeasure()
 	m_Renderer->GetRenderWindow()->Render();
 
 	m_TextActorVector.clear();
+}
+
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::InitRenderer(albaEventInteraction *e)
+{
+	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
+
+	if (m_Renderer == NULL)
+	{
+		if (m_Mouse == NULL)
+		{
+			albaDevice *device = albaDevice::SafeDownCast((albaDevice*)e->GetSender());
+			albaDeviceButtonsPadMouse  *mouse = albaDeviceButtonsPadMouse::SafeDownCast(device);
+			m_Mouse = mouse;
+		}
+
+		m_Renderer = m_Mouse->GetRenderer();
+	}
+
+	if (m_Renderer)
+		m_ParallelView = m_Renderer->GetActiveCamera()->GetParallelProjection() != 0;
 }
 
 // MOUSE EVENTS
@@ -309,35 +329,6 @@ void appInteractor2DMeasure::OnEvent(albaEventBase *event)
 	Superclass::OnEvent(event);
 }
 
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::SetAction(int action)
-{
-	if (m_Action == action)
-		return;
-
-	m_Action = action;
-
-	// Set Mouse Cursor
-	wxCursor cursor = wxCursor(wxCURSOR_ARROW);
-
-	switch (m_Action)
-	{
-	case ID_ADD_MEASURE:
-	case ID_EDIT_MEASURE:
-		cursor = wxCursor(wxCURSOR_PENCIL);
-		break;
-
-	case ID_MOVE_MEASURE:
-		cursor = wxCursor(wxCURSOR_SIZING);
-		break;
-
-	default:
-		break;
-	}
-
-	if (m_View)
-		m_View->GetWindow()->SetCursor(cursor);
-}
 
 // RENDERING //////////////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
@@ -373,7 +364,7 @@ void appInteractor2DMeasure::DrawMeasure(double * wp)
 			
 		m_Distance = DistanceBetweenPoints(editPoint, wp);
 
-		UpdateEditActors(editPoint, NULL);
+		UpdateEditActors(editPoint);
 	}
 
 	// Finished dragging the second point
@@ -417,7 +408,7 @@ void appInteractor2DMeasure::DrawMeasure(double * wp)
 	m_Renderer->GetRenderWindow()->Render();
 }
 //----------------------------------------------------------------------------
-void appInteractor2DMeasure::MoveMeasure(int index, double * pointCoord)
+void appInteractor2DMeasure::MoveMeasure(int index, double *pointCoord)
 {
 	if (index < 0)
 		return;
@@ -445,7 +436,7 @@ void appInteractor2DMeasure::MoveMeasure(int index, double * pointCoord)
 		tmp_pos[1] = pointCoord[1] + m_OldLineP1[1];
 		tmp_pos[2] = 0.0;
 
-		UpdateEditActors(tmp_pos, tmp_pos);
+		UpdateEditActors(tmp_pos);
 	}
 	else if (m_EditPointSource)
 	{
@@ -500,13 +491,73 @@ void appInteractor2DMeasure::UpdatePointActor(double * point)
 	m_EditPointSource->SetCenter(point);
 	m_EditPointSource->Update();
 }
-
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::UpdateEditActors(double * point1, double * point2)
+{
+	// Update Edit Actors
+	UpdatePointActor(point1);
+	UpdateTextActor(-1, point1);
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::ShowEditActors()
+{
+	if (!m_ActorAdded)
+	{
+		// Add Edit Actors
+		m_Renderer->AddActor2D(m_EditPointActor);
+		m_Renderer->AddActor2D(m_EditTextActor);
+		m_ActorAdded = true;
+	}
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::HideEditActors()
+{
+	// Remove Edit Actors
+	m_Renderer->RemoveActor2D(m_EditPointActor);
+	m_Renderer->RemoveActor2D(m_EditTextActor);
+	m_ActorAdded = false;
+}
+//----------------------------------------------------------------------------
 void appInteractor2DMeasure::DisableMeasure(int index)
 {
-	// Old Text
+	double disableOpacity = 0.3;
+
+	// Text
 	m_TextActorVector[m_CurrentMeasureIndex]->SetColor(m_ColorDisable[0], m_ColorDisable[1], m_ColorDisable[2]);
+	m_TextActorVector[m_CurrentMeasureIndex]->SetOpacity(disableOpacity);
 }
+
+
 // SET
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::SetAction(int action)
+{
+	if (m_Action == action)
+		return;
+
+	m_Action = action;
+
+	// Set Mouse Cursor
+	wxCursor cursor = wxCursor(wxCURSOR_ARROW);
+
+	switch (m_Action)
+	{
+	case ID_ADD_MEASURE:
+	case ID_EDIT_MEASURE:
+		cursor = wxCursor(wxCURSOR_PENCIL);
+		break;
+
+	case ID_MOVE_MEASURE:
+		cursor = wxCursor(wxCURSOR_SIZING);
+		break;
+
+	default:
+		break;
+	}
+
+	if (m_View)
+		m_View->GetWindow()->SetCursor(cursor);
+}
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::SetColor(double r, double g, double b)
 {
@@ -535,13 +586,11 @@ void appInteractor2DMeasure::SetOpacity(double opacity)
 
 	m_EditTextActor->SetOpacity(opacity);
 }
-
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::SetTextSide(int side)
 {
 	m_TextSide = side;
 }
-
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::ShowText(bool show)
 {
@@ -554,6 +603,56 @@ void appInteractor2DMeasure::ShowText(bool show)
 
 	m_EditTextActor->SetVisibility(show);
 }
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::SetRendererByView(albaView * view)
+{
+	m_View = view;
+
+	vtkRenderer *newRenderer = NULL;
+
+	vtkRendererCollection *rc;
+	rc = view->GetRWI()->GetRenderWindow()->GetRenderers();
+
+	// Searching for a frontal renderer on render collection
+	if (rc)
+	{
+		rc->InitTraversal();
+		vtkRenderer *ren;
+		while (ren = rc->GetNextItem())
+			if (ren->GetLayer() == 1)//Frontal Render
+			{
+				newRenderer = ren;
+				break;
+			}
+	}
+
+	//if the renderer is changed we move all actor to new renderer 
+	if (m_Renderer != newRenderer)
+	{
+		// Removing from old renderer
+		if (m_Renderer)
+		{
+			RemoveAllMeasures();
+		}
+		// Adding to new renderer
+		if (newRenderer)
+		{
+			// 			double p1[3];
+			// 			double p2[3];
+			// 
+			// 			for (int i = 0; i < m_LineSourceVector.size(); i++)
+			// 			{
+			// 				m_LineSourceVector[i]->GetPoint1(p1);
+			// 				m_LineSourceVector[i]->GetPoint2(p2);
+			// 				AddMeasure(p1, p2);
+			// 			}
+		}
+	}
+
+	m_Renderer = newRenderer;
+	m_Renderer->GetRenderWindow()->Render();
+}
+
 
 // MEASURE //////////////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
@@ -667,89 +766,8 @@ albaString appInteractor2DMeasure::GetMeasure(int index)
 	return "No Measure";
 }
 
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::InitRenderer(albaEventInteraction *e)
-{
-	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
 
-	if (m_Renderer == NULL)
-	{
-		if (m_Mouse == NULL)
-		{
-			albaDevice *device = albaDevice::SafeDownCast((albaDevice*)e->GetSender());
-			albaDeviceButtonsPadMouse  *mouse = albaDeviceButtonsPadMouse::SafeDownCast(device);
-			m_Mouse = mouse;
-		}
-
-		m_Renderer = m_Mouse->GetRenderer();
-	}
-
-	if (m_Renderer)
-		m_ParallelView = m_Renderer->GetActiveCamera()->GetParallelProjection() != 0;
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::SetRendererByView(albaView * view)
-{
-	m_View = view;
-
-	vtkRenderer *newRenderer = NULL;
-
-	vtkRendererCollection *rc;
-	rc = view->GetRWI()->GetRenderWindow()->GetRenderers();
-
-	// Searching for a frontal renderer on render collection
-	if (rc)
-	{
-		rc->InitTraversal();
-		vtkRenderer *ren;
-		while (ren = rc->GetNextItem())
-			if (ren->GetLayer() == 1)//Frontal Render
-			{
-				newRenderer = ren;
-				break;
-			}
-	}
-
-	//if the renderer is changed we move all actor to new renderer 
-	if (m_Renderer != newRenderer)
-	{
-		// Removing from old renderer
-		if (m_Renderer)
-		{
-			RemoveAllMeasures();
-		}
-		// Adding to new renderer
-		if (newRenderer)
-		{
-// 			double p1[3];
-// 			double p2[3];
-// 
-// 			for (int i = 0; i < m_LineSourceVector.size(); i++)
-// 			{
-// 				m_LineSourceVector[i]->GetPoint1(p1);
-// 				m_LineSourceVector[i]->GetPoint2(p2);
-// 				AddMeasure(p1, p2);
-// 			}
-		}
-	}
-
-	m_Renderer = newRenderer;
-	m_Renderer->GetRenderWindow()->Render();
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::ScreenToWorld(double screen[2], double world[3])
-{
-	double wp[4];
-
-	m_Renderer->SetDisplayPoint(screen[0], screen[1], 0);
-	m_Renderer->DisplayToWorld();
-	m_Renderer->GetWorldPoint(wp);
-
-	world[0] = wp[0];
-	world[1] = wp[1];
-	world[2] = 0;
-}
-
+//UTILS
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::FindAndHighlightCurrentPoint(double * pointCoord)
 {
@@ -763,7 +781,7 @@ void appInteractor2DMeasure::FindAndHighlightCurrentPoint(double * pointCoord)
 
 			m_EditPointSource->GetCenter(tmpPoint);
 
-			if (DistanceBetweenPoints(pointCoord, tmpPoint) < LINE_UPDATE_DISTANCE)
+			if (DistanceBetweenPoints(pointCoord, tmpPoint) < MIN_UPDATE_DISTANCE)
 			{
 				SelectMeasure(i);
 
@@ -785,34 +803,6 @@ void appInteractor2DMeasure::FindAndHighlightCurrentPoint(double * pointCoord)
 		}
 	}
 }
-
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::ShowEditActors()
-{
-	if (!m_ActorAdded)
-	{
-		// Add Edit Actors
-		m_Renderer->AddActor2D(m_EditPointActor);
-		m_Renderer->AddActor2D(m_EditTextActor);
-		m_ActorAdded = true;
-	}
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::HideEditActors()
-{
-	// Remove Edit Actors
-	m_Renderer->RemoveActor2D(m_EditPointActor);
-	m_Renderer->RemoveActor2D(m_EditTextActor);
-	m_ActorAdded = false;
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::UpdateEditActors(double * point1, double * point2)
-{
-	// Update Edit Actors
-	UpdatePointActor(point1);
-	UpdateTextActor(-1, point1);
-}
-
 //----------------------------------------------------------------------------
 double appInteractor2DMeasure::DistanceBetweenPoints(double *point1, double *point2)
 {
@@ -880,4 +870,17 @@ bool appInteractor2DMeasure::IsInBound(double *pos)
 	}
 
 	return m_IsInBound;
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::ScreenToWorld(double screen[2], double world[3])
+{
+	double wp[4];
+
+	m_Renderer->SetDisplayPoint(screen[0], screen[1], 0);
+	m_Renderer->DisplayToWorld();
+	m_Renderer->GetWorldPoint(wp);
+
+	world[0] = wp[0];
+	world[1] = wp[1];
+	world[2] = 0;
 }

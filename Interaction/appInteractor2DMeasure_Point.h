@@ -33,11 +33,17 @@ public:
 
 	albaTypeMacro(appInteractor2DMeasure_Point, appInteractor2DMeasure);
 	
-	void AddMeasure(double *point);
-
-	void EditMeasure(int index, double *point);
+	// MEASURE
+	/** Add Measure*/
+	void AddMeasure(double *point1);
+	/** Edit Measure*/
+	void EditMeasure(int index, double *point1);
+	/** Delete the Measure*/
 	void RemoveMeasure(int index);
+	/** Select a Measure*/
 	void SelectMeasure(int index);
+
+	/** Get point coordinate*/
 	void GetMeasurePoint(int index, double *point);
 
 protected:
@@ -45,14 +51,20 @@ protected:
 	appInteractor2DMeasure_Point();
 	virtual ~appInteractor2DMeasure_Point();
 	
-	//void EditMeasure(int index, double *point);
+	// Draw Measure
 	void DrawMeasure(double * wp);
-
 	void MoveMeasure(int index, double * pointCoord);
+
+	// RENDERING
 	void UpdatePointActor(int index, double * point);
+	void UpdateEditActors(double * point1, double * point2 = NULL);
+	void ShowEditActors();
+	void HideEditActors();
+	void DisableMeasure(int index);
 
+	//UTILS
 	void FindAndHighlightCurrentPoint(double * pointCoord);
-
+	
 	// Persistent Point
 	std::vector<vtkPointSource *>				m_PointSourceVector;
 	std::vector<vtkPolyDataMapper2D *>	m_PointMapperVector;
@@ -64,4 +76,3 @@ private:
 	friend class appInteractor2DMeasure_PointTest;
 };
 #endif
-

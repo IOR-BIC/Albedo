@@ -15,6 +15,8 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appInteractor2DMeasure_Distance.h"
 #include "appInteractor2DMeasure.h"
+
+#include "vtkALBATextActorMeter.h"
 #include "vtkActor2D.h"
 #include "vtkLineSource.h"
 #include "vtkMath.h"
@@ -24,7 +26,6 @@ PURPOSE. See the above copyright notice for more information.
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkViewport.h"
-#include "vtkALBATextActorMeter.h"
 
 //------------------------------------------------------------------------------
 albaCxxTypeMacro(appInteractor2DMeasure_Distance)
@@ -125,11 +126,9 @@ void appInteractor2DMeasure_Distance::DrawMeasure(double * wp)
 
 		double editPoint1[3];
 		m_EditLineSource->GetPoint1(editPoint1);
-		//UpdateLineActor(-1, editPoint1, wp);
 
 		m_Distance = DistanceBetweenPoints(editPoint1, wp);
 
-		//UpdateTextActor(-1, editPoint1, wp);
 		UpdateEditActors(editPoint1, wp);
 		UpdatePointActor(wp);
 	}
@@ -279,15 +278,46 @@ void appInteractor2DMeasure_Distance::UpdateTextActor(int index, double * point1
 
 	Superclass::UpdateTextActor(index, text_pos);
 }
-
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Distance::UpdateEditActors(double * point1, double * point2)
+{
+	// Update Edit Actors
+	UpdateLineActor(-1, point1, point2);
+	UpdateTextActor(-1, point1, point2);
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Distance::ShowEditActors()
+{
+	if (!m_ActorAdded)
+	{
+		// Add Edit Actors
+		m_Renderer->AddActor2D(m_EditLineActor);
+		m_Renderer->AddActor2D(m_EditTextActor);
+		m_ActorAdded = true;
+	}
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Distance::HideEditActors()
+{
+	// Delete Edit Actors
+	m_Renderer->RemoveActor2D(m_EditLineActor);
+	m_Renderer->RemoveActor2D(m_EditTextActor);
+	m_ActorAdded = false;
+}
+//----------------------------------------------------------------------------
 void appInteractor2DMeasure_Distance::DisableMeasure(int index)
 {
-	// Old Line
+	double disableOpacity = 0.3;
+
+	// Line
 	m_LineActorVector[m_CurrentMeasureIndex]->GetProperty()->SetColor(m_ColorDisable[0], m_ColorDisable[1], m_ColorDisable[2]);
-	// Old Text
+	m_LineActorVector[m_CurrentMeasureIndex]->GetProperty()->SetOpacity(disableOpacity);
+	// Text
 	m_TextActorVector[m_CurrentMeasureIndex]->SetColor(m_ColorDisable[0], m_ColorDisable[1], m_ColorDisable[2]);
+	m_TextActorVector[m_CurrentMeasureIndex]->SetOpacity(disableOpacity);
 }
 
+// SET
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Distance::ShowLine(bool show)
 {
@@ -307,9 +337,7 @@ void appInteractor2DMeasure_Distance::AddMeasure(double *point1, double *point2)
 {
 	point1[2] = point2[2] = 0;
 
-	// Update Edit Actors
-	UpdateLineActor(-1, point1, point2);
-	UpdateTextActor(-1, point1, point2);
+	UpdateEditActors(point1, point2);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Add Measure
@@ -359,13 +387,10 @@ void appInteractor2DMeasure_Distance::EditMeasure(int index, double *point1, dou
 	text.Printf("Distance %.2f mm", DistanceBetweenPoints(point1, point2));
 	m_MeasureVector[index] = text;
 
-	// Update Edit Actors
-	UpdateLineActor(-1, point1, point2);
-	UpdateTextActor(-1, point1, point2);
-
+	// Update Actors
+	UpdateEditActors(point1, point2);
 	// Line
 	UpdateLineActor(index, point1, point2);
-
 	// Text
 	UpdateTextActor(index, point1, point2);
 
@@ -451,6 +476,7 @@ void appInteractor2DMeasure_Distance::SelectMeasure(int index)
 	}
 }
 
+// UTILS
 //---------------------------------------------------------------------------
 void appInteractor2DMeasure_Distance::GetMeasureLinePoints(int index, double *point1, double *point2)
 {
@@ -461,7 +487,6 @@ void appInteractor2DMeasure_Distance::GetMeasureLinePoints(int index, double *po
 		m_LineSourceVector[index]->GetPoint2(point2);
 	}
 }
-
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Distance::FindAndHighlightCurrentPoint(double * point)
 {
@@ -476,7 +501,7 @@ void appInteractor2DMeasure_Distance::FindAndHighlightCurrentPoint(double * poin
 			m_LineSourceVector[i]->GetPoint1(linePoint1);
 			m_LineSourceVector[i]->GetPoint2(linePoint2);
 
-			if (DistancePointToLine(point, linePoint1, linePoint2) < LINE_UPDATE_DISTANCE)
+			if (DistancePointToLine(point, linePoint1, linePoint2) < MIN_UPDATE_DISTANCE)
 			{
 				SelectMeasure(i);
 
@@ -526,31 +551,4 @@ void appInteractor2DMeasure_Distance::FindAndHighlightCurrentPoint(double * poin
 			m_CurrentPointIndex = NO_POINT;
 		}
 	}
-}
-
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure_Distance::ShowEditActors()
-{
-	if (!m_ActorAdded)
-	{
-		// Add Edit Actors
-		m_Renderer->AddActor2D(m_EditLineActor);
-		m_Renderer->AddActor2D(m_EditTextActor);
-		m_ActorAdded = true;
-	}
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure_Distance::HideEditActors()
-{
-	// Delete Edit Actors
-	m_Renderer->RemoveActor2D(m_EditLineActor);
-	m_Renderer->RemoveActor2D(m_EditTextActor);
-	m_ActorAdded = false;
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure_Distance::UpdateEditActors(double * point1, double * point2)
-{
-	// Update Edit Actors
-	UpdateLineActor(-1, point1, point2);
-	UpdateTextActor(-1, point1, point2);
 }

@@ -15,6 +15,7 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "appInteractor2DMeasure_Point.h"
 #include "appInteractor2DMeasure.h"
+
 #include "vtkALBATextActorMeter.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -80,24 +81,16 @@ void appInteractor2DMeasure_Point::DrawMeasure(double * wp)
 		m_ActorAdded = false;
 		m_Distance = 0.0;
 
-		if (!m_ActorAdded)
-		{
-			// Add Edit Actors
-			m_ActorAdded = true;
-			m_Renderer->AddActor2D(m_EditTextActor);
-			m_Renderer->AddActor2D(m_EditPointActor);
-		}
+		ShowEditActors();
 
-		UpdatePointActor(-1,wp);
-		UpdateTextActor(-1, wp);
+		UpdateEditActors(wp);
 
 		m_AddMeasurePhase_Counter++;
 	}
 	// Point has been picked and now is being dragged
 	else if (m_AddMeasurePhase_Counter == 1 && m_DraggingLeft)
 	{
-		UpdatePointActor(-1, wp);
-		UpdateTextActor(-1, wp);
+		UpdateEditActors(wp);
 	}
 	// Finished dragging the point
 	else if (m_AddMeasurePhase_Counter == 1)
@@ -124,10 +117,7 @@ void appInteractor2DMeasure_Point::DrawMeasure(double * wp)
 	{
 		m_AddMeasurePhase_Counter = 0;
 
-		// Remove Edit Actors
- 		m_Renderer->RemoveActor2D(m_EditTextActor);
-		m_Renderer->RemoveActor2D(m_EditPointActor);
-		m_ActorAdded = false;
+		HideEditActors();
 	}
 
 	SetAction(ID_ADD_MEASURE);
@@ -154,13 +144,9 @@ void appInteractor2DMeasure_Point::MoveMeasure(int index, double * pointCoord)
 
 	if (m_DraggingLeft)
 	{
-		if (!m_ActorAdded)
-		{
-			// Add Edit Actors
-			m_ActorAdded = true;
-			m_Renderer->AddActor2D(m_EditPointActor);
-			m_Renderer->AddActor2D(m_EditTextActor);
-		}
+		DisableMeasure(index);
+
+		ShowEditActors();
 
 		double tmp_pos[3];
 
@@ -168,15 +154,11 @@ void appInteractor2DMeasure_Point::MoveMeasure(int index, double * pointCoord)
 		tmp_pos[1] = pointCoord[1] + m_OldLineP1[1];
 		tmp_pos[2] = 0.0;
 
-		// Update Edit Actors
-		UpdatePointActor(-1, tmp_pos);
-		UpdateTextActor(-1, tmp_pos);
+		UpdateEditActors(tmp_pos);
 	}
 	else if (m_EditPointSource)
 	{
-		// Remove Edit Actors
-		m_Renderer->RemoveActor2D(m_EditPointActor);
-		m_Renderer->RemoveActor2D(m_EditTextActor);
+		HideEditActors();
 
 		double tmpPt[3];
 		m_EditPointSource->GetCenter(tmpPt);
@@ -217,15 +199,52 @@ void appInteractor2DMeasure_Point::UpdatePointActor(int index, double * point)
 		m_EditPointSource->Update();
 	}
 }
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::UpdateEditActors(double * point1, double * point2)
+{
+	// Update Edit Actors
+	UpdatePointActor(-1, point1);
+	UpdateTextActor(-1, point1);
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::ShowEditActors()
+{
+	if (!m_ActorAdded)
+	{
+		// Add Edit Actors
+		m_Renderer->AddActor2D(m_EditPointActor);
+		m_Renderer->AddActor2D(m_EditTextActor);
+		m_ActorAdded = true;
+	}
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::HideEditActors()
+{
+	// Delete Edit Actors
+	m_Renderer->RemoveActor2D(m_EditPointActor);
+	m_Renderer->RemoveActor2D(m_EditTextActor);
+	m_ActorAdded = false;
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::DisableMeasure(int index)
+{
+	double disableOpacity = 0.3;
 
+	// Point
+	m_PointActorVector[index]->GetProperty()->SetColor(m_ColorDisable[0], m_ColorDisable[1], m_ColorDisable[2]);
+	m_PointActorVector[index]->GetProperty()->SetOpacity(disableOpacity);
+
+	// Text
+	m_TextActorVector[m_CurrentMeasureIndex]->SetColor(m_ColorDisable[0], m_ColorDisable[1], m_ColorDisable[2]);
+	m_TextActorVector[m_CurrentMeasureIndex]->SetOpacity(disableOpacity);
+}
 
 // MEASURE
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Point::AddMeasure(double *point)
 {
-	// Update Edit Actors
-	UpdatePointActor(-1, point);
-	UpdateTextActor(-1, point);
+	// Update Actors
+	UpdateEditActors(point);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Add Measure
@@ -270,13 +289,10 @@ void appInteractor2DMeasure_Point::EditMeasure(int index, double *point)
 
 	//////////////////////////////////////////////////////////////////////////
 
-	// Edit Actors
-	UpdatePointActor(-1, point);
-	UpdateTextActor(-1, point);
-
+	// Update Actors
+	UpdateEditActors(point);
 	// Point
 	UpdatePointActor(index, point);
-
 	// Text
 	UpdateTextActor(index, point);
 
@@ -358,6 +374,7 @@ void appInteractor2DMeasure_Point::SelectMeasure(int index)
 	}
 }
 
+// UTILS
 //---------------------------------------------------------------------------
 void appInteractor2DMeasure_Point::GetMeasurePoint(int index, double *point)
 {
@@ -367,7 +384,6 @@ void appInteractor2DMeasure_Point::GetMeasurePoint(int index, double *point)
 		m_PointSourceVector[index]->GetCenter(point);
 	}
 }
-
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Point::FindAndHighlightCurrentPoint(double * pointCoord)
 {
@@ -381,7 +397,7 @@ void appInteractor2DMeasure_Point::FindAndHighlightCurrentPoint(double * pointCo
 
 			m_PointSourceVector[i]->GetCenter(tmpPoint);
 
-			if (DistanceBetweenPoints(pointCoord, tmpPoint) < LINE_UPDATE_DISTANCE)
+			if (DistanceBetweenPoints(pointCoord, tmpPoint) < MIN_UPDATE_DISTANCE)
 			{
 				SelectMeasure(i);
 

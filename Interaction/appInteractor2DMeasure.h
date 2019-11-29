@@ -30,23 +30,20 @@ PURPOSE. See the above copyright notice for more information.
 class albaDeviceButtonsPadMouse;
 class albaRWI;
 
-class vtkLineSource;
-class vtkCoordinate;
-class vtkPolyDataMapper2D;
+class vtkALBATextActorMeter;
 class vtkActor2D;
+class vtkCoordinate;
+class vtkLineSource;
+class vtkPointSource;
+class vtkPolyDataMapper2D;
 class vtkRenderWindow;
 class vtkRenderer;
-class vtkXYPlotActor;
-class vtkTextActor;
 class vtkRendererCollection;
-class vtkALBATextActorMeter;
-class vtkPointSource;
+class vtkTextActor;
+class vtkXYPlotActor;
 
 #define TEXT_H_SHIFT     10
-
-#define LINE_UPDATE_DISTANCE 1.0
-#define POINT_UPDATE_DISTANCE 2.5
-#define POINT_UPDATE_DISTANCE_2 (POINT_UPDATE_DISTANCE * POINT_UPDATE_DISTANCE)
+#define MIN_UPDATE_DISTANCE 1.0
 
 // Class Name: appInteractor2DMeasure
 class APP_INTERACTION_EXPORT appInteractor2DMeasure : public albaInteractorPER
@@ -57,8 +54,7 @@ public:
 
 	enum MEASURE_INTERACTIONS
 	{
-		ID_RESULT_LINE = MINID,
-		ID_MEASURE_ADDED,
+		ID_MEASURE_ADDED = MINID,
 		ID_MEASURE_CHANGED,
 		ID_MEASURE_MOVED,
 		ID_MEASURE_SELECTED,
@@ -73,14 +69,12 @@ public:
 	};
 
 	virtual void OnEvent(albaEventBase *event);
-
-	albaString GetMeasureType() { return m_MeasureTypeText; };
-
+	
 	// Measures
 	/** Add Measure*/
-	virtual void AddMeasure(double point1[3], double point2[3]);
+	virtual void AddMeasure(double *point1, double *point2);
 	/** Edit Measure*/
-	virtual void EditMeasure(int index, double point1[3], double point2[3]);
+	virtual void EditMeasure(int index, double *point1, double *point2);
 	/** Delete the Measure*/
 	virtual void RemoveMeasure(int index);
 	/** Delete all Measures*/
@@ -88,22 +82,19 @@ public:
 	/** Select a Measure*/
 	virtual void SelectMeasure(int index);
 
+	// GET
 	/** Get Measure Value*/
-	albaString GetMeasure(int index);
-	
+	albaString GetMeasure(int index);	
+	/** Get a string type of measure*/
+	albaString GetMeasureType() { return m_MeasureTypeText; };
 	/** Get Number of Measures*/
 	int GetMeasureCount() {	return m_MeasuresCount; };
 	/** Returns the last Edited Measure index*/
 	int GetLastEditedMeasureIndex() { return m_LastEditing; }
 	/** Returns the Current Measure Selected index*/
 	int GetSelectedMeasureIndex() { return m_LastSelection; }
-
-	/*Set Renderer by View needed*/
-	void SetRendererByView(albaView * view);
-
-	/** Enable/Disable Editing Mode */
-	void EnableEditMeasure(bool edit = true) { m_EditMeasureEnable = edit; };
-
+	
+	// SET
 	/** Set Color Default*/
 	void SetColor(double r, double g, double b);
 	/** Set Color Selection*/
@@ -114,44 +105,46 @@ public:
 	void SetOpacity(double opacity);
 	/*Set Side of the Text Label*/
 	void SetTextSide(int side);
-	
 	/** Show/Hide Text Labels*/
 	void ShowText(bool show);
+	/*Set Renderer by View needed*/
+	void SetRendererByView(albaView * view);
+
+	/** Enable/Disable Editing Mode */
+	void EnableEditMeasure(bool edit = true) { m_EditMeasureEnable = edit; };
 
 protected:
 
 	appInteractor2DMeasure();
 	virtual ~appInteractor2DMeasure();
 
+	void InitRenderer(albaEventInteraction *e);
+
 	// Mouse Events
 	virtual void OnLeftButtonDown(albaEventInteraction *e);
 	virtual void OnLeftButtonUp(albaEventInteraction *e);
 	virtual void OnMove(albaEventInteraction *e);
-
-	void InitRenderer(albaEventInteraction *e);
-	void ScreenToWorld(double screen[2], double world[3]);
-
+		
 	// Draw Measure
 	virtual void DrawMeasure(double * wp);
 	virtual void MoveMeasure(int index, double * pointCoord);
 	
-	void SetAction(int action);
-
+	// RENDERING
 	virtual void UpdateTextActor(int index, double * point);
 	virtual void UpdatePointActor(double * point);
-
-	virtual void DisableMeasure(int index);
-	virtual void FindAndHighlightCurrentPoint(double * pointCoord);
-
+	virtual void UpdateEditActors(double * point1, double * point2 = NULL);
 	virtual void ShowEditActors();
 	virtual void HideEditActors();
+	virtual void DisableMeasure(int index);
 
-	virtual void UpdateEditActors(double * point1, double * point2);
+	void SetAction(int action);
 
+	// UTILS
+	virtual void FindAndHighlightCurrentPoint(double * pointCoord);
 	double DistanceBetweenPoints(double *point1, double *point2);
 	float DistancePointToLine(double * point, double * lineP1, double * lineP2);
-
 	bool IsInBound(double *pos);
+	void ScreenToWorld(double screen[2], double world[3]);
 
 	std::vector<albaString> m_MeasureVector;
 	albaString m_MeasureTypeText;
@@ -160,9 +153,9 @@ protected:
 	vtkRenderer								*m_Renderer;
 	albaView									*m_View;
 
-	vtkCoordinate					*m_Coordinate;
+	vtkCoordinate							*m_Coordinate;
 
-		// Text Vector
+	// Text Vector
 	std::vector<vtkALBATextActorMeter *> m_TextActorVector;
 	
 	// EDIT ATORS

@@ -14,20 +14,20 @@ PURPOSE. See the above copyright notice for more information.
 =========================================================================*/
 
 #include "appInteractor2DMeasure_Indicator.h"
-#include "appInteractor2DMeasure.h"
-#include "albaDefines.h"
-#include "vtkActor2D.h"
-#include "vtkPolyDataSource.h"
-#include "vtkMath.h"
-#include "vtkConeSource.h"
-#include "vtkProperty2D.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkViewport.h"
-#include "vtkRenderer.h"
 #include "appInteractor2DMeasure_Distance.h"
+#include "appInteractor2DMeasure.h"
+
 #include "vtkALBATextActorMeter.h"
+#include "vtkActor2D.h"
+#include "vtkConeSource.h"
 #include "vtkLineSource.h"
+#include "vtkMath.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkPolyDataSource.h"
+#include "vtkProperty2D.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
+#include "vtkViewport.h"
 
 //------------------------------------------------------------------------------
 albaCxxTypeMacro(appInteractor2DMeasure_Indicator)
@@ -78,6 +78,7 @@ appInteractor2DMeasure_Indicator::~appInteractor2DMeasure_Indicator()
 	m_ConeActorVector.clear();
 }
 
+// RENDERING
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Indicator::UpdateConeActor(int index, double * point1, double * point2)
 {
@@ -128,16 +129,51 @@ void appInteractor2DMeasure_Indicator::UpdateConeActor(int index, double * point
 	}
 }
 //----------------------------------------------------------------------------
+void appInteractor2DMeasure_Indicator::UpdateEditActors(double * point1, double * point2)
+{
+	// Update Edit Actors
+	UpdateLineActor(-1, point1, point2);
+	UpdateConeActor(-1, point1, point2);
+	UpdateTextActor(-1, point1, point2);
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Indicator::ShowEditActors()
+{
+	if (!m_ActorAdded)
+	{
+		// Add Edit Actors
+		m_Renderer->AddActor2D(m_EditLineActor);
+		m_Renderer->AddActor2D(m_EditConeActor);
+		m_Renderer->AddActor2D(m_EditTextActor);
+		m_ActorAdded = true;
+	}
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Indicator::HideEditActors()
+{
+	// Delete Edit Actors
+	m_Renderer->RemoveActor2D(m_EditLineActor);
+	m_Renderer->RemoveActor2D(m_EditConeActor);
+	m_Renderer->RemoveActor2D(m_EditTextActor);
+	m_ActorAdded = false;
+}
+//----------------------------------------------------------------------------
 void appInteractor2DMeasure_Indicator::DisableMeasure(int index)
 {
-	// Old Line
+	double disableOpacity = 0.3;
+
+	// Line
 	m_LineActorVector[m_CurrentMeasureIndex]->GetProperty()->SetColor(m_ColorDisable[0], m_ColorDisable[1], m_ColorDisable[2]);
-	// Old Arrow
+	m_LineActorVector[m_CurrentMeasureIndex]->GetProperty()->SetOpacity(disableOpacity);
+	// Arrow
 	m_ConeActorVector[m_CurrentMeasureIndex]->GetProperty()->SetColor(m_ColorDisable[0], m_ColorDisable[1], m_ColorDisable[2]);
-	// Old Text
+	m_ConeActorVector[m_CurrentMeasureIndex]->GetProperty()->SetOpacity(disableOpacity);
+	// Text
 	m_TextActorVector[m_CurrentMeasureIndex]->SetColor(m_ColorDisable[0], m_ColorDisable[1], m_ColorDisable[2]);
+	m_TextActorVector[m_CurrentMeasureIndex]->SetOpacity(disableOpacity);
 }
 
+// SET
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Indicator::ShowArrow(bool show)
 {
@@ -157,10 +193,7 @@ void appInteractor2DMeasure_Indicator::AddMeasure(double *point1, double *point2
 {
 	point1[2] = point2[2] = 0;
 
-	// Update Edit Actors
-	UpdateLineActor(-1, point1, point2);
-	UpdateTextActor(-1, point1, point2);
-	UpdateConeActor(-1, point1, point2);
+	UpdateEditActors(point1, point2);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Add Measure
@@ -220,11 +253,8 @@ void appInteractor2DMeasure_Indicator::EditMeasure(int index, double *point1, do
 	text.Printf("Indicator %.2f mm", DistanceBetweenPoints(point1, point2));
 	m_MeasureVector[index] = text;
 
-	// Update Edit Actors
-	UpdateLineActor(-1, point1, point2);
-	UpdateConeActor(-1, point1, point2);
-	UpdateTextActor(-1, point1, point2);
-
+	// Update Actors
+	UpdateEditActors(point1, point2);
 	// Line
 	UpdateLineActor(index, point1, point2);
 	// Arrow
@@ -258,7 +288,7 @@ void appInteractor2DMeasure_Indicator::RemoveMeasure(int index)
 		m_LineSourceVector.erase(m_LineSourceVector.begin() + index);
 
 		//////////////////////////////////////////////////////////////////////////
-		// Line
+		// Arrow
 		m_Renderer->RemoveActor2D(m_ConeActorVector[index]);
 		vtkDEL(m_ConeActorVector[index]);
 		m_ConeActorVector.erase(m_ConeActorVector.begin() + index);
@@ -333,34 +363,4 @@ void appInteractor2DMeasure_Indicator::SelectMeasure(int index)
 		albaEventMacro(albaEvent(this, CAMERA_UPDATE));
 		albaEventMacro(albaEvent(this, ID_MEASURE_SELECTED));
 	}
-}
-
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure_Indicator::ShowEditActors()
-{
-	if (!m_ActorAdded)
-	{
-		// Add Edit Actors
-		m_Renderer->AddActor2D(m_EditLineActor);
-		m_Renderer->AddActor2D(m_EditConeActor);
-		m_Renderer->AddActor2D(m_EditTextActor);
-		m_ActorAdded = true;
-	}
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure_Indicator::HideEditActors()
-{
-	// Delete Edit Actors
-	m_Renderer->RemoveActor2D(m_EditLineActor);
-	m_Renderer->RemoveActor2D(m_EditConeActor);
-	m_Renderer->RemoveActor2D(m_EditTextActor);
-	m_ActorAdded = false;
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure_Indicator::UpdateEditActors(double * point1, double * point2)
-{
-	// Update Edit Actors
-	UpdateLineActor(-1, point1, point2);
-	UpdateConeActor(-1, point1, point2);
-	UpdateTextActor(-1, point1, point2);
 }
