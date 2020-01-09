@@ -20,6 +20,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "albaDeviceButtonsPadTracker.h"
 #include "albaEventInteraction.h"
 #include "albaRWI.h"
+#include "albaTagArray.h"
 #include "albaVME.h"
 #include "albaVMEOutput.h"
 #include "albaView.h"
@@ -340,7 +341,7 @@ void appInteractor2DMeasure::OnEvent(albaEventBase *event)
 }
 
 
-// RENDERING //////////////////////////////////////////////////////////////////////////
+// RENDERING
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::DrawMeasure(double * wp)
 {
@@ -679,7 +680,7 @@ void appInteractor2DMeasure::SetRendererByView(albaView * view)
 }
 
 
-// MEASURE //////////////////////////////////////////////////////////////////////////
+// MEASURE
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::AddMeasure(double *point1, double *point2 /*= NULL*/)
 {
@@ -795,7 +796,6 @@ albaString appInteractor2DMeasure::GetMeasure(int index)
 
 	return "No Measure";
 }
-
 
 //UTILS
 //----------------------------------------------------------------------------
@@ -914,3 +914,35 @@ void appInteractor2DMeasure::ScreenToWorld(double screen[2], double world[3])
 	world[1] = wp[1];
 	world[2] = 0;
 }
+
+// LOAD/SAVE
+void appInteractor2DMeasure::Load(albaVME *input, wxString tag)
+{
+	if (input->GetTagArray()->IsTagPresent(tag + "MeasureType"))
+	{
+		albaTagItem *measureTypeTag = input->GetTagArray()->GetTag(tag + "MeasureType");
+
+		int nMeasures = measureTypeTag->GetNumberOfComponents();
+
+		// Reload Measures
+		for (int i = 0; i < nMeasures; i++)
+		{
+			albaString measureType = measureTypeTag->GetValue(i);
+
+			if (measureType == "POINT")
+			{
+			}
+			else if (measureType == "DISTANCE")
+			{
+			}
+			else if (measureType == "INDICATOR")
+			{
+			}
+			else if (measureType == "ANGLE")
+			{
+			}
+		}
+	}
+}
+void appInteractor2DMeasure::Save(albaVME *input, wxString tag)
+{}

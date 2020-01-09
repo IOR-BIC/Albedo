@@ -82,6 +82,10 @@ public:
 	/** Select a Measure*/
 	virtual void SelectMeasure(int index);
 
+	// LOAD/SAVE
+	virtual void Load(albaVME *input, wxString tag);
+	virtual void Save(albaVME *input, wxString tag);
+
 	// GET
 	/** Get Measure Value*/
 	albaString GetMeasure(int index);	

@@ -46,6 +46,9 @@ public:
 	/** Get point coordinate*/
 	void GetMeasurePoint(int index, double *point);
 
+	void Load(albaVME *input, wxString tag);
+	void Save(albaVME *input, wxString tag);
+
 protected:
 
 	appInteractor2DMeasure_Point();

@@ -16,6 +16,9 @@ PURPOSE. See the above copyright notice for more information.
 #include "appInteractor2DMeasure_Distance.h"
 #include "appInteractor2DMeasure.h"
 
+#include "albaTagArray.h"
+#include "albaVME.h"
+
 #include "vtkALBATextActorMeter.h"
 #include "vtkActor2D.h"
 #include "vtkLineSource.h"
@@ -550,4 +553,81 @@ void appInteractor2DMeasure_Distance::FindAndHighlightCurrentPoint(double * poin
 			m_CurrentPointIndex = NO_POINT;
 		}
 	}
+}
+
+// LOAD/SAVE
+//---------------------------------------------------------------------------
+void appInteractor2DMeasure_Distance::Load(albaVME *input, wxString tag)
+{
+	if (input->GetTagArray()->IsTagPresent(tag + "MeasureLinePoint1") && input->GetTagArray()->IsTagPresent(tag + "MeasureLinePoint2"))
+	{
+		double point1[3], point2[3];
+		albaTagItem *measureTypeTag = input->GetTagArray()->GetTag(tag + "MeasureType");
+		albaTagItem *measureLinePoint1Tag = input->GetTagArray()->GetTag(tag + "MeasureLinePoint1");
+		albaTagItem *measureLinePoint2Tag = input->GetTagArray()->GetTag(tag + "MeasureLinePoint2");
+
+		int nLines = measureLinePoint1Tag->GetNumberOfComponents() / 2;
+
+		// Reload points
+		for (int i = 0; i < nLines; i++)
+		{
+			point1[0] = measureLinePoint1Tag->GetValueAsDouble(i * 2 + 0);
+			point1[1] = measureLinePoint1Tag->GetValueAsDouble(i * 2 + 1);
+			point1[2] = 0.0;
+
+			point2[0] = measureLinePoint2Tag->GetValueAsDouble(i * 2 + 0);
+			point2[1] = measureLinePoint2Tag->GetValueAsDouble(i * 2 + 1);
+			point2[2] = 0.0;
+
+			albaString measureType = measureTypeTag->GetValue(i);
+
+			AddMeasure(point1, point2);
+			//m_MeasureType = measureType;
+		}
+
+		//SelectMeasure(-1);
+	}
+}
+//---------------------------------------------------------------------------
+void appInteractor2DMeasure_Distance::Save(albaVME *input, wxString tag)
+{
+	int nLines = GetMeasureCount();
+
+	albaTagItem measureTypeTag;
+	measureTypeTag.SetName(tag + "MeasureType");
+	measureTypeTag.SetNumberOfComponents(nLines);
+
+	albaTagItem measureLinePoint1Tag;
+	measureLinePoint1Tag.SetName(tag + "MeasureLinePoint1");
+	measureLinePoint1Tag.SetNumberOfComponents(nLines);
+
+	albaTagItem measureLinePoint2Tag;
+	measureLinePoint2Tag.SetName(tag + "MeasureLinePoint2");
+	measureLinePoint2Tag.SetNumberOfComponents(nLines);
+
+	for (int i = 0; i < nLines; i++)
+	{
+		double point1[3], point2[3];
+		GetMeasureLinePoints(i, point1, point2);
+
+		measureTypeTag.SetValue(GetTypeName(), i);
+		measureLinePoint1Tag.SetValue(point1[0], i * 2 + 0);
+		measureLinePoint1Tag.SetValue(point1[1], i * 2 + 1);
+
+		measureLinePoint2Tag.SetValue(point2[0], i * 2 + 0);
+		measureLinePoint2Tag.SetValue(point2[1], i * 2 + 1);
+	}
+
+	if (input->GetTagArray()->IsTagPresent(tag + "MeasureType"))
+		input->GetTagArray()->DeleteTag(tag + "MeasureType");
+
+	if (input->GetTagArray()->IsTagPresent(tag + "MeasureLinePoint1"))
+		input->GetTagArray()->DeleteTag(tag + "MeasureLinePoint1");
+
+	if (input->GetTagArray()->IsTagPresent(tag + "MeasureLinePoint2"))
+		input->GetTagArray()->DeleteTag(tag + "MeasureLinePoint2");
+
+	input->GetTagArray()->SetTag(measureTypeTag);
+	input->GetTagArray()->SetTag(measureLinePoint1Tag);
+	input->GetTagArray()->SetTag(measureLinePoint2Tag);
 }

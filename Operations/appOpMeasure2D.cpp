@@ -205,7 +205,7 @@ void appOpMeasure2D::CreateGui()
 	m_Gui->SetListener(this);
 
 	m_Gui->Divider(1);
-	wxString choises[4] = { _("Point"),_("Distance"),_("Indicator"),_("Angle") };
+	wxString choises[4] = { _("Point"),_("Distance"),_("Indicator"),_("Angle (to fix)") };
 	m_Gui->Combo(ID_SELECT_INTERACTOR, "", &m_SelectedInteractor, 4, choises, "Select Measure Type");
 	
 	m_MeasureListBox = m_Gui->ListBox(ID_MEASURE_LIST, "", 200);
@@ -466,52 +466,16 @@ void appOpMeasure2D::ImportImage()
 	m_Output->GetTagArray()->SetTag(tag_Nature);
 }
 
+// LOAD/SAVE
 //----------------------------------------------------------------------------
 void appOpMeasure2D::Load()
 {
 	wxString tag = "";
 	albaVME *input = m_Input->GetRoot();
 
-	if (input->GetTagArray()->IsTagPresent(tag + "MeasureLineP1") &&
-		input->GetTagArray()->IsTagPresent(tag + "MeasureLineP2"))
-	{
-		double point1[3], point2[3];
-		albaTagItem *measureLineTypeTag = input->GetTagArray()->GetTag(tag + "MeasureLineType");
-		albaTagItem *measureLineP1Tag = input->GetTagArray()->GetTag(tag + "MeasureLineP1");
-		albaTagItem *measureLineP2Tag = input->GetTagArray()->GetTag(tag + "MeasureLineP2");
+	m_InteractorVector[m_CurrentInteractor]->Load(input, tag);
 
-		int nLines = measureLineP1Tag->GetNumberOfComponents() / 2;
-
-		// Reload line points
-		for (int i = 0; i < nLines; i++)
-		{
-			point1[0] = measureLineP1Tag->GetValueAsDouble(i * 2 + 0);
-			point1[1] = measureLineP1Tag->GetValueAsDouble(i * 2 + 1);
-			point1[2] = 0.0;
-
-			point2[0] = measureLineP2Tag->GetValueAsDouble(i * 2 + 0);
-			point2[1] = measureLineP2Tag->GetValueAsDouble(i * 2 + 1);
-			point2[2] = 0.0;
-
-			albaString measureType = measureLineTypeTag->GetValue(i);
-
-			if (measureType == "DISTANCE")
-			{
-				m_MeasureType = INTERACTION_TYPE::DISTANCE;
-				m_InteractorDistance->AddMeasure(point1, point2);
-				m_MeasureType = measureType;
-			}
-			if (measureType == "INDICATOR")
-			{
-				m_MeasureType = INTERACTION_TYPE::INDICATOR;
-				m_InteractorDistance->AddMeasure(point1, point2);
-				m_MeasureType = measureType;
-			}
-		}
-		m_Gui->Update();
-		m_InteractorDistance->SelectMeasure(-1);
-		GetLogicManager()->CameraUpdate();
-	}
+	UpdateMeasureList();
 }
 //----------------------------------------------------------------------------
 void appOpMeasure2D::Save()
@@ -519,44 +483,5 @@ void appOpMeasure2D::Save()
 	wxString tag = "";
 	albaVME *input = m_Input->GetRoot();
 
-	// Saving lines to image tag to restore them on operation recall
-	int nLines = m_InteractorDistance->GetMeasureCount();
-
-	albaTagItem measureLineTypeTag;
-	measureLineTypeTag.SetName(tag + "MeasureLineType");
-	measureLineTypeTag.SetNumberOfComponents(nLines);
-
-	albaTagItem measureLineP1Tag;
-	measureLineP1Tag.SetName(tag + "MeasureLineP1");
-	measureLineP1Tag.SetNumberOfComponents(nLines * 2);
-
-	albaTagItem measureLineP2Tag;
-	measureLineP2Tag.SetName(tag + "MeasureLineP2");
-	measureLineP2Tag.SetNumberOfComponents(nLines * 2);
-
-	for (int i = 0; i < nLines; i++)
-	{
-		double point1[3], point2[3];
-		m_InteractorDistance->GetMeasureLinePoints(i, point1, point2);
-
-		measureLineTypeTag.SetValue(m_MeasureType, i);
-
-		measureLineP1Tag.SetValue(point1[0], i * 2 + 0);
-		measureLineP1Tag.SetValue(point1[1], i * 2 + 1);
-		measureLineP2Tag.SetValue(point2[0], i * 2 + 0);
-		measureLineP2Tag.SetValue(point2[1], i * 2 + 1);
-	}
-
-	if (input->GetTagArray()->IsTagPresent(tag + "MeasureLineType"))
-		input->GetTagArray()->DeleteTag(tag + "MeasureLineType");
-
-	if (input->GetTagArray()->IsTagPresent(tag + "MeasureLineP1"))
-		input->GetTagArray()->DeleteTag(tag + "MeasureLine1P1");
-
-	if (input->GetTagArray()->IsTagPresent(tag + "MeasureLineP2"))
-		input->GetTagArray()->DeleteTag(tag + "MeasureLine1P2");
-
-	input->GetTagArray()->SetTag(measureLineTypeTag);
-	input->GetTagArray()->SetTag(measureLineP1Tag);
-	input->GetTagArray()->SetTag(measureLineP2Tag);
+	m_InteractorVector[m_CurrentInteractor]->Save(input, tag);
 }

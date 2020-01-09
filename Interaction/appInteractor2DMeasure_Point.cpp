@@ -16,15 +16,18 @@ PURPOSE. See the above copyright notice for more information.
 #include "appInteractor2DMeasure_Point.h"
 #include "appInteractor2DMeasure.h"
 
+#include "albaDefines.h"
+#include "albaTagArray.h"
+#include "albaVME.h"
+
 #include "vtkALBATextActorMeter.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
+#include "vtkActor2D.h"
 #include "vtkLineSource.h"
 #include "vtkPointSource.h"
-#include "albaDefines.h"
 #include "vtkPolyDataMapper2D.h"
-#include "vtkActor2D.h"
 #include "vtkProperty2D.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
 //------------------------------------------------------------------------------
 albaCxxTypeMacro(appInteractor2DMeasure_Point)
@@ -390,6 +393,7 @@ void appInteractor2DMeasure_Point::GetMeasurePoint(int index, double *point)
 		m_PointSourceVector[index]->GetCenter(point);
 	}
 }
+
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Point::FindAndHighlightCurrentPoint(double * pointCoord)
 {
@@ -424,4 +428,65 @@ void appInteractor2DMeasure_Point::FindAndHighlightCurrentPoint(double * pointCo
 			m_CurrentMeasureIndex = -1;
 		}
 	}
+}
+
+// LOAD/SAVE
+//---------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::Load(albaVME *input, wxString tag)
+{
+	if (input->GetTagArray()->IsTagPresent(tag + "MeasurePoint"))
+	{
+		double point1[3];
+		albaTagItem *measureTypeTag = input->GetTagArray()->GetTag(tag + "MeasureType");
+		albaTagItem *measurePointTag = input->GetTagArray()->GetTag(tag + "MeasurePoint");
+
+		int nPoints = measurePointTag->GetNumberOfComponents() / 2;
+
+		// Reload points
+		for (int i = 0; i < nPoints; i++)
+		{
+			point1[0] = measurePointTag->GetValueAsDouble(i * 2 + 0);
+			point1[1] = measurePointTag->GetValueAsDouble(i * 2 + 1);
+			point1[2] = 0.0;
+
+			albaString measureType = measureTypeTag->GetValue(i);
+
+			AddMeasure(point1);
+			//m_MeasureType = measureType;
+		}
+
+		//SelectMeasure(-1);
+	}
+}
+//---------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::Save(albaVME *input, wxString tag)
+{
+	int nPoints = GetMeasureCount();
+
+	albaTagItem measureTypeTag;
+	measureTypeTag.SetName(tag + "MeasureType");
+	measureTypeTag.SetNumberOfComponents(nPoints);
+
+	albaTagItem measurePointTag;
+	measurePointTag.SetName(tag + "MeasurePoint");
+	measurePointTag.SetNumberOfComponents(nPoints);
+
+	for (int i = 0; i < nPoints; i++)
+	{
+		double point1[3];
+		GetMeasurePoint(i, point1);
+
+		measureTypeTag.SetValue(GetTypeName(), i);
+		measurePointTag.SetValue(point1[0], i * 2 + 0);
+		measurePointTag.SetValue(point1[1], i * 2 + 1);
+	}
+
+	if (input->GetTagArray()->IsTagPresent(tag + "MeasureType"))
+		input->GetTagArray()->DeleteTag(tag + "MeasureType");
+
+	if (input->GetTagArray()->IsTagPresent(tag + "MeasurePoint"))
+		input->GetTagArray()->DeleteTag(tag + "MeasurePoint");
+
+	input->GetTagArray()->SetTag(measureTypeTag);
+	input->GetTagArray()->SetTag(measurePointTag);
 }
