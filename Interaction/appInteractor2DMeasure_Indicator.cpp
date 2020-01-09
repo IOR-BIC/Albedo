@@ -22,6 +22,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "vtkConeSource.h"
 #include "vtkLineSource.h"
 #include "vtkMath.h"
+#include "vtkPointSource.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkPolyDataSource.h"
 #include "vtkProperty2D.h"
@@ -126,6 +127,21 @@ void appInteractor2DMeasure_Indicator::UpdateConeActor(int index, double * point
 
 		m_EditConeActor->SetMapper(m_EditConeMapper);
 		m_EditConeActor->SetVisibility(m_ShowArrow);
+	}
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Indicator::UpdatePointActor(double * point)
+{
+	if (m_CurrentPointIndex == POINT_2)
+	{
+		double colorConeSelection[3] = { 0.1 + m_ColorSelection[0], 0.1 + m_ColorSelection[1], 0.1 + m_ColorSelection[2] };
+		m_EditConeActor->GetProperty()->SetColor(colorConeSelection[0], colorConeSelection[1], colorConeSelection[2]);
+		m_ConeActorVector[m_CurrentMeasureIndex]->GetProperty()->SetColor(colorConeSelection[0], colorConeSelection[1], colorConeSelection[2]);
+	}
+	else
+	{
+		m_EditPointSource->SetCenter(point);
+		m_EditPointSource->Update();
 	}
 }
 //----------------------------------------------------------------------------
@@ -247,7 +263,6 @@ void appInteractor2DMeasure_Indicator::EditMeasure(int index, double *point1, do
 	m_LastEditing = index;
 
 	//////////////////////////////////////////////////////////////////////////
-
 	// Update Measure
 	albaString text;
 	text.Printf("Indicator %.2f mm", DistanceBetweenPoints(point1, point2));

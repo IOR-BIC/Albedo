@@ -20,6 +20,7 @@ PURPOSE. See the above copyright notice for more information.
 // Include :
 //----------------------------------------------------------------------------
 #include "appInteractor2DMeasure.h"
+#include "appInteractor2DMeasure_Distance.h"
 
 //----------------------------------------------------------------------------
 // Forward references :
@@ -30,11 +31,11 @@ class vtkTransformPolyDataFilter;
 class vtkTransform;
 
 // Class Name: appInteractor2DMeasure_Angle
-class APP_INTERACTION_EXPORT appInteractor2DMeasure_Angle : public appInteractor2DMeasure
+class APP_INTERACTION_EXPORT appInteractor2DMeasure_Angle : public appInteractor2DMeasure_Distance
 {
 public:
 
-	albaTypeMacro(appInteractor2DMeasure_Angle, appInteractor2DMeasure);
+	albaTypeMacro(appInteractor2DMeasure_Angle, appInteractor2DMeasure_Distance);
 
 	/** Get measure line extremity points*/
 	void GetMeasureLinePoints(int index, double *point1, double *point2, double *point3, double *point4);

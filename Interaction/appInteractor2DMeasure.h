@@ -72,9 +72,9 @@ public:
 	
 	// Measures
 	/** Add Measure*/
-	virtual void AddMeasure(double *point1, double *point2);
+	virtual void AddMeasure(double *point1, double *point2 = NULL);
 	/** Edit Measure*/
-	virtual void EditMeasure(int index, double *point1, double *point2);
+	virtual void EditMeasure(int index, double *point1, double *point2 = NULL);
 	/** Delete the Measure*/
 	virtual void RemoveMeasure(int index);
 	/** Delete all Measures*/
@@ -112,6 +112,10 @@ public:
 
 	/** Enable/Disable Editing Mode */
 	void EnableEditMeasure(bool edit = true) { m_EditMeasureEnable = edit; };
+
+	void Enable();
+	void Disable();
+	bool IsEnabled() { return m_IsEnabled; };
 
 protected:
 
@@ -173,6 +177,8 @@ protected:
 	int m_TextSide;
 
 	int m_Action; // Measure Action
+
+	bool m_IsEnabled;
 
 	int m_CurrentMeasureIndex;
 	int m_MeasuresCount;

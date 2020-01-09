@@ -243,6 +243,8 @@ void appInteractor2DMeasure_Point::DisableMeasure(int index)
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Point::AddMeasure(double *point)
 {
+	point[2] = 0;
+
 	// Update Actors
 	UpdateEditActors(point);
 
@@ -288,6 +290,10 @@ void appInteractor2DMeasure_Point::EditMeasure(int index, double *point)
 	m_LastEditing = index;
 
 	//////////////////////////////////////////////////////////////////////////
+	// Update Measure
+	albaString text;
+	text.Printf("Point n. %d ", m_MeasuresCount + 1);
+	m_MeasureVector[index] = text;
 
 	// Update Actors
 	UpdateEditActors(point);

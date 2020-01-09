@@ -76,6 +76,8 @@ appInteractor2DMeasure::appInteractor2DMeasure()
 	m_EditMeasureEnable = true;
 	m_MovingMeasure = false;
 
+	m_IsEnabled = true;
+
 	m_ShowText = false;
 	m_ShowPoint = true;
 
@@ -168,6 +170,8 @@ void appInteractor2DMeasure::InitRenderer(albaEventInteraction *e)
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::OnLeftButtonDown(albaEventInteraction *e)
 {
+	if (!m_IsEnabled) return;
+
 	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
 
 	if (!m_ParallelView)
@@ -217,6 +221,8 @@ void appInteractor2DMeasure::OnLeftButtonDown(albaEventInteraction *e)
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::OnLeftButtonUp(albaEventInteraction *e)
 {
+	if (!m_IsEnabled) return;
+
 	m_DraggingLeft = false;
 	OnButtonUp(e);
 
@@ -270,6 +276,8 @@ void appInteractor2DMeasure::OnLeftButtonUp(albaEventInteraction *e)
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::OnMove(albaEventInteraction *e)
 {
+	if (!m_IsEnabled) return;
+
 	if (!m_ParallelView)
 	{
 		InitRenderer(e);
@@ -313,6 +321,8 @@ void appInteractor2DMeasure::OnMove(albaEventInteraction *e)
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::OnEvent(albaEventBase *event)
 {
+	if (!m_IsEnabled) return;
+
 	albaID ch = event->GetChannel();
 
 	if (ch == MCH_INPUT)
@@ -388,12 +398,12 @@ void appInteractor2DMeasure::DrawMeasure(double * wp)
 
 			if (m_CurrentMeasureIndex >= 0)
 			{
-				EditMeasure(m_CurrentMeasureIndex, editPoint, NULL);
+				EditMeasure(m_CurrentMeasureIndex, editPoint);
 				albaEventMacro(albaEvent(this, ID_MEASURE_CHANGED, m_Distance));
 			}
 			else
 			{
-				AddMeasure(editPoint, NULL);
+				AddMeasure(editPoint);
 				albaEventMacro(albaEvent(this, ID_MEASURE_ADDED, m_Distance));
 			}
 		}
@@ -445,7 +455,7 @@ void appInteractor2DMeasure::MoveMeasure(int index, double *pointCoord)
 		double tmpPt[3];
 		m_EditPointSource->GetCenter(tmpPt);
 
-		EditMeasure(index, tmpPt, NULL);
+		EditMeasure(index, tmpPt);
 		albaEventMacro(albaEvent(this, ID_MEASURE_CHANGED, m_Distance));
 	}
 
@@ -527,6 +537,21 @@ void appInteractor2DMeasure::DisableMeasure(int index)
 	m_TextActorVector[m_CurrentMeasureIndex]->SetOpacity(disableOpacity);
 }
 
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::Enable()
+{
+	m_IsEnabled = true;
+
+	SetOpacity(1);
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::Disable()
+{
+	m_IsEnabled = false;
+
+	SetOpacity(0.35);
+	SelectMeasure(-1);
+}
 
 // SET
 //----------------------------------------------------------------------------
@@ -656,14 +681,18 @@ void appInteractor2DMeasure::SetRendererByView(albaView * view)
 
 // MEASURE //////////////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
-void appInteractor2DMeasure::AddMeasure(double *point1, double *point2)
+void appInteractor2DMeasure::AddMeasure(double *point1, double *point2 /*= NULL*/)
 {
 	point1[2] = 0;
-	point2[2] = 0; //Not used
 
-	// Update Edit Actors
-	UpdatePointActor(point1);
-	UpdateTextActor(-1, point1);
+	// Update Actors
+	UpdateEditActors(point1);
+
+	//////////////////////////////////////////////////////////////////////////
+	// Add Measure
+	albaString text;
+	text.Printf("Measure n. %d ", m_MeasuresCount + 1);
+	m_MeasureVector.push_back(text);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Add Text
@@ -679,7 +708,7 @@ void appInteractor2DMeasure::AddMeasure(double *point1, double *point2)
 	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
 }
 //----------------------------------------------------------------------------
-void appInteractor2DMeasure::EditMeasure(int index, double *point1, double *point2)
+void appInteractor2DMeasure::EditMeasure(int index, double *point1, double *point2 /*= NULL*/)
 {
 	if (index < 0 || index >= m_MeasuresCount)
 		return;
@@ -687,16 +716,17 @@ void appInteractor2DMeasure::EditMeasure(int index, double *point1, double *poin
 	m_MovingMeasure = true;
 
 	point1[2] = 0;
-	point2[2] = 0; //Not used
 
 	m_LastEditing = index;
 
 	//////////////////////////////////////////////////////////////////////////
+	// Update Measure
+	albaString text;
+	text.Printf("Measure n. %d ", m_MeasuresCount + 1);
+	m_MeasureVector[index] = text;
 
-	// Edit Actors
-	UpdatePointActor(point1);
-	UpdateTextActor(-1, point1);
-
+	// Update Actors
+	UpdateEditActors(point1);
 	// Text
 	UpdateTextActor(index, point1);
 
@@ -760,7 +790,7 @@ albaString appInteractor2DMeasure::GetMeasure(int index)
 {
 	albaString text = "No Measure";
 
-	if (index > 0 && index < m_MeasuresCount)
+	if (index >= 0 && index < m_MeasuresCount)
 		return m_MeasureVector[index];
 
 	return "No Measure";

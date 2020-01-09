@@ -34,8 +34,8 @@ class albaVMEImage;
 class albaVMEVolumeRGB;
 class appInteractor2DMeasure_Point;
 class appInteractor2DMeasure_Distance;
-class appInteractor2DMeasure_Angle;
 class appInteractor2DMeasure_Indicator;
+class appInteractor2DMeasure_Angle;
 
 // Class Name: appOpMeasure2D
 class APP_OPERATIONS_EXPORT appOpMeasure2D: public albaOp
@@ -46,8 +46,8 @@ public:
 	{
 		POINT,
 		DISTANCE,
-/*		ANGLE,*/
 		INDICATOR,
+		ANGLE,
 	};
 
 	//Widgets ID's	
@@ -124,8 +124,8 @@ protected:
 	std::vector<appInteractor2DMeasure *> m_InteractorVector;
 	appInteractor2DMeasure_Point			*m_InteractorPoint;
 	appInteractor2DMeasure_Distance		*m_InteractorDistance;
-	appInteractor2DMeasure_Angle			*m_InteractorAngle;
 	appInteractor2DMeasure_Indicator	*m_InteractorIndicator;
+	appInteractor2DMeasure_Angle			*m_InteractorAngle;
 
 	int m_CurrentInteractor;
 	int m_SelectedInteractor;

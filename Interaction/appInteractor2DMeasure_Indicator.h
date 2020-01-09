@@ -54,6 +54,7 @@ protected:
 	
 	// RENDERING
 	void UpdateConeActor(int index, double * point1, double * point2);
+	void UpdatePointActor(double * point);
 	void UpdateEditActors(double * point1, double * point2);
 	void ShowEditActors();
 	void HideEditActors();

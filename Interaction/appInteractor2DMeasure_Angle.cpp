@@ -14,6 +14,7 @@ PURPOSE. See the above copyright notice for more information.
 =========================================================================*/
 
 #include "appInteractor2DMeasure_Angle.h"
+#include "appInteractor2DMeasure_Distance.h"
 
 #include "vtkPolyData.h"
 #include "vtkPointData.h"
@@ -37,11 +38,12 @@ PURPOSE. See the above copyright notice for more information.
 albaCxxTypeMacro(appInteractor2DMeasure_Angle)
 
 //----------------------------------------------------------------------------
-appInteractor2DMeasure_Angle::appInteractor2DMeasure_Angle() : appInteractor2DMeasure()
+appInteractor2DMeasure_Angle::appInteractor2DMeasure_Angle() : appInteractor2DMeasure_Distance()
 {
 	m_ShowText = true;
 	m_TextSide = 1;
-	m_CanEdit = false;
+	//m_CanEdit = false;
+	m_EditMeasureEnable = false;
 
 	// Angle tool
 	vtkNEW(m_EditSphereSource);
@@ -94,7 +96,8 @@ void appInteractor2DMeasure_Angle::EditMeasure(int index, double *point1, double
 	if (index < 0 || index >= m_MeasuresCount)
 		return;
 
-	m_CanEdit = true;
+	//m_CanEdit = true;
+	m_EditMeasureEnable = true;
 
 	point1[2] = point2[2] = 0;
 
@@ -105,8 +108,9 @@ void appInteractor2DMeasure_Angle::EditMeasure(int index, double *point1, double
 	int index2 = (2 * (index / 2)) + (index % 2);
 
 	// Edit Actors
-	UpdateLineActor(-1, point1, point2);
-	UpdateTextActor(-1, point1, point2);
+	UpdateEditActors(point1, point2);
+	//UpdateLineActor(-1, point1, point2); 
+	//UpdateTextActor(-1, point1, point2);
 	//UpdateConeActor(-1, point1, point2);
 
 	// Distance
@@ -139,7 +143,7 @@ void appInteractor2DMeasure_Angle::EditMeasure(int index, double *point1, double
 
 	// Line
 	UpdateLineActor(index, m_Point1, m_Point2);
-
+	
 	// Text
 	UpdateTextActor(index, m_Point1, m_Point2);
 	//UpdateTextActor(index2, point1, point2);
@@ -454,7 +458,7 @@ void appInteractor2DMeasure_Angle::CalculateAngle()
 
 	m_Angle = angle;
 
-	albaEventMacro(albaEvent(this, ID_RESULT_LINE, m_Distance));
+	//albaEventMacro(albaEvent(this, ID_RESULT_LINE, m_Distance));
 }
 
 //---------------------------------------------------------------------------

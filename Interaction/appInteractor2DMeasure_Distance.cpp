@@ -381,7 +381,6 @@ void appInteractor2DMeasure_Distance::EditMeasure(int index, double *point1, dou
 	m_LastEditing = index;
 
 	//////////////////////////////////////////////////////////////////////////
-
 	// Update Measure
 	albaString text;
 	text.Printf("Distance %.2f mm", DistanceBetweenPoints(point1, point2));
