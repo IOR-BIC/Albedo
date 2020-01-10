@@ -62,8 +62,8 @@ public:
 	/** Show/Hide Measure Line*/
 	void ShowLine(bool show);
 
-	void Load(albaVME *input, wxString tag);
-	void Save(albaVME *input, wxString tag);
+	bool Load(albaVME *input, wxString tag);
+	bool Save(albaVME *input, wxString tag);
 
 protected:
 

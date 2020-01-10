@@ -64,6 +64,7 @@ public:
 		ID_LOAD_MEASURES,
 		ID_SAVE_MEASURES,
 		ID_MEASURE,
+		ID_MEASURE_LAB,
 	};
 
   appOpMeasure2D(const wxString &label = "Interactor Sample");
@@ -116,6 +117,7 @@ protected:
 	int m_SelectedMeasure;
 
 	albaString m_Measure;
+	albaString m_MeasureLabel;
 
 	albaString m_MeasureType;
 

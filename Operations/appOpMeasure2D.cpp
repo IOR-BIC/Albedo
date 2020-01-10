@@ -60,6 +60,7 @@ albaOp(label)
 
 	m_SelectedMeasure = -1;
 	m_Measure = "";
+	m_MeasureLabel = "";
 	m_MeasureType = "";
 
   m_ImportedImage = NULL;
@@ -71,7 +72,7 @@ albaOp(label)
 	m_InteractorIndicator = NULL;
 	m_InteractorAngle = NULL;
 
-	m_SelectedInteractor = m_CurrentInteractor = INTERACTION_TYPE::INDICATOR;
+	m_SelectedInteractor = m_CurrentInteractor = INTERACTION_TYPE::POINT;
 }
 //----------------------------------------------------------------------------
 appOpMeasure2D::~appOpMeasure2D()
@@ -169,6 +170,7 @@ void appOpMeasure2D::InitInteractors()
 	m_InteractorPoint->SetListener(this);
 	m_InteractorPoint->SetColor(0.5, 0, 1);
 	m_InteractorPoint->EnableEditMeasure(true);
+	m_InteractorPoint->HidePoints();
 	m_InteractorVector.push_back(m_InteractorPoint);
 
 	// Create Interactor Distance
@@ -217,6 +219,7 @@ void appOpMeasure2D::CreateGui()
 	m_Gui->String(ID_MEASURE, "Type", &m_MeasureType);
 	m_Gui->Integer(ID_MEASURE, "Selected", &m_SelectedMeasure);
 	m_Gui->String(ID_MEASURE, "Measure", &m_Measure);
+	m_Gui->String(ID_MEASURE_LAB, "Label", &m_MeasureLabel);
 
 	m_Gui->Divider(1);
 	m_Gui->Label("Storage", true);
@@ -275,6 +278,18 @@ void appOpMeasure2D::OnEvent(albaEventBase *alba_event)
 				m_Gui->Update();
 			}
 			break;
+
+			case ID_MEASURE_LAB:
+			{
+				int nMeasures = m_InteractorVector[m_CurrentInteractor]->GetMeasureCount();
+				if (nMeasures > 0 && m_SelectedMeasure >= 0 && m_SelectedMeasure < nMeasures)
+					m_InteractorVector[m_CurrentInteractor]->SetMeasureLabel(m_SelectedMeasure, m_MeasureLabel);
+
+				m_InteractorVector[m_CurrentInteractor]->Update(m_SelectedMeasure);
+				UpdateMeasureList();
+			}
+			break;
+
 			case ID_REMOVE_MEASURE:
 			{
 				RemoveMeasure();
@@ -323,6 +338,8 @@ void appOpMeasure2D::OnEvent(albaEventBase *alba_event)
 				m_SelectedMeasure = m_InteractorVector[m_CurrentInteractor]->GetSelectedMeasureIndex();
 				m_Measure = m_InteractorVector[m_CurrentInteractor]->GetMeasure(m_SelectedMeasure);
 
+				m_MeasureLabel = m_InteractorVector[m_CurrentInteractor]->GetMeasureLabel(m_SelectedMeasure);
+
 				m_MeasureListBox->Select(m_SelectedMeasure);
 				m_Gui->Update();
 			}
@@ -360,7 +377,11 @@ void appOpMeasure2D::UpdateMeasureList()
 		if (m_InteractorVector.size() > 0)
 			for (int i = 0; i < m_InteractorVector[m_CurrentInteractor]->GetMeasureCount(); i++)
 			{
-				m_MeasureListBox->Append(_(m_InteractorVector[m_CurrentInteractor]->GetMeasure(i)));
+				wxString measure = m_InteractorVector[m_CurrentInteractor]->GetMeasureLabel(i);
+				if (measure.IsEmpty())
+					measure = m_InteractorVector[m_CurrentInteractor]->GetMeasure(i);
+
+				m_MeasureListBox->Append(_(measure));
 			}
 
 		m_Gui->Enable(ID_REMOVE_MEASURE, m_MeasureListBox->GetCount() != 0);
@@ -474,6 +495,7 @@ void appOpMeasure2D::Load()
 	albaVME *input = m_Input->GetRoot();
 
 	m_InteractorVector[m_CurrentInteractor]->Load(input, tag);
+	m_InteractorVector[m_CurrentInteractor]->Update();
 
 	UpdateMeasureList();
 }

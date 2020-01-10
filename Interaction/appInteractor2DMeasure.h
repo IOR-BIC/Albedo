@@ -72,23 +72,27 @@ public:
 	
 	// Measures
 	/** Add Measure*/
-	virtual void AddMeasure(double *point1, double *point2 = NULL);
+	virtual void AddMeasure(double *point1, double *point2 = NULL) {};
 	/** Edit Measure*/
-	virtual void EditMeasure(int index, double *point1, double *point2 = NULL);
+	virtual void EditMeasure(int index, double *point1, double *point2 = NULL) {};
 	/** Delete the Measure*/
-	virtual void RemoveMeasure(int index);
+	virtual void RemoveMeasure(int index) {};
 	/** Delete all Measures*/
 	virtual void RemoveAllMeasures();
 	/** Select a Measure*/
-	virtual void SelectMeasure(int index);
+	virtual void SelectMeasure(int index) {};
+	/** Update All*/
+	virtual void Update(int index = -1 /*Update All*/) {};
 
 	// LOAD/SAVE
-	virtual void Load(albaVME *input, wxString tag);
-	virtual void Save(albaVME *input, wxString tag);
+	virtual bool Load(albaVME *input, wxString tag);
+	virtual bool Save(albaVME *input, wxString tag);
 
 	// GET
 	/** Get Measure Value*/
 	albaString GetMeasure(int index);	
+	/** Get Measure Extra Label*/
+	albaString GetMeasureLabel(int index);
 	/** Get a string type of measure*/
 	albaString GetMeasureType() { return m_MeasureTypeText; };
 	/** Get Number of Measures*/
@@ -99,6 +103,8 @@ public:
 	int GetSelectedMeasureIndex() { return m_LastSelection; }
 	
 	// SET
+	/** Set Measure Extra Label*/
+	void SetMeasureLabel(int index, albaString text);
 	/** Set Color Default*/
 	void SetColor(double r, double g, double b);
 	/** Set Color Selection*/
@@ -138,23 +144,26 @@ protected:
 	virtual void MoveMeasure(int index, double * pointCoord);
 	
 	// RENDERING
-	virtual void UpdateTextActor(int index, double * point);
-	virtual void UpdatePointActor(double * point);
-	virtual void UpdateEditActors(double * point1, double * point2 = NULL);
-	virtual void ShowEditActors();
-	virtual void HideEditActors();
-	virtual void DisableMeasure(int index);
+	virtual void UpdatePointActor(double * point) {};
+	virtual void UpdateEditActors(double * point1, double * point2 = NULL) {};
+	virtual void UpdateTextActor(int index, double * point) {};
+
+	virtual void ShowEditActors() {};
+	virtual void HideEditActors() {};
+	virtual void DisableMeasure(int index) {};
 
 	void SetAction(int action);
 
 	// UTILS
-	virtual void FindAndHighlightCurrentPoint(double * pointCoord);
+	virtual void FindAndHighlightCurrentPoint(double * pointCoord) {};
 	double DistanceBetweenPoints(double *point1, double *point2);
 	float DistancePointToLine(double * point, double * lineP1, double * lineP2);
 	bool IsInBound(double *pos);
 	void ScreenToWorld(double screen[2], double world[3]);
 
 	std::vector<albaString> m_MeasureVector;
+	std::vector<albaString> m_MeasureLabelVector;
+	albaString m_MeasureLabel;
 	albaString m_MeasureTypeText;
 
 	albaDeviceButtonsPadMouse	*m_Mouse;

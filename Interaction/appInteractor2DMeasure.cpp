@@ -82,6 +82,8 @@ appInteractor2DMeasure::appInteractor2DMeasure()
 	m_ShowText = false;
 	m_ShowPoint = true;
 
+	m_MeasureLabel = "";
+
 	m_Action = ID_NO_ACTION;
 
 	m_AddMeasurePhase_Counter = 0;
@@ -464,81 +466,6 @@ void appInteractor2DMeasure::MoveMeasure(int index, double *pointCoord)
 }
 
 //----------------------------------------------------------------------------
-void appInteractor2DMeasure::UpdateTextActor(int index, double * point)
-{
-	albaString ds = "Text";
-	ds = wxString::Format(_("%.2f"), m_Distance);
-
-	double text_pos[3];
-	text_pos[0] = point[0];
-	text_pos[1] = point[1];
-	text_pos[2] = point[2];
-
-	text_pos[0] -= m_TextSide *TEXT_H_SHIFT;
-
-	if (index > -1)
-	{
-		m_TextActorVector[index]->SetText(ds);
-		m_TextActorVector[index]->SetTextPosition(text_pos);
-
-		if (m_LastSelection == index)
-			m_TextActorVector[index]->SetColor(m_ColorSelection[0], m_ColorSelection[1], m_ColorSelection[2]);
-		else
-			m_TextActorVector[index]->SetColor(m_ColorDefault[0], m_ColorDefault[1], m_ColorDefault[2]);
-
-		m_TextActorVector[index]->SetOpacity(m_Opacity);
-		m_TextActorVector[index]->SetVisibility(m_ShowText);
-	}
-	else
-	{
-		m_EditTextActor->SetText(ds);
-		m_EditTextActor->SetTextPosition(text_pos);
-		m_EditTextActor->SetVisibility(m_ShowText);
-	}
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::UpdatePointActor(double * point)
-{
-	m_EditPointSource->SetCenter(point);
-	m_EditPointSource->Update();
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::UpdateEditActors(double * point1, double * point2)
-{
-	// Update Edit Actors
-	UpdatePointActor(point1);
-	UpdateTextActor(-1, point1);
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::ShowEditActors()
-{
-	if (!m_ActorAdded)
-	{
-		// Add Edit Actors
-		m_Renderer->AddActor2D(m_EditPointActor);
-		m_Renderer->AddActor2D(m_EditTextActor);
-		m_ActorAdded = true;
-	}
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::HideEditActors()
-{
-	// Remove Edit Actors
-	m_Renderer->RemoveActor2D(m_EditPointActor);
-	m_Renderer->RemoveActor2D(m_EditTextActor);
-	m_ActorAdded = false;
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::DisableMeasure(int index)
-{
-	double disableOpacity = 0.3;
-
-	// Text
-	m_TextActorVector[m_CurrentMeasureIndex]->SetColor(m_ColorDisable[0], m_ColorDisable[1], m_ColorDisable[2]);
-	m_TextActorVector[m_CurrentMeasureIndex]->SetOpacity(disableOpacity);
-}
-
-//----------------------------------------------------------------------------
 void appInteractor2DMeasure::Enable()
 {
 	m_IsEnabled = true;
@@ -554,7 +481,31 @@ void appInteractor2DMeasure::Disable()
 	SelectMeasure(-1);
 }
 
+// GET
+//---------------------------------------------------------------------------
+albaString appInteractor2DMeasure::GetMeasure(int index)
+{
+	if (index >= 0 && index < m_MeasureVector.size())
+		return m_MeasureVector[index];
+
+	return "No Measure";
+}
+//---------------------------------------------------------------------------
+albaString appInteractor2DMeasure::GetMeasureLabel(int index)
+{
+	if (index >= 0 && index < m_MeasureLabelVector.size())
+		return m_MeasureLabelVector[index];
+
+	return "";
+}
+
 // SET
+//---------------------------------------------------------------------------
+void appInteractor2DMeasure::SetMeasureLabel(int index, albaString text)
+{
+	if (index >= 0 && index < m_MeasureLabelVector.size())
+		m_MeasureLabelVector[index] = text;
+}
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::SetAction(int action)
 {
@@ -681,82 +632,6 @@ void appInteractor2DMeasure::SetRendererByView(albaView * view)
 
 
 // MEASURE
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::AddMeasure(double *point1, double *point2 /*= NULL*/)
-{
-	point1[2] = 0;
-
-	// Update Actors
-	UpdateEditActors(point1);
-
-	//////////////////////////////////////////////////////////////////////////
-	// Add Measure
-	albaString text;
-	text.Printf("Measure n. %d ", m_MeasuresCount + 1);
-	m_MeasureVector.push_back(text);
-
-	//////////////////////////////////////////////////////////////////////////
-	// Add Text
-	m_TextActorVector.push_back(vtkALBATextActorMeter::New());
-	m_Renderer->AddActor2D(m_TextActorVector[m_TextActorVector.size() - 1]);
-
-	UpdateTextActor(m_TextActorVector.size() - 1, point1);
-
-	//////////////////////////////////////////////////////////////////////////
-
-	m_MeasuresCount++;
-
-	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::EditMeasure(int index, double *point1, double *point2 /*= NULL*/)
-{
-	if (index < 0 || index >= m_MeasuresCount)
-		return;
-
-	m_MovingMeasure = true;
-
-	point1[2] = 0;
-
-	m_LastEditing = index;
-
-	//////////////////////////////////////////////////////////////////////////
-	// Update Measure
-	albaString text;
-	text.Printf("Measure n. %d ", m_MeasuresCount + 1);
-	m_MeasureVector[index] = text;
-
-	// Update Actors
-	UpdateEditActors(point1);
-	// Text
-	UpdateTextActor(index, point1);
-
-	//////////////////////////////////////////////////////////////////////////
-
-	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::RemoveMeasure(int index)
-{
-	if (m_Renderer && index < m_MeasuresCount)
-	{
-		//////////////////////////////////////////////////////////////////////////
-		// Text
-		m_Renderer->RemoveActor2D(m_TextActorVector[index]);
-		vtkDEL(m_TextActorVector[index]);
-		m_TextActorVector.erase(m_TextActorVector.begin() + index);
-
-		//////////////////////////////////////////////////////////////////////////
-
-		m_Renderer->GetRenderWindow()->Render();
-
-		//m_MeasureVector.erase(m_MeasureVector.begin() + index);
-
-		m_MeasuresCount--;
-
-		albaEventMacro(albaEvent(this, CAMERA_UPDATE));
-	}
-}
 //---------------------------------------------------------------------------
 void appInteractor2DMeasure::RemoveAllMeasures()
 {
@@ -767,72 +642,9 @@ void appInteractor2DMeasure::RemoveAllMeasures()
 		RemoveMeasure(i);
 	}
 }
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::SelectMeasure(int index)
-{
-	if (m_MeasuresCount > 0)
-	{
-		if (index > 0 && index < m_MeasuresCount)
-		{
-			m_LastSelection = index;
-			m_LastEditing = -1;
-		}
 
-		if (m_Renderer)
-			m_Renderer->GetRenderWindow()->Render();
-
-		albaEventMacro(albaEvent(this, CAMERA_UPDATE));
-		albaEventMacro(albaEvent(this, ID_MEASURE_SELECTED));
-	}
-}
-
-//---------------------------------------------------------------------------
-albaString appInteractor2DMeasure::GetMeasure(int index)
-{
-	albaString text = "No Measure";
-
-	if (index >= 0 && index < m_MeasuresCount)
-		return m_MeasureVector[index];
-
-	return "No Measure";
-}
 
 //UTILS
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::FindAndHighlightCurrentPoint(double * pointCoord)
-{
-	SetAction(ID_ADD_MEASURE);
-
-	if (m_EditMeasureEnable)
-	{
-		for (int i = 0; i < m_MeasuresCount; i++)
-		{
-			double tmpPoint[3];
-
-			m_EditPointSource->GetCenter(tmpPoint);
-
-			if (DistanceBetweenPoints(pointCoord, tmpPoint) < MIN_UPDATE_DISTANCE)
-			{
-				SelectMeasure(i);
-
-				m_CurrentMeasureIndex = i;
-
-				m_Renderer->AddActor2D(m_EditPointActor);
-				UpdatePointActor(tmpPoint);
-				m_Renderer->GetRenderWindow()->Render();
-
-				SetAction(ID_MOVE_MEASURE);
-			}
-		}
-
-		if (m_CurrentMeasureIndex >= 0)
-		{
-			m_Renderer->RemoveActor2D(m_EditPointActor);
-			m_Renderer->GetRenderWindow()->Render();
-			m_CurrentMeasureIndex = -1;
-		}
-	}
-}
 //----------------------------------------------------------------------------
 double appInteractor2DMeasure::DistanceBetweenPoints(double *point1, double *point2)
 {
@@ -916,33 +728,39 @@ void appInteractor2DMeasure::ScreenToWorld(double screen[2], double world[3])
 }
 
 // LOAD/SAVE
-void appInteractor2DMeasure::Load(albaVME *input, wxString tag)
+//----------------------------------------------------------------------------
+bool appInteractor2DMeasure::Load(albaVME *input, wxString tag)
 {
-	if (input->GetTagArray()->IsTagPresent(tag + "MeasureType"))
-	{
-		albaTagItem *measureTypeTag = input->GetTagArray()->GetTag(tag + "MeasureType");
+// 	if (input->GetTagArray()->IsTagPresent(tag + "MeasureType"))
+// 	{
+// 		albaTagItem *measureTypeTag = input->GetTagArray()->GetTag(tag + "MeasureType");
+// 
+// 		int nMeasures = measureTypeTag->GetNumberOfComponents();
+// 
+// 		// Reload Measures
+// 		for (int i = 0; i < nMeasures; i++)
+// 		{
+// 			albaString measureType = measureTypeTag->GetValue(i);
+// 
+// 			if (measureType == "POINT")
+// 			{
+// 			}
+// 			else if (measureType == "DISTANCE")
+// 			{
+// 			}
+// 			else if (measureType == "INDICATOR")
+// 			{
+// 			}
+// 			else if (measureType == "ANGLE")
+// 			{
+// 			}
+// 		}
+// 	}
 
-		int nMeasures = measureTypeTag->GetNumberOfComponents();
-
-		// Reload Measures
-		for (int i = 0; i < nMeasures; i++)
-		{
-			albaString measureType = measureTypeTag->GetValue(i);
-
-			if (measureType == "POINT")
-			{
-			}
-			else if (measureType == "DISTANCE")
-			{
-			}
-			else if (measureType == "INDICATOR")
-			{
-			}
-			else if (measureType == "ANGLE")
-			{
-			}
-		}
-	}
+	return true;
 }
-void appInteractor2DMeasure::Save(albaVME *input, wxString tag)
-{}
+//----------------------------------------------------------------------------
+bool appInteractor2DMeasure::Save(albaVME *input, wxString tag)
+{
+	return true;
+}

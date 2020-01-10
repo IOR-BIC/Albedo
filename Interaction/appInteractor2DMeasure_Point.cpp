@@ -175,6 +175,28 @@ void appInteractor2DMeasure_Point::MoveMeasure(int index, double * pointCoord)
 	m_Renderer->GetRenderWindow()->Render();
 }
 
+// UPDATE
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::Update(int index /*= -1 Update All*/)
+{
+	double tmpPoint[3];
+
+	if (index >= 0 && index <m_MeasuresCount)
+	{
+		m_PointSourceVector[index]->GetCenter(tmpPoint);
+
+		UpdatePointActor(index, tmpPoint);
+		UpdateTextActor(index, tmpPoint);
+	}
+	else // Update All
+		for (int i = 0; i < m_MeasuresCount; i++)
+		{
+			m_PointSourceVector[i]->GetCenter(tmpPoint);
+
+			UpdatePointActor(i, tmpPoint);
+			UpdateTextActor(i, tmpPoint);
+		}
+}
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Point::UpdatePointActor(int index, double * point)
 {
@@ -207,7 +229,59 @@ void appInteractor2DMeasure_Point::UpdateEditActors(double * point1, double * po
 {
 	// Update Edit Actors
 	UpdatePointActor(-1, point1);
+
+	// Update Measure Label
+	albaString text;
+	text.Printf("Point (%.2f, %.2f)", point1[0], point1[1]);
+	m_MeasureLabel = text;
+
 	UpdateTextActor(-1, point1);
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::UpdateTextActor(int index, double * point)
+{
+	double text_pos[3];
+	text_pos[0] = point[0];
+	text_pos[1] = point[1];
+	text_pos[2] = point[2];
+
+	text_pos[0] -= m_TextSide *TEXT_H_SHIFT;
+
+	if (index > -1)
+	{
+		albaString text = GetMeasureLabel(index);
+
+		if (text.IsEmpty())
+			text = GetMeasure(index);
+
+		m_TextActorVector[index]->SetText(text);
+		m_TextActorVector[index]->SetTextPosition(text_pos);
+
+		if (m_LastSelection == index)
+			m_TextActorVector[index]->SetColor(m_ColorSelection[0], m_ColorSelection[1], m_ColorSelection[2]);
+		else
+			m_TextActorVector[index]->SetColor(m_ColorDefault[0], m_ColorDefault[1], m_ColorDefault[2]);
+
+		m_TextActorVector[index]->SetOpacity(m_Opacity);
+		m_TextActorVector[index]->SetVisibility(m_ShowText);
+	}
+	else
+	{
+		m_EditTextActor->SetText(m_MeasureLabel);
+		m_EditTextActor->SetTextPosition(text_pos);
+		m_EditTextActor->SetVisibility(m_ShowText);
+	}
+}
+
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::ShowPoints()
+{
+	m_ShowPoint = true;
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure_Point::HidePoints()
+{
+	m_ShowPoint = false;
 }
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Point::ShowEditActors()
@@ -254,8 +328,9 @@ void appInteractor2DMeasure_Point::AddMeasure(double *point)
 	//////////////////////////////////////////////////////////////////////////
 	// Add Measure
 	albaString text;
-	text.Printf("Point n. %d ", m_MeasuresCount + 1);
+	text.Printf("Point n. %d (%.2f, %.2f)", m_MeasuresCount + 1, point[0], point[1]);
 	m_MeasureVector.push_back(text);
+	m_MeasureLabelVector.push_back("");
 
 	//////////////////////////////////////////////////////////////////////////
 	// Add Point
@@ -295,7 +370,7 @@ void appInteractor2DMeasure_Point::EditMeasure(int index, double *point)
 	//////////////////////////////////////////////////////////////////////////
 	// Update Measure
 	albaString text;
-	text.Printf("Point n. %d ", m_MeasuresCount + 1);
+	text.Printf("Point n. %d (%.2f, %.2f)", index + 1, point[0], point[1]);
 	m_MeasureVector[index] = text;
 
 	// Update Actors
@@ -317,6 +392,7 @@ void appInteractor2DMeasure_Point::RemoveMeasure(int index)
 		//////////////////////////////////////////////////////////////////////////
 		// Measure
 		m_MeasureVector.erase(m_MeasureVector.begin() + index);
+		m_MeasureLabelVector.erase(m_MeasureLabelVector.begin() + index);
 
 		//////////////////////////////////////////////////////////////////////////
 		// Point
@@ -418,6 +494,7 @@ void appInteractor2DMeasure_Point::FindAndHighlightCurrentPoint(double * pointCo
 				m_Renderer->GetRenderWindow()->Render();
 
 				SetAction(ID_MOVE_MEASURE);
+				return;
 			}
 		}
 
@@ -432,7 +509,7 @@ void appInteractor2DMeasure_Point::FindAndHighlightCurrentPoint(double * pointCo
 
 // LOAD/SAVE
 //---------------------------------------------------------------------------
-void appInteractor2DMeasure_Point::Load(albaVME *input, wxString tag)
+bool appInteractor2DMeasure_Point::Load(albaVME *input, wxString tag)
 {
 	if (input->GetTagArray()->IsTagPresent(tag + "MeasurePoint"))
 	{
@@ -455,38 +532,49 @@ void appInteractor2DMeasure_Point::Load(albaVME *input, wxString tag)
 			//m_MeasureType = measureType;
 		}
 
+		return true;
 		//SelectMeasure(-1);
 	}
+
+	return false;
 }
 //---------------------------------------------------------------------------
-void appInteractor2DMeasure_Point::Save(albaVME *input, wxString tag)
+bool appInteractor2DMeasure_Point::Save(albaVME *input, wxString tag)
 {
+	bool result = false;
 	int nPoints = GetMeasureCount();
 
-	albaTagItem measureTypeTag;
-	measureTypeTag.SetName(tag + "MeasureType");
-	measureTypeTag.SetNumberOfComponents(nPoints);
-
-	albaTagItem measurePointTag;
-	measurePointTag.SetName(tag + "MeasurePoint");
-	measurePointTag.SetNumberOfComponents(nPoints);
-
-	for (int i = 0; i < nPoints; i++)
+	if (nPoints > 0)
 	{
-		double point1[3];
-		GetMeasurePoint(i, point1);
+		albaTagItem measureTypeTag;
+		measureTypeTag.SetName(tag + "MeasureType");
+		measureTypeTag.SetNumberOfComponents(nPoints);
 
-		measureTypeTag.SetValue(GetTypeName(), i);
-		measurePointTag.SetValue(point1[0], i * 2 + 0);
-		measurePointTag.SetValue(point1[1], i * 2 + 1);
+		albaTagItem measurePointTag;
+		measurePointTag.SetName(tag + "MeasurePoint");
+		measurePointTag.SetNumberOfComponents(nPoints);
+
+		for (int i = 0; i < nPoints; i++)
+		{
+			double point1[3];
+			GetMeasurePoint(i, point1);
+
+			measureTypeTag.SetValue(GetTypeName(), i);
+			measurePointTag.SetValue(point1[0], i * 2 + 0);
+			measurePointTag.SetValue(point1[1], i * 2 + 1);
+		}
+
+		if (input->GetTagArray()->IsTagPresent(tag + "MeasureType"))
+			input->GetTagArray()->DeleteTag(tag + "MeasureType");
+
+		if (input->GetTagArray()->IsTagPresent(tag + "MeasurePoint"))
+			input->GetTagArray()->DeleteTag(tag + "MeasurePoint");
+
+		input->GetTagArray()->SetTag(measureTypeTag);
+		input->GetTagArray()->SetTag(measurePointTag);
+
+		result = true;
 	}
 
-	if (input->GetTagArray()->IsTagPresent(tag + "MeasureType"))
-		input->GetTagArray()->DeleteTag(tag + "MeasureType");
-
-	if (input->GetTagArray()->IsTagPresent(tag + "MeasurePoint"))
-		input->GetTagArray()->DeleteTag(tag + "MeasurePoint");
-
-	input->GetTagArray()->SetTag(measureTypeTag);
-	input->GetTagArray()->SetTag(measurePointTag);
+	return result;
 }

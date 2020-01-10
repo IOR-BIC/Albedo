@@ -43,11 +43,19 @@ public:
 	/** Select a Measure*/
 	void SelectMeasure(int index);
 
+	void ShowPoints();
+	void HidePoints();
+	void ShowEditActors();
+	void HideEditActors();
+	void DisableMeasure(int index);
+
 	/** Get point coordinate*/
 	void GetMeasurePoint(int index, double *point);
 
-	void Load(albaVME *input, wxString tag);
-	void Save(albaVME *input, wxString tag);
+	void Update(int index = -1);
+
+	bool Load(albaVME *input, wxString tag);
+	bool Save(albaVME *input, wxString tag);
 
 protected:
 
@@ -61,9 +69,7 @@ protected:
 	// RENDERING
 	void UpdatePointActor(int index, double * point);
 	void UpdateEditActors(double * point1, double * point2 = NULL);
-	void ShowEditActors();
-	void HideEditActors();
-	void DisableMeasure(int index);
+	void UpdateTextActor(int index, double * point);
 
 	//UTILS
 	void FindAndHighlightCurrentPoint(double * pointCoord);
