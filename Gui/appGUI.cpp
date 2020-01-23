@@ -94,6 +94,40 @@ void appGUI::HintBox(int id, wxString label, wxString title, bool showIcon)
 }
 
 //----------------------------------------------------------------------------
+void appGUI::TaskButton(int id, wxString label, bool status)
+{
+	//wxStaticBoxSizer *boxSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, title);
+
+	//if (showIcon)
+	{
+		wxString statusText = "CHECK_ON";
+
+if(!status)	statusText = "CHECK_OFF";
+
+
+		int w_id = GetWidgetId(id);
+		wxBitmap bitmap = albaPictureFactory::GetPictureFactory()->GetBmp(statusText);
+		wxBitmapButton *bmpButton = new wxBitmapButton(this, w_id, bitmap, wxPoint(0, 0), wxSize(19, 20));
+		bmpButton->SetValidator(albaGUIValidator(this, w_id, bmpButton));
+
+		//boxSizer->Add(bmpButton);
+		//boxSizer->Add(new wxStaticText(this, NULL, " ")); // Separator
+
+
+	//boxSizer->Add(new wxStaticText(this, NULL, label));
+
+
+	wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
+	sizer->Add(bmpButton, 0);
+	sizer->Add(new wxStaticText(this, NULL, " ")); // Separator
+	sizer->Add(new wxStaticText(this, NULL, label), 0, wxALIGN_CENTRE | wxRIGHT, LM);
+
+	Add(sizer, 0, wxALL, M);
+	}
+	//Add(boxSizer);
+}
+
+//----------------------------------------------------------------------------
 void appGUI::HyperLink(int id, wxString label, wxString url)
 {
 	int w_id = GetWidgetId(id);

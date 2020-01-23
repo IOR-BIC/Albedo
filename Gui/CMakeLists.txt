@@ -19,6 +19,7 @@ PROJECT(appGui)
 SET(PROJECT_SRCS
 appGUI.cpp					appGUI.h
 appSideBar.cpp			appSideBar.h
+appTaskBar.cpp			appTaskBar.h
 appGUILabel.cpp 		appGUILabel.h
 appGUIHyperLink.cpp appGUIHyperLink.h
 appGUISeparator.cpp appGUISeparator.h

@@ -83,6 +83,9 @@ protected:
 
   bool m_OpeningMSF;
 
+	// TaskBar
+	albaAbsSideBar *m_TaskBar;
+
 	// Operations
 	albaOpImporterDicom	*m_OpImporterDicom;
 
