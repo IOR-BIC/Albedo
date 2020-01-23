@@ -44,6 +44,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "vtkObject.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "appTaskBar.h"
 
 //----------------------------------------------------------------------------
 appLogic::appLogic() : albaLogicWithManagers()
@@ -62,6 +63,9 @@ appLogic::appLogic() : albaLogicWithManagers()
 appLogic::~appLogic()
 {
 	albaDEL(m_OpImporterDicom);
+
+	// must be deleted after m_VMEManager
+	cppDEL(m_TaskBar);
 
 	delete m_SideBar;
 }
@@ -248,6 +252,8 @@ void appLogic::VmeShow(albaVME *vme, bool visibility)
 // 	}
 
 	albaLogicWithManagers::VmeShow(vme, visibility);
+
+	m_TaskBar->VmeShow(vme, visibility);
 }
 //----------------------------------------------------------------------------
 void appLogic::VmeSelect(albaVME *vme)
@@ -258,11 +264,15 @@ void appLogic::VmeSelect(albaVME *vme)
 // 	}
 
 	albaLogicWithManagers::VmeSelect(vme);
+
+	m_TaskBar->VmeSelected(vme);
 }
 //----------------------------------------------------------------------------
 void appLogic::VmeAdded(albaVME *vme)
 {
 	albaLogicWithManagers::VmeAdded(vme);
+
+	m_TaskBar->VmeAdd(vme);
 }
 
 //----------------------------------------------------------------------------
@@ -418,4 +428,6 @@ void appLogic::CreateControlPanel()
 	m_SidebarStyle = albaSideBar::DOUBLE_NOTEBOOK;
 	m_SideBar = new albaSideBar(m_Win, MENU_VIEW_SIDEBAR, this, m_SidebarStyle); //Default SideBar
 	//m_SideBar = new appSideBar(m_Win, MENU_VIEW_SIDEBAR, this); //Custom SideBar
+
+	m_TaskBar = new appTaskBar(m_Win, MENU_VIEW_TASKBAR, this); //Default TaskBar
 }

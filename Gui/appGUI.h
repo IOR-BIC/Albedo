@@ -50,6 +50,7 @@ public:
 	/* Create HintBox*/
 	void HintBox(int id, wxString label, wxString title, bool showIcon);
 
+	void TaskButton(int id, wxString label, bool status);
 	/*Create HyperLink*/
 	void HyperLink(int id, wxString label, wxString url);
 

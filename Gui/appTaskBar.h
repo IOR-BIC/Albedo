@@ -1,6 +1,6 @@
 /*=========================================================================
 Program:   Albedo
-Module:    appSideBar.h
+Module:    appTaskBar.h
 Language:  C++
 Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
@@ -13,8 +13,8 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE. See the above copyright notice for more information.
 =========================================================================*/
 
-#ifndef __appSideBar_H__
-#define __appSideBar_H__
+#ifndef __appTaskBar_H__
+#define __appTaskBar_H__
 
 //----------------------------------------------------------------------------
 // Include:
@@ -44,14 +44,27 @@ class albaView;
 class wxListCtrl;
 
 //----------------------------------------------------------------------------
-// Class Name: appSideBar
+// Class Name: appTaskBar
 //----------------------------------------------------------------------------
-class appSideBar: public albaAbsSideBar
+class appTaskBar: public albaAbsSideBar
 {
 public:
 
-	appSideBar(albaGUIMDIFrame* parent, int id, albaObserver *Listener);
-	~appSideBar(); 
+	typedef struct {
+		int id;
+		albaString description;
+		bool status;
+		int type;
+	} task;
+
+	typedef struct {
+		int id;
+		albaString description;
+		std::vector<task> tasks;
+	} taskGroup;
+
+	appTaskBar(albaGUIMDIFrame* parent, int id, albaObserver *Listener);
+	~appTaskBar(); 
 	
 	// Add a new vme into the tree
 	void VmeAdd(albaVME *vme);
@@ -97,17 +110,18 @@ public:
 
 protected:
 
-  void UpdateVmePanel();  
+	//std::vector<task> m_Tasks;
+	std::vector<taskGroup> m_TaskGroup;
+
+  void UpdateTaskPanel();  
+	albaGUI* GetTaskGui();
+	void UpdateTaskGui();
 
 	wxNotebook        *m_Notebook;
-	//wxNotebook        *m_VmeNotebook;
 	wxSplitterWindow	*m_SideSplittedPanel;
-
-  albaGUIPanelStack	*m_OpPanel;
-	albaGUIHolder			*m_ViewPropertyPanel;
-
-	albaGUIHolder  *m_VmePanel;
-  albaGUIHolder  *m_VmePipePanel;
+	
+	albaGUIHolder  *m_TaskPanel;
+	//albaGUIPanelStack	*m_OpPanel;
 
   albaVME			*m_SelectedVme;
 	albaVME			*m_OldSelectedVme;
@@ -115,6 +129,6 @@ protected:
   albaObserver *m_Listener;
 
 	albaGUI *m_AppendingGUI;
-	albaGUI *m_CurrentVmeGui;
+	albaGUI *m_CurrentTaskGui;
 };
 #endif

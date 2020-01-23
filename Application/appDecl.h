@@ -26,6 +26,7 @@ PURPOSE. See the above copyright notice for more information.
 enum APP_MAIN_EVENT_ID
 {
 	ID_SELECTED_PROSTHESIS = MED_EVT_USER_START,
+	MENU_VIEW_TASKBAR,
 };
 
 enum APP_MENU_ID
