@@ -1075,7 +1075,8 @@ void appInteractor2DSample::SetAction(int action)
 //----------------------------------------------------------------------------
 void appInteractor2DSample::FindAndHighlightCurrentPoint(double * pointCoord)
 {
-	SetAction(ID_ADD_LINE);
+	if (m_CurrentLineIndex < 0)
+		SetAction(ID_ADD_LINE);
 
 	if (m_EditMeasureEnable)
 	{

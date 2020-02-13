@@ -492,7 +492,8 @@ void appInteractor2DMeasure_Distance::GetMeasureLinePoints(int index, double *po
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Distance::FindAndHighlightCurrentPoint(double * point)
 {
-	SetAction(ID_ADD_MEASURE);
+	if (m_CurrentMeasureIndex < 0)
+		SetAction(ID_ADD_MEASURE);
 
 	if (m_EditMeasureEnable)
 	{

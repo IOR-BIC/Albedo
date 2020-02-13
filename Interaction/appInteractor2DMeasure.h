@@ -160,6 +160,7 @@ protected:
 	float DistancePointToLine(double * point, double * lineP1, double * lineP2);
 	bool IsInBound(double *pos);
 	void ScreenToWorld(double screen[2], double world[3]);
+	void WorldToScreen(double world[3], double screen[2]);
 
 	std::vector<albaString> m_MeasureVector;
 	std::vector<albaString> m_MeasureLabelVector;

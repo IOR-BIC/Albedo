@@ -727,6 +727,19 @@ void appInteractor2DMeasure::ScreenToWorld(double screen[2], double world[3])
 	world[2] = 0;
 }
 
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::WorldToScreen(double world[3], double screen[2])
+{
+	double scr[3];
+
+	m_Renderer->SetWorldPoint(world);
+	m_Renderer->WorldToDisplay();
+	m_Renderer->GetDisplayPoint(scr);
+
+	screen[0] = scr[0];
+	screen[1] = scr[1];
+}
+
 // LOAD/SAVE
 //----------------------------------------------------------------------------
 bool appInteractor2DMeasure::Load(albaVME *input, wxString tag)

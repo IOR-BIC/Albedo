@@ -28,6 +28,7 @@ appOpShowDialog.cpp								appOpShowDialog.h
 appOpShowImage.cpp								appOpShowImage.h
 appOpCursorTest.cpp								appOpCursorTest.h
 appOpMeasure2D.cpp								appOpMeasure2D.h
+appOpAddComment.cpp								appOpAddComment.h
 )
 
 SET(PROJECT_LIBS ${PROJECT_LIBS})

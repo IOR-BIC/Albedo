@@ -25,6 +25,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "Albedo.h"
 #include "appDecl.h"
 
+#include "appOpAddComment.h"
 #include "appOpCreateSurfaceParametric.h"
 #include "appOpEmpty.h"
 #include "appOpGuiSample.h"
@@ -142,6 +143,9 @@ bool Albedo::OnInit()
 	// Empty Operation
 	m_Logic->Plug(new appOpEmpty("Op Empty"));
 
+	// Test Comment Operation
+	m_Logic->Plug(new appOpAddComment("Add Comment (Prototype)"));
+
 	// Create Empty VME Operation
 	m_Logic->Plug(new appOpCreateEmptyVME("Create Empty VME"), _("Create"));
 
@@ -173,7 +177,7 @@ bool Albedo::OnInit()
 	m_Logic->Plug(new appOpCursorTest("Cursor Test"), _("Test"));
 
 	// Test Interactor Operation
-	m_Logic->Plug(new appOpMeasure2D("Measure 2D"));
+	m_Logic->Plug(new appOpMeasure2D("Measure 2D (Prototype)"));
 
 	//////////////////////////////////////////////////////////////////////////
 	//Views

@@ -473,7 +473,8 @@ void appInteractor2DMeasure_Point::GetMeasurePoint(int index, double *point)
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Point::FindAndHighlightCurrentPoint(double * pointCoord)
 {
-	SetAction(ID_ADD_MEASURE);
+	if (m_CurrentMeasureIndex < 0)
+		SetAction(ID_ADD_MEASURE);
 
 	if (m_EditMeasureEnable)
 	{

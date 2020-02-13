@@ -840,8 +840,3 @@ albaString appOpDictionary::GetElementAttribute(XERCES_CPP_NAMESPACE_QUALIFIER D
 
 	return albaXMLString(((XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *)node)->getAttribute(albaXMLString(attributeName)));
 }
-
-
-
-
-
