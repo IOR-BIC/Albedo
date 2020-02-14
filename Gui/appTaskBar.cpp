@@ -40,6 +40,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "albaView.h"
 #include "albaViewVTK.h"
 #include "appGUI.h"
+#include "albaTagArray.h"
 
 //----------------------------------------------------------------------------
 appTaskBar::appTaskBar(albaGUIMDIFrame* parent, int id, albaObserver *Listener)
@@ -94,7 +95,7 @@ appTaskBar::appTaskBar(albaGUIMDIFrame* parent, int id, albaObserver *Listener)
 	m_TaskGroup.push_back({ 3, "Group 3", t3 });
 
 	std::vector<task> t4;
-	t4.push_back({ 1, "Save", true, 1 });
+	t4.push_back({ 1, "Save", true, 1, MENU_FILE_SAVE });
 
 	m_TaskGroup.push_back({ 4, "Group 4", t4 });
 	}
@@ -235,7 +236,32 @@ albaGUI* appTaskBar::GetTaskGui()
 
 	appGUI	*task_gui = NULL;
 
-	task_gui = new appGUI(NULL);
+	task_gui = new appGUI(m_Listener);
+
+	// Vme Selected
+	if (m_SelectedVme)
+	{
+		albaString text = "Vme Selected: ";
+		text += m_SelectedVme->GetName();
+		task_gui->Label(text);
+		task_gui->Button(OP_DELETE, "Delete");
+	}
+
+	// Has Comments
+	if (m_SelectedVme && m_SelectedVme->GetTagArray()->IsTagPresent("Comment_info"))
+	{
+		albaTagItem *measureTag = m_SelectedVme->GetTagArray()->GetTag("Comment_info");
+
+		int nComponents = measureTag->GetNumberOfComponents();
+		if (nComponents > 0)
+		{
+			task_gui->Divider(1);
+			task_gui->Label("Comments", true);
+			wxString text = wxString::Format("%d Comment%s", nComponents, nComponents > 1 ? "s" : "");
+			task_gui->Button2(ID_ADD_COMMENT, text, "Show / Edit", "", 0.4);
+		}
+	}
+
 
 	int currentGroup = -1;
 
@@ -258,7 +284,7 @@ albaGUI* appTaskBar::GetTaskGui()
 				break;
 
 			case 1:
-				task_gui->Button(NULL, m_TaskGroup[i].tasks[j].description.GetCStr());
+				task_gui->Button(m_TaskGroup[i].tasks[j].extra, m_TaskGroup[i].tasks[j].description.GetCStr()); // Save
 				break;
 
 			default:

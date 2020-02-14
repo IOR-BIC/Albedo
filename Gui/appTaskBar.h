@@ -55,6 +55,7 @@ public:
 		albaString description;
 		bool status;
 		int type;
+		int extra;
 	} task;
 
 	typedef struct {

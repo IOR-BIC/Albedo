@@ -54,10 +54,13 @@ public:
 
 	enum MEASURE_INTERACTIONS
 	{
-		ID_MEASURE_ADDED = MINID,
+		ID_MEASURE_STARTED = MINID,
+		ID_MEASURE_FINISHED,
+		ID_MEASURE_ADDED,
 		ID_MEASURE_CHANGED,
 		ID_MEASURE_MOVED,
 		ID_MEASURE_SELECTED,
+		ID_MEASURE_RCLICK,
 	};
 
 	enum MEASURE_ACTIONS
@@ -84,11 +87,11 @@ public:
 	/** Update All*/
 	virtual void Update(int index = -1 /*Update All*/) {};
 
-	// LOAD/SAVE
+	/// LOAD/SAVE
 	virtual bool Load(albaVME *input, wxString tag);
 	virtual bool Save(albaVME *input, wxString tag);
 
-	// GET
+	/// GET
 	/** Get Measure Value*/
 	albaString GetMeasure(int index);	
 	/** Get Measure Extra Label*/
@@ -102,7 +105,7 @@ public:
 	/** Returns the Current Measure Selected index*/
 	int GetSelectedMeasureIndex() { return m_LastSelection; }
 	
-	// SET
+	/// SET
 	/** Set Measure Extra Label*/
 	void SetMeasureLabel(int index, albaString text);
 	/** Set Color Default*/
@@ -113,14 +116,14 @@ public:
 	void SetColorDisable(double r, double g, double b);
 	/** Set Measure Opacity*/
 	void SetOpacity(double opacity);
-	/*Set Side of the Text Label*/
+	/** Set Side of the Text Label*/
 	void SetTextSide(int side);
 	/** Show/Hide Text Labels*/
 	void ShowText(bool show);
-	/*Set Renderer by View needed*/
+	/** Set Renderer by View needed*/
 	void SetRendererByView(albaView * view);
 
-	/** Enable/Disable Editing Mode */
+	/*Enable/Disable Editing Mode*/
 	void EnableEditMeasure(bool edit = true) { m_EditMeasureEnable = edit; };
 
 	void Enable();
@@ -137,15 +140,16 @@ protected:
 	// Mouse Events
 	virtual void OnLeftButtonDown(albaEventInteraction *e);
 	virtual void OnLeftButtonUp(albaEventInteraction *e);
+	virtual void OnRightButtonUp(albaEventInteraction *e);
 	virtual void OnMove(albaEventInteraction *e);
 		
 	// Draw Measure
-	virtual void DrawMeasure(double * wp);
-	virtual void MoveMeasure(int index, double * pointCoord);
+	virtual void DrawMeasure(double * wp) {};
+	virtual void MoveMeasure(int index, double * pointCoord) {};
 	
-	// RENDERING
-	virtual void UpdatePointActor(double * point) {};
+	/// RENDERING
 	virtual void UpdateEditActors(double * point1, double * point2 = NULL) {};
+	virtual void UpdatePointActor(double * point) {};
 	virtual void UpdateTextActor(int index, double * point) {};
 
 	virtual void ShowEditActors() {};
@@ -154,7 +158,7 @@ protected:
 
 	void SetAction(int action);
 
-	// UTILS
+	/// UTILS
 	virtual void FindAndHighlightCurrentPoint(double * pointCoord) {};
 	double DistanceBetweenPoints(double *point1, double *point2);
 	float DistancePointToLine(double * point, double * lineP1, double * lineP2);
@@ -170,7 +174,6 @@ protected:
 	albaDeviceButtonsPadMouse	*m_Mouse;
 	vtkRenderer								*m_Renderer;
 	albaView									*m_View;
-
 	vtkCoordinate							*m_Coordinate;
 
 	// Text Vector
@@ -208,6 +211,7 @@ protected:
 	
 	bool m_EndMeasure;
 	bool m_ParallelView;
+	double m_ParallelScale_OnStart;
 
 	long m_AddMeasurePhase_Counter;
 	bool m_ActorAdded;

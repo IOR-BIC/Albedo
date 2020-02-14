@@ -52,6 +52,7 @@ appInteractor2DMeasure_Point::~appInteractor2DMeasure_Point()
 	m_Renderer->RemoveActor2D(m_EditPointActor);
 
 	// Edit Actor
+	vtkDEL(m_EditTextActor);
 	vtkDEL(m_EditPointSource);
 	vtkDEL(m_EditPointMapper);
 	vtkDEL(m_EditPointActor);
@@ -64,15 +65,13 @@ appInteractor2DMeasure_Point::~appInteractor2DMeasure_Point()
 		vtkDEL(m_PointMapperVector[i]);
 		vtkDEL(m_PointSourceVector[i]);
 	}
-
-	m_Renderer->GetRenderWindow()->Render();
-
+		
 	m_PointSourceVector.clear();
 	m_PointMapperVector.clear();
 	m_PointActorVector.clear();
 }
 
-// RENDERING
+/// RENDERING ////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Point::DrawMeasure(double * wp)
 {
@@ -175,7 +174,7 @@ void appInteractor2DMeasure_Point::MoveMeasure(int index, double * pointCoord)
 	m_Renderer->GetRenderWindow()->Render();
 }
 
-// UPDATE
+/// UPDATE ///////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Point::Update(int index /*= -1 Update All*/)
 {
@@ -316,7 +315,7 @@ void appInteractor2DMeasure_Point::DisableMeasure(int index)
 	m_TextActorVector[m_CurrentMeasureIndex]->SetOpacity(disableOpacity);
 }
 
-// MEASURE
+/// MEASURE //////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Point::AddMeasure(double *point)
 {
@@ -459,7 +458,7 @@ void appInteractor2DMeasure_Point::SelectMeasure(int index)
 	}
 }
 
-// UTILS
+/// UTILS ///////////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------------
 void appInteractor2DMeasure_Point::GetMeasurePoint(int index, double *point)
 {
@@ -508,7 +507,7 @@ void appInteractor2DMeasure_Point::FindAndHighlightCurrentPoint(double * pointCo
 	}
 }
 
-// LOAD/SAVE
+/// LOAD/SAVE ///////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------------
 bool appInteractor2DMeasure_Point::Load(albaVME *input, wxString tag)
 {

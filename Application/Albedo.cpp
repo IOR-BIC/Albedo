@@ -262,6 +262,8 @@ void Albedo::InitializeIcons()
 	albaADDPIC(SHOW_RULER_ICON);
 #include "pic/HIDE_RULER_ICON.xpm"
 	albaADDPIC(HIDE_RULER_ICON);
+#include "pic/COMMENT_ICON.xpm"
+	albaADDPIC(COMMENT_ICON);
 }
 
 //--------------------------------------------------------------------------------

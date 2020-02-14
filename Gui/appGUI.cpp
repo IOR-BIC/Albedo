@@ -26,6 +26,7 @@ PURPOSE. See the above copyright notice for more information.
 
 #include "albaPics.h"
 #include "albaVME.h"
+#include "albaGUIButton.h"
 
 enum APP_GUI_ID
 {
@@ -91,6 +92,30 @@ void appGUI::HintBox(int id, wxString label, wxString title, bool showIcon)
 	boxSizer->Add(new wxStaticText(this, NULL, label));
 
 	Add(boxSizer);
+}
+
+//----------------------------------------------------------------------------
+void appGUI::Button2(int id, albaString label, albaString button_text, albaString tooltip, double labelW)
+{
+	int myLW = ((double)(LW + DW) * labelW);
+
+	int w_id = GetWidgetId(id);
+	wxStaticText *lab = new wxStaticText(this, w_id, label.GetCStr(), dp, wxSize(myLW, LH), wxALIGN_RIGHT/* | wxST_NO_AUTORESIZE*/);
+	lab->SetFont(m_Font);
+	if (m_UseBackgroundColor)
+		lab->SetBackgroundColour(m_BackgroundColor);
+
+	w_id = GetWidgetId(id);
+	albaGUIButton *butt = new albaGUIButton(this, w_id, button_text.GetCStr(), dp, wxSize((LW + DW) - myLW, BH), wxST_NO_AUTORESIZE);
+	butt->SetValidator(albaGUIValidator(this, w_id, butt));
+	butt->SetFont(m_Font);
+	if (!tooltip.IsEmpty())
+		butt->SetToolTip(tooltip.GetCStr());
+
+	wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
+	sizer->Add(lab, 0, wxALIGN_CENTRE | wxRIGHT, LM);
+	sizer->Add(butt, 0);
+	Add(sizer, 0, wxALL, M);
 }
 
 //----------------------------------------------------------------------------

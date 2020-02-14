@@ -71,7 +71,7 @@ protected:
 		albaString Author;
 		albaString DateTime;
 		double Position[2];
-
+		double Opacity;
 		int Width;
 		int Height;
 		bool isVisible;
@@ -103,8 +103,7 @@ protected:
 	std::vector<vtkPolyData *>					m_RectPolyDataVector;
 	std::vector<vtkPolyDataMapper2D *>	m_RectPointMapperVector;
 	std::vector<vtkActor2D *>						m_RectActorVector;
-	
-	double m_OriginalScale;
+
 	double m_TextColor[3];
 	double m_RectColor[3];
 

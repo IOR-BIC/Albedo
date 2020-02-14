@@ -142,6 +142,13 @@ void appLogic::OnEvent(albaEventBase *alba_event)
 		}
 		break;
 
+		case ID_ADD_COMMENT:
+		{
+			albaString op = "appOpAddComment";
+			m_OpManager->OpRun(op);
+		}
+		break;
+
 // 		case ID_IMPORTER_DICOM:
 // 		case ID_ADD_VME:
 // 		{
@@ -279,6 +286,12 @@ void appLogic::VmeAdded(albaVME *vme)
 void appLogic::CreateMenu()
 {
 	// Include Icons
+#include "pic/menu/EDIT_COPY.xpm"
+#include "pic/menu/EDIT_CUT.xpm"
+#include "pic/menu/EDIT_DELETE.xpm"
+#include "pic/menu/EDIT_PASTE.xpm"
+#include "pic/menu/EDIT_REPARENT.xpm"
+#include "pic/menu/EDIT_FIND.xpm"
 #include "pic/menu/EDIT_REDO.xpm"
 #include "pic/menu/EDIT_SETTINGS.xpm"
 #include "pic/menu/EDIT_UNDO.xpm"
@@ -331,7 +344,16 @@ void appLogic::CreateMenu()
 	wxMenu *edit_menu = new wxMenu;
 	albaGUI::AddMenuItem(edit_menu, OP_UNDO, _("Undo  \tCtrl+Z"), EDIT_UNDO_xpm);
 	albaGUI::AddMenuItem(edit_menu, OP_REDO, _("Redo  \tCtrl+Shift+Z"), EDIT_REDO_xpm);
+
 	edit_menu->AppendSeparator();
+	albaGUI::AddMenuItem(edit_menu, OP_CUT, _("Cut   \tCtrl+Shift+X"), EDIT_CUT_xpm);
+	albaGUI::AddMenuItem(edit_menu, OP_COPY, _("Copy  \tCtrl+Shift+C"), EDIT_COPY_xpm);
+	albaGUI::AddMenuItem(edit_menu, OP_PASTE, _("Paste \tCtrl+Shift+V"), EDIT_PASTE_xpm);
+	albaGUI::AddMenuItem(edit_menu, OP_DELETE, _("Delete  \tCtrl+Shift+Del"), EDIT_DELETE_xpm);
+
+	edit_menu->AppendSeparator();
+	albaGUI::AddMenuItem(edit_menu, OP_REPARENT, _("Reparent to... \tCtrl+Shift+R"), EDIT_REPARENT_xpm);
+	albaGUI::AddMenuItem(edit_menu, MENU_EDIT_FIND_VME, _("Find VME \tCtrl+Shift+F"), EDIT_FIND_xpm);
 
 	albaGUI::AddMenuItem(edit_menu, ID_APP_SETTINGS, _("Settings..."), EDIT_SETTINGS_xpm);
 	m_MenuBar->Append(edit_menu, _("&Edit"));
@@ -401,6 +423,8 @@ void appLogic::CreateToolbar()
 		m_ToolBar->AddTool(MENU_FILE_SNAPSHOT, albaPictureFactory::GetPictureFactory()->GetBmp("CAMERA"), _("Create Snapshot"));
 		m_ToolBar->AddTool(MENU_FILE_MANAGE_SNAPSHOT, albaPictureFactory::GetPictureFactory()->GetBmp("IMAGE_PREVIEW"), _("Manage Snapshots"));
 	}
+
+	m_ToolBar->AddTool(ID_ADD_COMMENT, albaPictureFactory::GetPictureFactory()->GetBmp("COMMENT_ICON"), _("Comment"));
 
 	//m_ToolBar->EnableTool(OP_IMPORTER_DICOM, true);
 }

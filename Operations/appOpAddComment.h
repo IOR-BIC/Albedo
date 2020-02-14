@@ -47,7 +47,8 @@ public:
 		wxString Name;
 		wxString Comment;
 		wxString Author;
-		wxString DateTime;
+		wxString DateTime_Modify;
+		wxString DateTime_Creation;
 		double Position[2];
 
 	} CommentInfo;
@@ -61,8 +62,6 @@ public:
 		ID_SELECT_ELEMENT,
 		ID_EDIT_ELEMENT,
 		ID_SHOW_ELEMENT,
-		ID_MOVE_UP_ELEMENT,
-		ID_MOVE_DOWN_ELEMENT,
 		ID_LOAD_COMMENTS,
 		ID_SAVE_COMMENTS,
 		ID_SHOW_DIALOG,
@@ -97,9 +96,11 @@ public:
 	void Onevent_FromInteractor(albaEventBase * alba_event);
 
 	void OnEvent_FromGui(albaEventBase *alba_event);
-
-
+	
 	void EnableOp(bool enable) { m_Enabled = enable; };
+
+	/** Return an xpm-icon that can be used to represent this operation */
+	virtual char ** GetIcon();
 
 protected:
 
@@ -111,16 +112,13 @@ protected:
 	void UpdateGui();
 	void EnableDisableGui();
 	
-	/// Elemets
+	/// Elements
 	void SelectElement(int selection, bool updateInteractor = true);
 	void NewElement();
 	void AddElement(CommentData info);
 	void DeleteElement();
 	void EditElement();
 	void ShowHideElement();
-
-	void MoveUpElement();
-	void MoveDownElement();
 
 	int ImportImage(); // For Testing
 
@@ -139,6 +137,7 @@ protected:
 	wxTextCtrl *m_Name_textCtrl;
 	wxTextCtrl *m_Comment_textCtrl;
 	wxTextCtrl *m_Author_textCtrl;
+	wxStaticText *m_Date_text;
 
 	bool m_Enabled;
 
@@ -149,13 +148,13 @@ protected:
 	std::vector<CommentData> m_CommentsVect;
 
 	int m_Selected;
-	CommentData m_SelectedElement;
 
 	wxString m_NameToEdit;
 	wxString m_CommentToEdit;
 	wxString m_AuthorToEdit;
 	wxString m_DateToEdit;
-	int m_ShowElem;
+	wxString m_CrationDate;
+	int m_ShowElement;
 
 	wxString m_Current_Author; // Check Author Name from settings
 };

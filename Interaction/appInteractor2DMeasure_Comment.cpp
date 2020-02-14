@@ -33,12 +33,13 @@ PURPOSE. See the above copyright notice for more information.
 #include "vtkTextActor.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include <iterator>
 
-#define BOX_WIDTH 240
+#define BOX_WIDTH 155
 #define BOX_HEIGHT 100
 #define TEXT_MARGIN 5
 #define MAX_LINES 8
-#define MAX_CHARS_IN_LINE 48
+#define MAX_CHARS_IN_LINE 30
 
 //------------------------------------------------------------------------------
 albaCxxTypeMacro(appInteractor2DMeasure_Comment)
@@ -56,8 +57,6 @@ appInteractor2DMeasure_Comment::appInteractor2DMeasure_Comment() : appInteractor
 	SetColorSelection(250, 200, 200); // Selection
 	SetTextColor(0, 0, 0); // Text Comment and Info
 	SetRectColor(1, 1, 0.5); // Box Color
-
-	m_OriginalScale = -1;
 }
 //----------------------------------------------------------------------------
 appInteractor2DMeasure_Comment::~appInteractor2DMeasure_Comment()
@@ -80,9 +79,7 @@ appInteractor2DMeasure_Comment::~appInteractor2DMeasure_Comment()
 		vtkDEL(m_RectCellArrayVector[i]);
 		vtkDEL(m_RectPointMapperVector[i]);
 	}
-
-	m_Renderer->GetRenderWindow()->Render();
-
+	
 	m_CommentsVect.clear();
 
 	m_TextCommentActorVector.clear();
@@ -107,32 +104,31 @@ void appInteractor2DMeasure_Comment::SelectMeasure(int index)
 {
 	Superclass::SelectMeasure(index);
 
-// 	for (int i = 0; i < m_CommentsVect.size(); i++)
-// 	{
-// 		m_CommentsVect[i].isVisible = false;
-// 		UpdateTextActor(i, m_CommentsVect[i].Position);
-// 	}
-// 
-// 	if (index > -1 && index < m_CommentsVect.size())
-// 	{
-// 		m_CommentsVect[index].isVisible = true;
-// 		UpdateTextActor(index, m_CommentsVect[index].Position);
-// 	}
+	for (int i = 0; i < m_CommentsVect.size(); i++)
+	{
+		//m_CommentsVect[i].isVisible = false;
+		m_CommentsVect[i].Opacity = 0.5;
+		UpdateTextActor(i, m_CommentsVect[i].Position);
+	}
+
+	if (index > -1 && index < m_CommentsVect.size())
+	{
+		m_CommentsVect[index].Opacity = 1;
+		UpdateTextActor(index, m_CommentsVect[index].Position);
+	}
 }
 
 /// COMMENTS
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Comment::AddComment(albaString name, albaString comment /*= ""*/, albaString author /*= ""*/, albaString date /*= ""*/, double *point /*= NULL*/)
 {
-	if (m_OriginalScale == -1)
-		m_OriginalScale = m_Renderer->GetActiveCamera()->GetParallelScale();
-
 	// New Comment
 	CommentData newComment;
 	newComment.Name = name;
 	newComment.Comment = comment;
 	newComment.Author = author;
 	newComment.DateTime = date;
+	newComment.Opacity = 1;
 	newComment.Width = BOX_WIDTH;
 	newComment.Height = BOX_HEIGHT;
 	newComment.isVisible = true;
@@ -327,7 +323,7 @@ void appInteractor2DMeasure_Comment::UpdateTextActor(int index, double *point)
 	{
 		if (m_CommentsVect[index].isVisible)
 		{
-			double scale = m_OriginalScale / m_Renderer->GetActiveCamera()->GetParallelScale();
+			double scale = m_ParallelScale_OnStart / m_Renderer->GetActiveCamera()->GetParallelScale();
 			double margin = TEXT_MARGIN / scale;
 
 			// Text /////////////////////////////////////////////
@@ -348,50 +344,46 @@ void appInteractor2DMeasure_Comment::UpdateTextActor(int index, double *point)
 			m_TextActorVector[index]->Modified();
 
 			// Comment ///////////////////////////////////////////
-			albaString comment = m_CommentsVect[index].Comment;
 			wxString aux_txt = "";
 			int chars_in_line = 0;
 			int comment_lines = 1;
 
-			for (int i = 0; i < comment.GetSize(); i++)
+			// Split comment to words
+			std::istringstream iss(m_CommentsVect[index].Comment.GetCStr());
+			std::vector<std::string> results((std::istream_iterator<std::string>(iss)),
+				std::istream_iterator<std::string>());
+
+			for (int i=0; i<results.size(); i++)
 			{
-				char c = comment[i];
+				wxString word(results[i].c_str());
 
-				if (c == '\n')
+				if (chars_in_line + word.Length() + 1 < MAX_CHARS_IN_LINE)
 				{
-					comment_lines++;
+					aux_txt += word + " ";
+					chars_in_line += word.Length() + 1;
+				}
+				else
+				{
 					if (comment_lines >= MAX_LINES)
+					{
+						if (i < results.size())
+							aux_txt += "...";
+
+						comment_lines = MAX_LINES;
 						break;
+					}
+					else
+					{
+						aux_txt += "\n" + word + " ";
+						chars_in_line = word.Length() + 1;
+						comment_lines++;
+					}
 				}
-
-				aux_txt += comment[i];
-				chars_in_line++;
-				
-				if (chars_in_line == MAX_CHARS_IN_LINE && c != ' ')
-				{
-					aux_txt += "-\n";
-					chars_in_line = 0;
-					comment_lines++;
-				}
-
-				if (chars_in_line >= MAX_CHARS_IN_LINE) // Space or special char
-				{
-					aux_txt += "\n";
-					chars_in_line = 0;
-					comment_lines++;
-				}
-
-				if (i > (MAX_CHARS_IN_LINE * MAX_LINES) - 4) // Truncate text
-				{
-					aux_txt += "...";
-					break;
-				}	
 			}
 
-			comment = aux_txt;
 			text_pos[1] = point[1] + margin;
 
-			m_TextCommentActorVector[index]->SetText(comment);
+			m_TextCommentActorVector[index]->SetText(aux_txt);
 			m_TextCommentActorVector[index]->SetTextPosition(text_pos);
 			m_TextCommentActorVector[index]->Modified();
 
@@ -432,10 +424,10 @@ void appInteractor2DMeasure_Comment::UpdateTextActor(int index, double *point)
 			m_TextInfoActorVector[index]->SetColor(m_TextColor[0], m_TextColor[1], m_TextColor[2]);
 
 			// Update Opacity
-			m_TextActorVector[index]->SetOpacity(m_Opacity);
-			m_TextCommentActorVector[index]->SetOpacity(m_Opacity);
-			m_TextInfoActorVector[index]->SetOpacity(m_Opacity);
-			m_RectActorVector[index]->GetProperty()->SetOpacity(m_Opacity);
+			m_TextActorVector[index]->SetOpacity(m_CommentsVect[index].Opacity);
+			m_TextCommentActorVector[index]->SetOpacity(m_CommentsVect[index].Opacity);
+			m_TextInfoActorVector[index]->SetOpacity(m_CommentsVect[index].Opacity);
+			m_RectActorVector[index]->GetProperty()->SetOpacity(m_CommentsVect[index].Opacity);
 		}
 
 		// Update Visibility
