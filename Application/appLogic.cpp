@@ -27,7 +27,6 @@ PURPOSE. See the above copyright notice for more information.
 #include "albaGUIAboutDialog.h"
 #include "albaGUIApplicationSettings.h"
 #include "albaLogicWithManagers.h"
-#include "albaOpImporterDicom.h"
 #include "albaOpManager.h"
 #include "albaSnapshotManager.h"
 #include "albaVME.h"
@@ -36,6 +35,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "albaVMEVolumeGray.h"
 #include "albaView.h"
 #include "albaViewManager.h"
+#include "albaOp.h"
 
 #ifdef USE_WIZARD
 #include "albaWizardManager.h"
@@ -51,21 +51,20 @@ appLogic::appLogic() : albaLogicWithManagers()
 {
 	m_OpeningMSF = false;
 
-	// Init Operations to plug in Toolbar 
-	m_OpImporterDicom = new albaOpImporterDicom("DICOM", true);
+	m_TaskBar = NULL;
 
 	m_Win->Maximize();
 
 	// Set project file extension
-	m_Extension = "alb";
+	//m_Extension = "alb";
 }
 //----------------------------------------------------------------------------
 appLogic::~appLogic()
 {
-	albaDEL(m_OpImporterDicom);
-
 	// must be deleted after m_VMEManager
-	cppDEL(m_TaskBar);
+
+	if (m_TaskBar)
+		cppDEL(m_TaskBar);
 
 	delete m_SideBar;
 }
@@ -135,22 +134,31 @@ void appLogic::OnEvent(albaEventBase *alba_event)
 		break;
 
 		// Operations Events 
-		case OP_IMPORTER_DICOM:
-		{
-			albaString op = "albaOpImporterDicom";
-			m_OpManager->OpRun(op);
-		}
-		break;
+// 		case OP_IMPORTER_DICOM:
+// 		{
+// 			albaString op = "albaOpImporterDicom";
+// 			m_OpManager->OpRun(op);
+// 		}
+// 		break;
 
-		case ID_ADD_COMMENT:
+		case ID_OP_ADD_COMMENT:
 		{
 			albaString op = "appOpAddComment";
 			m_OpManager->OpRun(op);
 		}
 		break;
 
+		case ID_OP_ADD_MEASURE:
+		{
+			albaString op = "appOpMeasure2D";
+			m_OpManager->OpRun(op);
+		}
+		break;
+
 // 		case ID_IMPORTER_DICOM:
 // 		case ID_ADD_VME:
+//		case ID_ADD_MEASURE:
+//		case ID_ADD_COMMENT:
 // 		{
 // 			m_OpManager->OpRun(e->GetId() - MENU_VIEW_USER_FIRST + OP_USER);
 // 		}
@@ -260,7 +268,8 @@ void appLogic::VmeShow(albaVME *vme, bool visibility)
 
 	albaLogicWithManagers::VmeShow(vme, visibility);
 
-	m_TaskBar->VmeShow(vme, visibility);
+	if (m_TaskBar)
+		m_TaskBar->VmeShow(vme, visibility);
 }
 //----------------------------------------------------------------------------
 void appLogic::VmeSelect(albaVME *vme)
@@ -272,14 +281,16 @@ void appLogic::VmeSelect(albaVME *vme)
 
 	albaLogicWithManagers::VmeSelect(vme);
 
-	m_TaskBar->VmeSelected(vme);
+	if (m_TaskBar)
+		m_TaskBar->VmeSelected(vme);
 }
 //----------------------------------------------------------------------------
 void appLogic::VmeAdded(albaVME *vme)
 {
 	albaLogicWithManagers::VmeAdded(vme);
 
-	m_TaskBar->VmeAdd(vme);
+	if (m_TaskBar)
+		m_TaskBar->VmeAdd(vme);
 }
 
 //----------------------------------------------------------------------------
@@ -406,10 +417,6 @@ void appLogic::CreateToolbar()
 	m_ToolBar->AddTool(OP_IMPORTER_DICOM, albaPictureFactory::GetPictureFactory()->GetBmp("IMPORT_DICOM"), _("Importer DICOM"));
 	m_ToolBar->AddSeparator();
 
-	// Operations
-
-	//m_ToolBar->AddSeparator();
-
 	// Views	
 	m_ToolBar->AddTool(ID_SHOW_VIEW_VTK_SURFACE, albaPictureFactory::GetPictureFactory()->GetBmp("VIEW_SURFACE_ICON"), _("View Surface"));
 	m_ToolBar->AddTool(ID_SHOW_IMAGE_VIEW, albaPictureFactory::GetPictureFactory()->GetBmp("VIEW_SURFACE_ICON"), _("View Image"));
@@ -424,7 +431,10 @@ void appLogic::CreateToolbar()
 		m_ToolBar->AddTool(MENU_FILE_MANAGE_SNAPSHOT, albaPictureFactory::GetPictureFactory()->GetBmp("IMAGE_PREVIEW"), _("Manage Snapshots"));
 	}
 
-	m_ToolBar->AddTool(ID_ADD_COMMENT, albaPictureFactory::GetPictureFactory()->GetBmp("COMMENT_ICON"), _("Comment"));
+	// Operations
+	m_ToolBar->AddSeparator();
+	m_ToolBar->AddTool(ID_OP_ADD_COMMENT, albaPictureFactory::GetPictureFactory()->GetBmp("COMMENT_ICON"), _("Comment"));
+	m_ToolBar->AddTool(ID_OP_ADD_MEASURE, albaPictureFactory::GetPictureFactory()->GetBmp("MEASURE_2D_ICON"), _("Measure 2D"));
 
 	//m_ToolBar->EnableTool(OP_IMPORTER_DICOM, true);
 }
@@ -437,7 +447,10 @@ void appLogic::EnableMenuAndToolbar()
 
 	albaVME *node = m_OpManager->GetSelectedVme();
 
- 	m_ToolBar->EnableTool(OP_IMPORTER_DICOM, enable && node && m_OpImporterDicom->Accept(node));
+	for (int opId = OP_IMPORTER_DICOM; opId <= ID_OP_ADD_MEASURE; opId++)
+	{
+		m_ToolBar->EnableTool(opId, enable && node && GetOp(opId)->Accept(node));
+	}
 
 	if (m_UseSnapshotManager && m_SnapshotManager)
 	{
@@ -447,11 +460,17 @@ void appLogic::EnableMenuAndToolbar()
 }
 
 //----------------------------------------------------------------------------
+albaOp* appLogic::GetOp(int opId)
+{
+	return m_OpManager->GetOperationById(opId - MENU_VIEW_USER_FIRST + OP_USER);
+}
+
+//----------------------------------------------------------------------------
 void appLogic::CreateControlPanel()
 {
 	m_SidebarStyle = albaSideBar::DOUBLE_NOTEBOOK;
 	m_SideBar = new albaSideBar(m_Win, MENU_VIEW_SIDEBAR, this, m_SidebarStyle); //Default SideBar
 	//m_SideBar = new appSideBar(m_Win, MENU_VIEW_SIDEBAR, this); //Custom SideBar
 
-	m_TaskBar = new appTaskBar(m_Win, MENU_VIEW_TASKBAR, this); //Default TaskBar
+	//m_TaskBar = new appTaskBar(m_Win, MENU_VIEW_TASKBAR, this); //Default TaskBar
 }

@@ -42,7 +42,7 @@ class vtkRendererCollection;
 class vtkTextActor;
 class vtkXYPlotActor;
 
-#define TEXT_H_SHIFT     10
+#define TEXT_H_SHIFT 10
 #define MIN_UPDATE_DISTANCE 1.0
 
 // Class Name: appInteractor2DMeasure
@@ -65,15 +65,15 @@ public:
 
 	enum MEASURE_ACTIONS
 	{
-		ID_NO_ACTION = 0,
-		ID_ADD_MEASURE,
-		ID_EDIT_MEASURE,
-		ID_MOVE_MEASURE,
+		ACTION_NONE = 0,
+		ACTION_ADD_MEASURE,
+		ACTION_EDIT_MEASURE,
+		ACTION_MOVE_MEASURE,
 	};
 
 	virtual void OnEvent(albaEventBase *event);
 	
-	// Measures
+	/// MEASURE
 	/** Add Measure*/
 	virtual void AddMeasure(double *point1, double *point2 = NULL) {};
 	/** Edit Measure*/
@@ -123,12 +123,15 @@ public:
 	/** Set Renderer by View needed*/
 	void SetRendererByView(albaView * view);
 
-	/*Enable/Disable Editing Mode*/
+	/** Enable/Disable Editing Mode*/
 	void EnableEditMeasure(bool edit = true) { m_EditMeasureEnable = edit; };
 
 	void Enable();
 	void Disable();
 	bool IsEnabled() { return m_IsEnabled; };
+
+	/* Call Rendering and Camera Update */
+	void Render();
 
 protected:
 
@@ -137,17 +140,18 @@ protected:
 
 	void InitRenderer(albaEventInteraction *e);
 
-	// Mouse Events
+	/// Mouse Events
 	virtual void OnLeftButtonDown(albaEventInteraction *e);
 	virtual void OnLeftButtonUp(albaEventInteraction *e);
 	virtual void OnRightButtonUp(albaEventInteraction *e);
 	virtual void OnMove(albaEventInteraction *e);
 		
-	// Draw Measure
+	/// Draw Measure
 	virtual void DrawMeasure(double * wp) {};
 	virtual void MoveMeasure(int index, double * pointCoord) {};
 	
-	/// RENDERING
+	/// Update
+	virtual void UpdateAllActors() {};
 	virtual void UpdateEditActors(double * point1, double * point2 = NULL) {};
 	virtual void UpdatePointActor(double * point) {};
 	virtual void UpdateTextActor(int index, double * point) {};
@@ -156,9 +160,10 @@ protected:
 	virtual void HideEditActors() {};
 	virtual void DisableMeasure(int index) {};
 
-	void SetAction(int action);
+	/** Set Measure Action (None, Add, Edit, Move) and Update mouse Cursor */
+	void SetAction(MEASURE_ACTIONS action);
 
-	/// UTILS
+	/// Utils
 	virtual void FindAndHighlightCurrentPoint(double * pointCoord) {};
 	double DistanceBetweenPoints(double *point1, double *point2);
 	float DistancePointToLine(double * point, double * lineP1, double * lineP2);
@@ -166,8 +171,9 @@ protected:
 	void ScreenToWorld(double screen[2], double world[3]);
 	void WorldToScreen(double world[3], double screen[2]);
 
+	// Measure Vector
 	std::vector<albaString> m_MeasureVector;
-	std::vector<albaString> m_MeasureLabelVector;
+
 	albaString m_MeasureLabel;
 	albaString m_MeasureTypeText;
 
@@ -176,12 +182,14 @@ protected:
 	albaView									*m_View;
 	vtkCoordinate							*m_Coordinate;
 
-	// Text Vector
+	// Text Actor Vector
 	std::vector<vtkALBATextActorMeter *> m_TextActorVector;
 	
-	// EDIT ATORS
-	vtkALBATextActorMeter	*m_EditTextActor;
+	// EDIT ACTORS
 
+	// Text 
+	vtkALBATextActorMeter	*m_EditTextActor;
+	// Point
 	vtkPointSource				*m_EditPointSource;
 	vtkPolyDataMapper2D		*m_EditPointMapper;
 	vtkActor2D						*m_EditPointActor;
@@ -193,7 +201,7 @@ protected:
 
 	int m_TextSide;
 
-	int m_Action; // Measure Action
+	MEASURE_ACTIONS m_Action; // Measure Action
 
 	bool m_IsEnabled;
 

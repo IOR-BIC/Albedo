@@ -43,7 +43,7 @@ protected:
 	void InitializeIcons();
 
 	/** Initialize register */
-	void InitializeReg();
+	//void InitializeReg();
 
 	/**Manage Fatal Exception - Try to save project */
 	void OnFatalException();

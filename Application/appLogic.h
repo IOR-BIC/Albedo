@@ -24,7 +24,7 @@ PURPOSE. See the above copyright notice for more information.
 //----------------------------------------------------------------------------
 // Forward reference :
 //----------------------------------------------------------------------------
-class albaOpImporterDicom;
+class albaOp;
 
 //----------------------------------------------------------------------------
 // Class Name: appLogic
@@ -46,6 +46,8 @@ public:
 
 	void RunOp(albaOp *op);
 
+	albaOp* GetOp(int opId);
+
 	/** Respond to a VME_SELECT event. Update the selection on the tree and view representation.*/
 	virtual void VmeSelect(albaVME *vme);
 
@@ -63,7 +65,7 @@ protected:
 	/** Enable/Disable menu items when an operation start/end running */
 	virtual void EnableMenuAndToolbar();
 
-  /** Show arbitrary view vertical tiled with blend ct view */
+	/** Show arbitrary view vertical tiled with blend ct view */
   void ShowVMEOnView();
 	
 	/** A new View has Been Created - Logic must create the View Frame */
@@ -85,9 +87,6 @@ protected:
 
 	// TaskBar
 	albaAbsSideBar *m_TaskBar;
-
-	// Operations
-	albaOpImporterDicom	*m_OpImporterDicom;
 
 private:
 	//

@@ -38,25 +38,24 @@ public:
 	albaTypeMacro(appInteractor2DMeasure_Comment, appInteractor2DMeasure_Point);
 
 	virtual void OnEvent(albaEventBase *event);
-
-	void SelectMeasure(int index);
-
-	void AddComment(albaString name, albaString comment = "", albaString author = "", albaString date = "", double *point = NULL);
+	
+	void AddComment(double *point, albaString name, albaString comment = "", albaString author = "", albaString creation_date = "", albaString date ="");
 	void EditComment(int index, albaString name, albaString comment = "", albaString author = "", albaString date = "", double *point = NULL);
 	void RemoveComment(int index);
-
+	void SelectComment(int index);
 	void ShowComment(int index, bool show);
-		
+
 	albaString GetName(int index) { return m_CommentsVect[index].Name; };
 	albaString GetComment(int index) { return m_CommentsVect[index].Comment; };
 	albaString GetAuthor(int index) { return m_CommentsVect[index].Author; };
-	albaString GetDateTime(int index) { return m_CommentsVect[index].DateTime; };
-	void GetPosition(int index, double *point) { GetMeasurePoint(index, point); };
-
-	void GetName(int index, albaString name) { m_CommentsVect[index].Name = name; };
-	void GetComment(int index, albaString comment) { m_CommentsVect[index].Comment = comment; };
-	void GetAuthor(int index, albaString author) { m_CommentsVect[index].Author = author; };
-	void GetDateTime(int index, albaString date) { m_CommentsVect[index].DateTime = date; };
+	albaString GetDateTime(int index) { return m_CommentsVect[index].EditDate; };
+	albaString GetCreationDateTime(int index) { return m_CommentsVect[index].CreationDate; };
+	
+	void SetName(int index, albaString name) { m_CommentsVect[index].Name = name; };
+	void SetComment(int index, albaString comment) { m_CommentsVect[index].Comment = comment; };
+	void SetAuthor(int index, albaString author) { m_CommentsVect[index].Author = author; };
+	void SetDateTime(int index, albaString date) { m_CommentsVect[index].EditDate = date; };
+	void SetCreationDate(int index, albaString date) { m_CommentsVect[index].CreationDate = date; };
 
 	bool IsVisible(int index) { return m_CommentsVect[index].isVisible; };
 	void SetTextColor(double r, double g, double b);
@@ -69,7 +68,8 @@ protected:
 		albaString Name;
 		albaString Comment;
 		albaString Author;
-		albaString DateTime;
+		wxString CreationDate;
+		albaString EditDate;
 		double Position[2];
 		double Opacity;
 		int Width;
@@ -80,14 +80,35 @@ protected:
 	appInteractor2DMeasure_Comment();
 	virtual ~appInteractor2DMeasure_Comment();
 
+	/// MEASURE
+	/** Add Measure*/
+	void AddMeasure(double *point1);
+	/** Edit Measure*/
+	void EditMeasure(int index, double *point);
+	/** Delete the Measure*/
+	void RemoveMeasure(int index);
+	/** Select a Measure*/
+	void SelectMeasure(int index);
+
 	void AddRect(double * point);
 
 	void UpdateAllActors();
-	void UpdateTextActor(int index, double * point);
 
-	void FindAndHighlightCurrentPoint(double * pointCoord);
+	void UpdateTextActor(int index, double *point);
+	
+	void UpdateCommentActor(int index);
 
-	bool IsInBound(int index, double * pointCoord);
+	void UpdateTextDate(int index, double * text_pos);
+
+	void UpdateRect(int index, double *point, int h = 8);
+
+	int UpdateTextComment(int index, double * text_pos);
+
+	void UpdateTextName(int index, double * text_pos);
+
+	void FindAndHighlightCurrentPoint(double *point);
+
+	bool IsInRectBound(int index, double *point);
 
 	// Comment Vector
 	std::vector<CommentData> m_CommentsVect;
@@ -106,6 +127,8 @@ protected:
 
 	double m_TextColor[3];
 	double m_RectColor[3];
+
+	double m_Scale;
 
 private:
 	appInteractor2DMeasure_Comment(const appInteractor2DMeasure_Comment&);   // Not implemented.

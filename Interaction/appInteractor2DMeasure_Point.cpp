@@ -41,11 +41,13 @@ appInteractor2DMeasure_Point::appInteractor2DMeasure_Point() : appInteractor2DMe
 	m_EditMeasureEnable = false;
 
 	m_MeasureTypeText = "POINT";
+
+	m_MeasureLabelVector.clear();
 }
 //----------------------------------------------------------------------------
 appInteractor2DMeasure_Point::~appInteractor2DMeasure_Point()
 {
-	SetAction(ID_NO_ACTION);
+	SetAction(ACTION_NONE);
 
 	vtkDEL(m_Coordinate);
 
@@ -69,11 +71,13 @@ appInteractor2DMeasure_Point::~appInteractor2DMeasure_Point()
 	m_PointSourceVector.clear();
 	m_PointMapperVector.clear();
 	m_PointActorVector.clear();
+
+	m_MeasureLabelVector.clear();
 }
 
 /// RENDERING ////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
-void appInteractor2DMeasure_Point::DrawMeasure(double * wp)
+void appInteractor2DMeasure_Point::DrawMeasure(double *wp)
 {
 	// No point has yet been picked
 	if (m_AddMeasurePhase_Counter == 0)
@@ -84,7 +88,6 @@ void appInteractor2DMeasure_Point::DrawMeasure(double * wp)
 		m_Distance = 0.0;
 
 		ShowEditActors();
-
 		UpdateEditActors(wp);
 
 		m_AddMeasurePhase_Counter++;
@@ -122,24 +125,24 @@ void appInteractor2DMeasure_Point::DrawMeasure(double * wp)
 		HideEditActors();
 	}
 
-	SetAction(ID_ADD_MEASURE);
+	SetAction(ACTION_ADD_MEASURE);
 
-	m_Renderer->GetRenderWindow()->Render();
+	Render();
 }
 //----------------------------------------------------------------------------
-void appInteractor2DMeasure_Point::MoveMeasure(int index, double * pointCoord)
+void appInteractor2DMeasure_Point::MoveMeasure(int index, double *point)
 {
 	if (index < 0)
 		return;
 
-	double point[3];
+	double point_pos[3];
 
-	m_PointSourceVector[index]->GetCenter(point);
+	m_PointSourceVector[index]->GetCenter(point_pos);
 
 	if (!m_MovingMeasure)
 	{
-		m_OldLineP1[0] = point[0] - m_StartMousePosition[0];
-		m_OldLineP1[1] = point[1] - m_StartMousePosition[1];
+		m_OldLineP1[0] = point_pos[0] - m_StartMousePosition[0];
+		m_OldLineP1[1] = point_pos[1] - m_StartMousePosition[1];
 
 		m_MovingMeasure = true;
 	}
@@ -152,8 +155,8 @@ void appInteractor2DMeasure_Point::MoveMeasure(int index, double * pointCoord)
 
 		double tmp_pos[3];
 
-		tmp_pos[0] = pointCoord[0] + m_OldLineP1[0];
-		tmp_pos[1] = pointCoord[1] + m_OldLineP1[1];
+		tmp_pos[0] = point[0] + m_OldLineP1[0];
+		tmp_pos[1] = point[1] + m_OldLineP1[1];
 		tmp_pos[2] = 0.0;
 
 		UpdateEditActors(tmp_pos);
@@ -171,7 +174,7 @@ void appInteractor2DMeasure_Point::MoveMeasure(int index, double * pointCoord)
 		m_ActorAdded = false;
 	}
 
-	m_Renderer->GetRenderWindow()->Render();
+	Render();
 }
 
 /// UPDATE ///////////////////////////////////////////////////////////////////
@@ -197,7 +200,7 @@ void appInteractor2DMeasure_Point::Update(int index /*= -1 Update All*/)
 		}
 }
 //----------------------------------------------------------------------------
-void appInteractor2DMeasure_Point::UpdatePointActor(int index, double * point)
+void appInteractor2DMeasure_Point::UpdatePointActor(int index, double *point)
 {
 	if (index > -1)
 	{
@@ -224,7 +227,7 @@ void appInteractor2DMeasure_Point::UpdatePointActor(int index, double * point)
 	}
 }
 //----------------------------------------------------------------------------
-void appInteractor2DMeasure_Point::UpdateEditActors(double * point1, double * point2)
+void appInteractor2DMeasure_Point::UpdateEditActors(double *point1, double *point2)
 {
 	// Update Edit Actors
 	UpdatePointActor(-1, point1);
@@ -237,7 +240,7 @@ void appInteractor2DMeasure_Point::UpdateEditActors(double * point1, double * po
 	UpdateTextActor(-1, point1);
 }
 //----------------------------------------------------------------------------
-void appInteractor2DMeasure_Point::UpdateTextActor(int index, double * point)
+void appInteractor2DMeasure_Point::UpdateTextActor(int index, double *point)
 {
 	double text_pos[3];
 	text_pos[0] = point[0];
@@ -248,7 +251,7 @@ void appInteractor2DMeasure_Point::UpdateTextActor(int index, double * point)
 
 	if (index > -1)
 	{
-		albaString text = GetMeasureLabel(index);
+		albaString text = m_MeasureLabelVector[index];
 
 		if (text.IsEmpty())
 			text = GetMeasure(index);
@@ -349,10 +352,9 @@ void appInteractor2DMeasure_Point::AddMeasure(double *point)
 	UpdateTextActor(m_TextActorVector.size() - 1, point);
 
 	//////////////////////////////////////////////////////////////////////////
-
 	m_MeasuresCount++;
 
-	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
+	Render();
 }
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Point::EditMeasure(int index, double *point)
@@ -380,8 +382,7 @@ void appInteractor2DMeasure_Point::EditMeasure(int index, double *point)
 	UpdateTextActor(index, point);
 
 	//////////////////////////////////////////////////////////////////////////
-
-	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
+	Render();
 }
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Point::RemoveMeasure(int index)
@@ -412,12 +413,9 @@ void appInteractor2DMeasure_Point::RemoveMeasure(int index)
 		m_TextActorVector.erase(m_TextActorVector.begin() + index);
 
 		//////////////////////////////////////////////////////////////////////////
-
-		m_Renderer->GetRenderWindow()->Render();
-
 		m_MeasuresCount--;
-
-		albaEventMacro(albaEvent(this, CAMERA_UPDATE));
+		
+		Render();
 	}
 }
 //----------------------------------------------------------------------------
@@ -450,10 +448,8 @@ void appInteractor2DMeasure_Point::SelectMeasure(int index)
 			m_LastEditing = -1;
 		}
 
-		if (m_Renderer)
-			m_Renderer->GetRenderWindow()->Render();
+		Render();
 
-		albaEventMacro(albaEvent(this, CAMERA_UPDATE));
 		albaEventMacro(albaEvent(this, ID_MEASURE_SELECTED));
 	}
 }
@@ -470,10 +466,10 @@ void appInteractor2DMeasure_Point::GetMeasurePoint(int index, double *point)
 }
 
 //----------------------------------------------------------------------------
-void appInteractor2DMeasure_Point::FindAndHighlightCurrentPoint(double * pointCoord)
+void appInteractor2DMeasure_Point::FindAndHighlightCurrentPoint(double *point)
 {
 	if (m_CurrentMeasureIndex < 0)
-		SetAction(ID_ADD_MEASURE);
+		SetAction(ACTION_ADD_MEASURE);
 
 	if (m_EditMeasureEnable)
 	{
@@ -483,7 +479,7 @@ void appInteractor2DMeasure_Point::FindAndHighlightCurrentPoint(double * pointCo
 
 			m_PointSourceVector[i]->GetCenter(tmpPoint);
 
-			if (DistanceBetweenPoints(pointCoord, tmpPoint) < MIN_UPDATE_DISTANCE)
+			if (DistanceBetweenPoints(point, tmpPoint) < MIN_UPDATE_DISTANCE)
 			{
 				SelectMeasure(i);
 
@@ -491,9 +487,8 @@ void appInteractor2DMeasure_Point::FindAndHighlightCurrentPoint(double * pointCo
 
 				m_Renderer->AddActor2D(m_EditPointActor);
 				UpdatePointActor(-1, tmpPoint);
-				m_Renderer->GetRenderWindow()->Render();
-
-				SetAction(ID_MOVE_MEASURE);
+				SetAction(ACTION_MOVE_MEASURE);
+				Render();
 				return;
 			}
 		}
@@ -501,8 +496,8 @@ void appInteractor2DMeasure_Point::FindAndHighlightCurrentPoint(double * pointCo
 		if (m_CurrentMeasureIndex >= 0)
 		{
 			m_Renderer->RemoveActor2D(m_EditPointActor);
-			m_Renderer->GetRenderWindow()->Render();
 			m_CurrentMeasureIndex = -1;
+			Render();
 		}
 	}
 }

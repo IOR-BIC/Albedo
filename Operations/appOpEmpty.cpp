@@ -130,8 +130,11 @@ void appOpEmpty::CreateGui()
 
 	//m_Gui->Label("Press a button");
 
+	//////////////////////////////////////////////////////////////////////////
+	m_Gui->Label("");
+	m_Gui->Divider(1);
 	m_Gui->OkCancel();
-	m_Gui->Divider();
+	m_Gui->Label("");
 
 	ShowGui();
 }

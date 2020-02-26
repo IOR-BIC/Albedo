@@ -63,7 +63,7 @@ albaOp(label)
 	m_MeasureLabel = "";
 	m_MeasureType = "";
 
-  m_ImportedImage = NULL;
+  m_ImportedImage = NULL; // For Test
 
 	m_MeasureListBox = NULL;
 
@@ -91,6 +91,13 @@ bool appOpMeasure2D::Accept(albaVME *node)
 {
   return true;
 	//return node && node->IsA("albaVMEImage");
+}
+
+//----------------------------------------------------------------------------
+char ** appOpMeasure2D::GetIcon()
+{
+#include "pic/MENU_OP_MEASURE_2D.xpm"
+	return MENU_OP_MEASURES_2D_xpm;
 }
 
 //----------------------------------------------------------------------------
@@ -175,7 +182,7 @@ void appOpMeasure2D::InitInteractors()
 
 	// Create Interactor Distance
 	m_InteractorDistance = appInteractor2DMeasure_Distance::New();
-	if (m_CurrentInteractor == DISTANCE)	albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorDistance));
+	//if (m_CurrentInteractor == DISTANCE)	albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorDistance));
 	m_InteractorDistance->SetListener(this);
 	m_InteractorDistance->SetColor(0, 0, 1);
 	m_InteractorDistance->EnableEditMeasure(true);
@@ -183,7 +190,7 @@ void appOpMeasure2D::InitInteractors()
 
 	// Create Interactor Indicator
 	m_InteractorIndicator = appInteractor2DMeasure_Indicator::New();
-	if (m_CurrentInteractor == INDICATOR) albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorIndicator));
+	//if (m_CurrentInteractor == INDICATOR) albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorIndicator));
 	m_InteractorIndicator->SetListener(this);
 	m_InteractorIndicator->SetColor(0, 1, 1);
 	m_InteractorIndicator->EnableEditMeasure(true);
@@ -191,11 +198,13 @@ void appOpMeasure2D::InitInteractors()
 
 	// Create Interactor Angle
 	m_InteractorAngle = appInteractor2DMeasure_Angle::New();
-	if (m_CurrentInteractor == ANGLE)	albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorAngle));
+	//if (m_CurrentInteractor == ANGLE)	albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorAngle));
 	m_InteractorAngle->SetListener(this);
 	m_InteractorAngle->SetColor(1, 0, 1);
 	m_InteractorAngle->EnableEditMeasure(true);
 	m_InteractorVector.push_back(m_InteractorAngle);
+
+	//albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorVector[m_CurrentInteractor]));
 
 	m_MeasureType = m_InteractorVector[m_CurrentInteractor]->GetMeasureType();
 }
@@ -242,6 +251,7 @@ void appOpMeasure2D::OpStop(int result)
 {
 	if (!m_TestMode)
 	{
+		m_MeasureListBox->Clear();
 		HideGui();
 	}
 	
@@ -282,8 +292,8 @@ void appOpMeasure2D::OnEvent(albaEventBase *alba_event)
 			case ID_MEASURE_LAB:
 			{
 				int nMeasures = m_InteractorVector[m_CurrentInteractor]->GetMeasureCount();
-				if (nMeasures > 0 && m_SelectedMeasure >= 0 && m_SelectedMeasure < nMeasures)
-					m_InteractorVector[m_CurrentInteractor]->SetMeasureLabel(m_SelectedMeasure, m_MeasureLabel);
+// 				if (nMeasures > 0 && m_SelectedMeasure >= 0 && m_SelectedMeasure < nMeasures)
+// 					m_InteractorVector[m_CurrentInteractor]->SetMeasureLabel(m_SelectedMeasure, m_MeasureLabel);
 
 				m_InteractorVector[m_CurrentInteractor]->Update(m_SelectedMeasure);
 				UpdateMeasureList();
@@ -338,7 +348,7 @@ void appOpMeasure2D::OnEvent(albaEventBase *alba_event)
 				m_SelectedMeasure = m_InteractorVector[m_CurrentInteractor]->GetSelectedMeasureIndex();
 				m_Measure = m_InteractorVector[m_CurrentInteractor]->GetMeasure(m_SelectedMeasure);
 
-				m_MeasureLabel = m_InteractorVector[m_CurrentInteractor]->GetMeasureLabel(m_SelectedMeasure);
+				//m_MeasureLabel = m_InteractorVector[m_CurrentInteractor]->GetMeasureLabel(m_SelectedMeasure);
 
 				m_MeasureListBox->Select(m_SelectedMeasure);
 				m_Gui->Update();
@@ -377,8 +387,8 @@ void appOpMeasure2D::UpdateMeasureList()
 		if (m_InteractorVector.size() > 0)
 			for (int i = 0; i < m_InteractorVector[m_CurrentInteractor]->GetMeasureCount(); i++)
 			{
-				wxString measure = m_InteractorVector[m_CurrentInteractor]->GetMeasureLabel(i);
-				if (measure.IsEmpty())
+				wxString measure;/* = m_InteractorVector[m_CurrentInteractor]->GetMeasureLabel(i);
+				if (measure.IsEmpty())*/
 					measure = m_InteractorVector[m_CurrentInteractor]->GetMeasure(i);
 
 				m_MeasureListBox->Append(_(measure));
@@ -487,7 +497,7 @@ void appOpMeasure2D::ImportImage()
 	m_Output->GetTagArray()->SetTag(tag_Nature);
 }
 
-// LOAD/SAVE
+/// LOAD/SAVE - TODO
 //----------------------------------------------------------------------------
 void appOpMeasure2D::Load()
 {

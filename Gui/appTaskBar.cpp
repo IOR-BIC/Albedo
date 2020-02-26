@@ -244,7 +244,11 @@ albaGUI* appTaskBar::GetTaskGui()
 		albaString text = "Vme Selected: ";
 		text += m_SelectedVme->GetName();
 		task_gui->Label(text);
-		task_gui->Button(OP_DELETE, "Delete");
+		text = "Type: ";
+		text += m_SelectedVme->GetTypeName();
+		task_gui->Label(text);
+
+		task_gui->Button(OP_DELETE, "Delete (TODO)");
 	}
 
 	// Has Comments
@@ -258,7 +262,7 @@ albaGUI* appTaskBar::GetTaskGui()
 			task_gui->Divider(1);
 			task_gui->Label("Comments", true);
 			wxString text = wxString::Format("%d Comment%s", nComponents, nComponents > 1 ? "s" : "");
-			task_gui->Button2(ID_ADD_COMMENT, text, "Show / Edit", "", 0.4);
+			task_gui->Button2(ID_OP_ADD_COMMENT, text, "Show / Edit", "", 0.4);
 		}
 	}
 

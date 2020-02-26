@@ -45,7 +45,7 @@ appInteractor2DMeasure_Distance::appInteractor2DMeasure_Distance() : appInteract
 	m_CurrentPointIndex = NO_POINT;
 
 	// EDIT ACTORS
-	// Line tool
+	// Line
 	vtkNEW(m_EditLineSource);
 	m_EditLineSource->SetPoint1(0, 0, 0);
 	m_EditLineSource->SetPoint2(0.5, 0.5, 0);
@@ -85,7 +85,7 @@ appInteractor2DMeasure_Distance::~appInteractor2DMeasure_Distance()
 	m_LineActorVector.clear();
 }
 
-// RENDERING
+/// RENDERING ////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Distance::DrawMeasure(double * wp)
 {
@@ -172,9 +172,9 @@ void appInteractor2DMeasure_Distance::DrawMeasure(double * wp)
 		}
 	}
 
-	SetAction(ID_ADD_MEASURE);
+	SetAction(ACTION_ADD_MEASURE);
 
-	m_Renderer->GetRenderWindow()->Render();
+	Render();
 }
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Distance::MoveMeasure(int index, double * point)
@@ -236,9 +236,10 @@ void appInteractor2DMeasure_Distance::MoveMeasure(int index, double * point)
 		m_ActorAdded = false;
 	}
 
-	m_Renderer->GetRenderWindow()->Render();
+	Render();
 }
 
+/// UPDATE ///////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Distance::UpdateLineActor(int index, double * point1, double * point2)
 {
@@ -288,6 +289,7 @@ void appInteractor2DMeasure_Distance::UpdateEditActors(double * point1, double *
 	UpdateLineActor(-1, point1, point2);
 	UpdateTextActor(-1, point1, point2);
 }
+
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Distance::ShowEditActors()
 {
@@ -334,7 +336,7 @@ void appInteractor2DMeasure_Distance::ShowLine(bool show)
 	m_EditLineActor->SetVisibility(show);
 }
 
-// MEASURE
+/// MEASURE //////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Distance::AddMeasure(double *point1, double *point2)
 {
@@ -366,10 +368,9 @@ void appInteractor2DMeasure_Distance::AddMeasure(double *point1, double *point2)
 	UpdateTextActor(m_TextActorVector.size() - 1, point1, point2);
 
 	//////////////////////////////////////////////////////////////////////////
-
 	m_MeasuresCount++;
 
-	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
+	Render();
 }
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Distance::EditMeasure(int index, double *point1, double *point2)
@@ -397,8 +398,7 @@ void appInteractor2DMeasure_Distance::EditMeasure(int index, double *point1, dou
 	UpdateTextActor(index, point1, point2);
 
 	//////////////////////////////////////////////////////////////////////////
-
-	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
+	Render();
 }
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Distance::RemoveMeasure(int index)
@@ -428,12 +428,9 @@ void appInteractor2DMeasure_Distance::RemoveMeasure(int index)
 		m_TextActorVector.erase(m_TextActorVector.begin() + index);
 
 		//////////////////////////////////////////////////////////////////////////
-
-		m_Renderer->GetRenderWindow()->Render();
-
 		m_MeasuresCount--;
-
-		albaEventMacro(albaEvent(this, CAMERA_UPDATE));
+		
+		Render();
 	}
 }
 //----------------------------------------------------------------------------
@@ -470,15 +467,13 @@ void appInteractor2DMeasure_Distance::SelectMeasure(int index)
 			m_LastEditing = -1;
 		}
 
-		if (m_Renderer)
-			m_Renderer->GetRenderWindow()->Render();
+		Render();
 
-		albaEventMacro(albaEvent(this, CAMERA_UPDATE));
 		albaEventMacro(albaEvent(this, ID_MEASURE_SELECTED));
 	}
 }
 
-// UTILS
+/// UTILS ///////////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------------
 void appInteractor2DMeasure_Distance::GetMeasureLinePoints(int index, double *point1, double *point2)
 {
@@ -493,7 +488,7 @@ void appInteractor2DMeasure_Distance::GetMeasureLinePoints(int index, double *po
 void appInteractor2DMeasure_Distance::FindAndHighlightCurrentPoint(double * point)
 {
 	if (m_CurrentMeasureIndex < 0)
-		SetAction(ID_ADD_MEASURE);
+		SetAction(ACTION_ADD_MEASURE);
 
 	if (m_EditMeasureEnable)
 	{
@@ -512,14 +507,14 @@ void appInteractor2DMeasure_Distance::FindAndHighlightCurrentPoint(double * poin
 				{
 					if (m_CurrentMeasureIndex != i)
 					{
-						SetAction(ID_EDIT_MEASURE);
+						SetAction(ACTION_EDIT_MEASURE);
 
 						m_CurrentMeasureIndex = i;
 						m_CurrentPointIndex = POINT_1;
 
 						m_Renderer->AddActor2D(m_EditPointActor);
 						UpdatePointActor(linePoint1);
-						m_Renderer->GetRenderWindow()->Render();
+						Render();
 					}
 					return;
 				}
@@ -528,20 +523,20 @@ void appInteractor2DMeasure_Distance::FindAndHighlightCurrentPoint(double * poin
 				{
 					if (m_CurrentMeasureIndex != i)
 					{
-						SetAction(ID_EDIT_MEASURE);
+						SetAction(ACTION_EDIT_MEASURE);
 
 						m_CurrentMeasureIndex = i;
 						m_CurrentPointIndex = POINT_2;
 
 						m_Renderer->AddActor2D(m_EditPointActor);
 						UpdatePointActor(linePoint2);
-						m_Renderer->GetRenderWindow()->Render();
+						Render();
 					}
 					return;
 				}
 
 				m_CurrentMeasureIndex = i;
-				SetAction(ID_MOVE_MEASURE);
+				SetAction(ACTION_MOVE_MEASURE);
 				return;
 			}
 		}
@@ -549,14 +544,14 @@ void appInteractor2DMeasure_Distance::FindAndHighlightCurrentPoint(double * poin
 		if (m_CurrentMeasureIndex >= 0)
 		{
 			m_Renderer->RemoveActor2D(m_EditPointActor);
-			m_Renderer->GetRenderWindow()->Render();
 			m_CurrentMeasureIndex = -1;
 			m_CurrentPointIndex = NO_POINT;
+			Render();
 		}
 	}
 }
 
-// LOAD/SAVE
+/// LOAD/SAVE ///////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------------
 bool appInteractor2DMeasure_Distance::Load(albaVME *input, wxString tag)
 {

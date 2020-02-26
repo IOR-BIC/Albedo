@@ -81,6 +81,12 @@ void appOpCursorTest::OpRun()
 	if (!m_TestMode)
 	{
 		CreateGui();
+	
+		ShowGui();
+
+		albaEvent e(this, VIEW_SELECTED);
+		albaEventMacro(e);
+		m_View = e.GetView();
 	}
 	
 	//OpStop(OP_RUN_OK);
@@ -213,14 +219,10 @@ void appOpCursorTest::CreateGui()
 	m_Gui->Button(ID_MODE2, "Load Bitmap");
 	m_Gui->Button(ID_MODE3, "xpm");
 	m_Gui->Button(ID_MODE4, "xpm (2)");
-
+	
+	//////////////////////////////////////////////////////////////////////////
+	m_Gui->Label("");
 	m_Gui->Divider(1);
 	m_Gui->OkCancel();
-	m_Gui->Divider();
-
-	ShowGui();
-
-	albaEvent e(this, VIEW_SELECTED);
-	albaEventMacro(e);
-	m_View = e.GetView();
+	m_Gui->Label("");
 }

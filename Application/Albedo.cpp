@@ -59,7 +59,7 @@ PURPOSE. See the above copyright notice for more information.
 #include <vtkTimerLog.h>
 
 //Comment this line to disable wizard sample
-#define USE_WIZARD
+//#define USE_WIZARD
 
 #ifdef USE_WIZARD
 #include "albaWizard.h"
@@ -77,7 +77,7 @@ bool Albedo::OnInit()
 {
 	InitializeIcons();
 	
-	InitializeReg();
+	//InitializeReg();
 
 	int result;
   result = albaVMEFactory::Initialize();
@@ -103,11 +103,11 @@ bool Albedo::OnInit()
 #endif
 
 	// Plug and Enable Snapshot Manager
-	m_Logic->PlugSnapshotManager(true);
+//	m_Logic->PlugSnapshotManager(true);
 
 	m_Logic->Configure();
 
-	SetTopWindow(albaGetFrame());
+	//SetTopWindow(albaGetFrame());
 
 	//////////////////////////////////////////////////////////////////////////
 	//Importers
@@ -140,44 +140,44 @@ bool Albedo::OnInit()
 	//Operations
 	//////////////////////////////////////////////////////////////////////////	
 
-	// Empty Operation
-	m_Logic->Plug(new appOpEmpty("Op Empty"));
+// 	// Empty Operation
+ 	m_Logic->Plug(new appOpEmpty("Op Empty"));
+
+// 	// Create Empty VME Operation
+// 	m_Logic->Plug(new appOpCreateEmptyVME("Create Empty VME"), _("Create"));
+// 
+// 	// Create Surface Parametric Operation
+// 	m_Logic->Plug(new appOpCreateSurfaceParametric("Create Parametric Surface"), _("Create"));
+// 
+// 	// Transform Operation
+// 	m_Logic->Plug(new albaOpTransform("Transform \tCtrl+T"), _("Edit"));
+// 
+// 	// Dictionary Operation
+// 	m_Logic->Plug(new appOpDictionary("Dictionary Editor"), _("Edit"));
+// 	
+// 	// Show Dialog (Vertical) Operation
+// 	m_Logic->Plug(new appOpShowDialog("Show Dialog (Vertical)"), _("GUI"));
+// 
+// 	// Show Dialog (Horizontal) Operation
+// 	m_Logic->Plug(new appOpShowDialog("Show Dialog (Horizontal)", appOpShowDialog::HORIZONTAL_MODE_2), _("GUI"));
+// 
+// 	// Test Interactor Operation
+ 	m_Logic->Plug(new appOpInteractorSample("Interactor Sample"), _("Test"));
+// 
+// 	// Test Interactor Slider Operation
+// 	m_Logic->Plug(new appOpInteractorSliderSample("Interactor Slider Sample"), _("Test"));
+// 
+// 	// Test Gui Sample Operation
+// 	m_Logic->Plug(new appOpGuiSample("Gui Sample"), _("Test"));
+// 
+// 	// Test Cursor Operation
+ 	m_Logic->Plug(new appOpCursorTest("Cursor Test"), _("Test"));
+
+	// 2D Measure Operation
+	m_Logic->Plug(new appOpMeasure2D("Measure 2D (Prototype)"));
 
 	// Test Comment Operation
 	m_Logic->Plug(new appOpAddComment("Add Comment (Prototype)"));
-
-	// Create Empty VME Operation
-	m_Logic->Plug(new appOpCreateEmptyVME("Create Empty VME"), _("Create"));
-
-	// Create Surface Parametric Operation
-	m_Logic->Plug(new appOpCreateSurfaceParametric("Create Parametric Surface"), _("Create"));
-
-	// Transform Operation
-	m_Logic->Plug(new albaOpTransform("Transform \tCtrl+T"), _("Edit"));
-
-	// Dictionary Operation
-	m_Logic->Plug(new appOpDictionary("Dictionary Editor"), _("Edit"));
-	
-	// Show Dialog (Vertical) Operation
-	m_Logic->Plug(new appOpShowDialog("Show Dialog (Vertical)"), _("GUI"));
-
-	// Show Dialog (Horizontal) Operation
-	m_Logic->Plug(new appOpShowDialog("Show Dialog (Horizontal)", appOpShowDialog::HORIZONTAL_MODE_2), _("GUI"));
-
-	// Test Interactor Operation
-	m_Logic->Plug(new appOpInteractorSample("Interactor Sample"), _("Test"));
-
-	// Test Interactor Slider Operation
-	m_Logic->Plug(new appOpInteractorSliderSample("Interactor Slider Sample"), _("Test"));
-
-	// Test Gui Sample Operation
-	m_Logic->Plug(new appOpGuiSample("Gui Sample"), _("Test"));
-
-	// Test Show Dialog (Vertical) Operation
-	m_Logic->Plug(new appOpCursorTest("Cursor Test"), _("Test"));
-
-	// Test Interactor Operation
-	m_Logic->Plug(new appOpMeasure2D("Measure 2D (Prototype)"));
 
 	//////////////////////////////////////////////////////////////////////////
 	//Views
@@ -262,32 +262,40 @@ void Albedo::InitializeIcons()
 	albaADDPIC(SHOW_RULER_ICON);
 #include "pic/HIDE_RULER_ICON.xpm"
 	albaADDPIC(HIDE_RULER_ICON);
+
 #include "pic/COMMENT_ICON.xpm"
 	albaADDPIC(COMMENT_ICON);
+#include "pic/COMMENT_SHOW_ICON.xpm"
+	albaADDPIC(COMMENT_SHOW_ICON);
+#include "pic/COMMENT_HIDE_ICON.xpm"
+	albaADDPIC(COMMENT_HIDE_ICON);
+
+#include "pic/MEASURE_2D_ICON.xpm"
+	albaADDPIC(MEASURE_2D_ICON);
 }
 
 //--------------------------------------------------------------------------------
-void Albedo::InitializeReg()
-{
-  wxConfig *config = new wxConfig(wxEmptyString);
-
-  long long_item;
-  wxString string_item;
-
-  config->SetPath("Importer Dicom"); 
-
-  if(!config->Read("EnableTimeBar", &long_item))
-  {
-    config->Write("EnableTimeBar",FALSE);
-  }
-		  
-  if(!config->Read("EnableTypeImage", &long_item))
-  {
-    config->Write("EnableTypeImage",FALSE);
-  }
-	  
-  cppDEL(config);
-}
+// void Albedo::InitializeReg()
+// {
+//   wxConfig *config = new wxConfig(wxEmptyString);
+// 
+//   long long_item;
+//   wxString string_item;
+// 
+//   config->SetPath("Importer Dicom"); 
+// 
+//   if(!config->Read("EnableTimeBar", &long_item))
+//   {
+//     config->Write("EnableTimeBar",FALSE);
+//   }
+// 		  
+//   if(!config->Read("EnableTypeImage", &long_item))
+//   {
+//     config->Write("EnableTypeImage",FALSE);
+//   }
+// 	  
+//   cppDEL(config);
+// }
 
 //----------------------------------------------------------------------------
 void Albedo::OnFatalException()

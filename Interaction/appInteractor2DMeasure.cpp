@@ -76,7 +76,7 @@ appInteractor2DMeasure::appInteractor2DMeasure()
 	m_DraggingLeft = false;
 	m_EndMeasure = false;
 
-	m_EditMeasureEnable = true;
+	m_EditMeasureEnable = true; // Enable FindAndHighlight
 	m_MovingMeasure = false;
 
 	m_IsEnabled = true;
@@ -86,7 +86,7 @@ appInteractor2DMeasure::appInteractor2DMeasure()
 
 	m_MeasureLabel = "";
 
-	m_Action = ID_NO_ACTION;
+	m_Action = ACTION_NONE;
 
 	m_AddMeasurePhase_Counter = 0;
 
@@ -119,7 +119,7 @@ appInteractor2DMeasure::appInteractor2DMeasure()
 //----------------------------------------------------------------------------
 appInteractor2DMeasure::~appInteractor2DMeasure()
 {
-	SetAction(ID_NO_ACTION);
+	SetAction(ACTION_NONE);
 
 	vtkDEL(m_Coordinate);
 
@@ -143,7 +143,6 @@ appInteractor2DMeasure::~appInteractor2DMeasure()
 
 	m_TextActorVector.clear();
 	m_MeasureVector.clear();
-	m_MeasureLabelVector.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -170,6 +169,14 @@ void appInteractor2DMeasure::InitRenderer(albaEventInteraction *e)
 		if (m_ParallelScale_OnStart == -1) // Save current Parallel Scale
 			m_ParallelScale_OnStart = m_Renderer->GetActiveCamera()->GetParallelScale();
 	}
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::Render()
+{
+	if (m_Renderer)
+		m_Renderer->GetRenderWindow()->Render();
+
+	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
 }
 
 /// MOUSE EVENTS /////////////////////////////////////////////////////////////
@@ -205,11 +212,11 @@ void appInteractor2DMeasure::OnLeftButtonDown(albaEventInteraction *e)
 
 		SelectMeasure(-1);
 
-		if (m_Action == ID_ADD_MEASURE || m_Action == ID_EDIT_MEASURE)
+		if (m_Action == ACTION_ADD_MEASURE || m_Action == ACTION_EDIT_MEASURE)
 		{
 			DrawMeasure(pointCoord);
 		}
-		else if (m_Action == ID_MOVE_MEASURE)
+		else if (m_Action == ACTION_MOVE_MEASURE)
 		{
 			ScreenToWorld(pos_2d, m_StartMousePosition);
 			MoveMeasure(m_CurrentMeasureIndex, m_StartMousePosition);
@@ -217,7 +224,7 @@ void appInteractor2DMeasure::OnLeftButtonDown(albaEventInteraction *e)
 
 		if (m_CurrentMeasureIndex >= 0)
 		{	
-			if (m_EditPointSource && m_Action == ID_EDIT_MEASURE)
+			if (m_EditPointSource && m_Action == ACTION_EDIT_MEASURE)
 				UpdatePointActor(pos_2d);
 
 			m_Renderer->GetRenderWindow()->Render();
@@ -241,13 +248,13 @@ void appInteractor2DMeasure::OnLeftButtonUp(albaEventInteraction *e)
 		e->Get2DPosition(pos_2d);
 		ScreenToWorld(pos_2d, pointCoord);
 
-		if (m_Action == ID_ADD_MEASURE || m_Action == ID_EDIT_MEASURE)
+		if (m_Action == ACTION_ADD_MEASURE || m_Action == ACTION_EDIT_MEASURE)
 		{
 			double nullCoord[4] = { -1.0, -1.0, 0.0, 0.0 };
 			DrawMeasure(nullCoord);
-			SetAction(ID_NO_ACTION);
+			SetAction(ACTION_NONE);
 		}
-		else if (m_Action == ID_MOVE_MEASURE)
+		else if (m_Action == ACTION_MOVE_MEASURE)
 		{
 			m_EndMeasure = true;
 			MoveMeasure(m_CurrentMeasureIndex, pointCoord);
@@ -276,7 +283,7 @@ void appInteractor2DMeasure::OnLeftButtonUp(albaEventInteraction *e)
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::OnRightButtonUp(albaEventInteraction *e)
 {
-	if (m_CurrentMeasureIndex > 0)
+	if (m_CurrentMeasureIndex >= 0)
 	{
 		albaEventMacro(albaEvent(this, ID_MEASURE_RCLICK));
 	}
@@ -304,9 +311,9 @@ void appInteractor2DMeasure::OnMove(albaEventInteraction *e)
 				m_Renderer->GetRenderWindow()->Render();
 
 			if (m_IsInBound)
-				SetAction(ID_ADD_MEASURE);
+				SetAction(ACTION_ADD_MEASURE);
 			else
-				SetAction(ID_NO_ACTION);
+				SetAction(ACTION_NONE);
 		}
 
 		if (m_IsInBound)
@@ -317,9 +324,9 @@ void appInteractor2DMeasure::OnMove(albaEventInteraction *e)
 			}
 			else
 			{
-				if (m_Action == ID_ADD_MEASURE)
+				if (m_Action == ACTION_ADD_MEASURE)
 					DrawMeasure(pointCoord);
-				else if (m_Action == ID_MOVE_MEASURE)
+				else if (m_Action == ACTION_MOVE_MEASURE)
 					MoveMeasure(m_CurrentMeasureIndex, pointCoord);
 			}
 		}
@@ -345,20 +352,12 @@ void appInteractor2DMeasure::OnEvent(albaEventBase *event)
 }
 
 /// MEASURE //////////////////////////////////////////////////////////////////
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::Enable()
+//---------------------------------------------------------------------------
+void appInteractor2DMeasure::RemoveAllMeasures()
 {
-	m_IsEnabled = true;
-
-	SetOpacity(1);
-}
-//----------------------------------------------------------------------------
-void appInteractor2DMeasure::Disable()
-{
-	m_IsEnabled = false;
-
-	SetOpacity(0.35);
-	SelectMeasure(-1);
+	int nMeasures = GetMeasureCount();
+	for (int i = nMeasures; i >= 0; i--)
+		RemoveMeasure(i);
 }
 
 /// GET-SET /////////////////////////////////////////////////////////////////
@@ -370,20 +369,7 @@ albaString appInteractor2DMeasure::GetMeasure(int index)
 
 	return "No Measure";
 }
-//---------------------------------------------------------------------------
-albaString appInteractor2DMeasure::GetMeasureLabel(int index)
-{
-	if (index >= 0 && index < m_MeasureLabelVector.size())
-		return m_MeasureLabelVector[index];
 
-	return "";
-}
-//---------------------------------------------------------------------------
-void appInteractor2DMeasure::SetMeasureLabel(int index, albaString text)
-{
-	if (index >= 0 && index < m_MeasureLabelVector.size())
-		m_MeasureLabelVector[index] = text;
-}
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::SetColor(double r, double g, double b)
 {
@@ -430,33 +416,35 @@ void appInteractor2DMeasure::ShowText(bool show)
 	m_EditTextActor->SetVisibility(show);
 }
 //----------------------------------------------------------------------------
-void appInteractor2DMeasure::SetAction(int action)
+void appInteractor2DMeasure::SetAction(MEASURE_ACTIONS action)
 {
 	if (m_Action == action)
 		return;
 
 	m_Action = action;
 
-	// Set Mouse Cursor
-	wxCursor cursor = wxCursor(wxCURSOR_ARROW);
-
-	switch (m_Action)
-	{
-	case ID_ADD_MEASURE:
-	case ID_EDIT_MEASURE:
-		cursor = wxCursor(wxCURSOR_PENCIL);
-		break;
-
-	case ID_MOVE_MEASURE:
-		cursor = wxCursor(wxCURSOR_SIZING);
-		break;
-
-	default:
-		break;
-	}
-
 	if (m_View)
+	{
+		// Set Mouse Cursor
+		wxCursor cursor = wxCursor(wxCURSOR_ARROW);
+
+		switch (m_Action)
+		{
+		case ACTION_ADD_MEASURE:
+		case ACTION_EDIT_MEASURE:
+			cursor = wxCursor(wxCURSOR_PENCIL);
+			break;
+
+		case ACTION_MOVE_MEASURE:
+			cursor = wxCursor(wxCURSOR_SIZING);
+			break;
+
+		default:
+			break;
+		}
+
 		m_View->GetWindow()->SetCursor(cursor);
+	}
 }
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure::SetRendererByView(albaView * view)
@@ -508,15 +496,17 @@ void appInteractor2DMeasure::SetRendererByView(albaView * view)
 	m_Renderer->GetRenderWindow()->Render();
 }
 
-//---------------------------------------------------------------------------
-void appInteractor2DMeasure::RemoveAllMeasures()
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::Enable()
 {
-	int nMeasures = m_MeasuresCount;
-
-	for (int i = nMeasures; i >= 0; i--)
-	{
-		RemoveMeasure(i);
-	}
+	m_IsEnabled = true;
+	SetOpacity(1);
+}
+//----------------------------------------------------------------------------
+void appInteractor2DMeasure::Disable()
+{
+	m_IsEnabled = false;
+	SetOpacity(0.35);
 }
 
 // UTILS /////////////////////////////////////////////////////////////////////
@@ -619,32 +609,6 @@ void appInteractor2DMeasure::WorldToScreen(double world[3], double screen[2])
 //----------------------------------------------------------------------------
 bool appInteractor2DMeasure::Load(albaVME *input, wxString tag)
 {
-// 	if (input->GetTagArray()->IsTagPresent(tag + "MeasureType"))
-// 	{
-// 		albaTagItem *measureTypeTag = input->GetTagArray()->GetTag(tag + "MeasureType");
-// 
-// 		int nMeasures = measureTypeTag->GetNumberOfComponents();
-// 
-// 		// Reload Measures
-// 		for (int i = 0; i < nMeasures; i++)
-// 		{
-// 			albaString measureType = measureTypeTag->GetValue(i);
-// 
-// 			if (measureType == "POINT")
-// 			{
-// 			}
-// 			else if (measureType == "DISTANCE")
-// 			{
-// 			}
-// 			else if (measureType == "INDICATOR")
-// 			{
-// 			}
-// 			else if (measureType == "ANGLE")
-// 			{
-// 			}
-// 		}
-// 	}
-
 	return true;
 }
 //----------------------------------------------------------------------------

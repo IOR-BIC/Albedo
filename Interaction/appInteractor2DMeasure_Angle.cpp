@@ -45,7 +45,10 @@ appInteractor2DMeasure_Angle::appInteractor2DMeasure_Angle() : appInteractor2DMe
 	//m_CanEdit = false;
 	m_EditMeasureEnable = false;
 
-	// Angle tool
+	m_MeasureTypeText = "ANGLE";
+	m_Angle = 0.0;
+	
+	// Angle
 	vtkNEW(m_EditSphereSource);
 	vtkNEW(m_EditSphereMapper);
 	m_EditSphereMapper->SetInput(m_EditSphereSource->GetOutput());
@@ -56,9 +59,8 @@ appInteractor2DMeasure_Angle::appInteractor2DMeasure_Angle() : appInteractor2DMe
 	m_EditSphereActor->GetProperty()->SetColor(0.5,0.1,0.7);
 	m_EditSphereActor->GetProperty()->SetOpacity(0.2);
 	m_EditSphereActor->GetProperty()->SetLineWidth(1.0);
-
-
-	// Cube  tool (Remove)
+	
+	// Cube (Remove)
 	vtkNEW(m_EditCubeSource);
 	vtkNEW(m_EditCubeMapper);
 	m_EditCubeMapper->SetInput(m_EditCubeSource->GetOutput());
@@ -72,10 +74,6 @@ appInteractor2DMeasure_Angle::appInteractor2DMeasure_Angle() : appInteractor2DMe
 
 	m_Transform = vtkTransform::New();
 	m_TransformFilter = vtkTransformPolyDataFilter::New();
-
-	m_Angle = 0.0;
-
-	m_MeasureTypeText = "ANGLE";
 }
 //----------------------------------------------------------------------------
 appInteractor2DMeasure_Angle::~appInteractor2DMeasure_Angle()
@@ -153,7 +151,7 @@ void appInteractor2DMeasure_Angle::EditMeasure(int index, double *point1, double
 
 	//////////////////////////////////////////////////////////////////////////
 
-	albaEventMacro(albaEvent(this, CAMERA_UPDATE));
+	Render();
 }
 
 // RENDERING
@@ -296,9 +294,9 @@ void appInteractor2DMeasure_Angle::DrawMeasure(double * wp)
 		m_ActorAdded = false;
 	}
 
-	SetAction(ID_ADD_MEASURE);
+	SetAction(ACTION_ADD_MEASURE);
 
-	m_Renderer->GetRenderWindow()->Render();
+	Render();
 }
 
 //----------------------------------------------------------------------------
@@ -345,7 +343,6 @@ void appInteractor2DMeasure_Angle::UpdateTextActor(int index, double * point1, d
 		m_EditTextActor->SetVisibility(m_ShowText);
 	}
 }
-
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Angle::UpdateSphereActor(double * point)
 {

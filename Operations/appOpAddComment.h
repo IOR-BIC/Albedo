@@ -42,17 +42,6 @@ class APP_OPERATIONS_EXPORT appOpAddComment : public albaOp
 {
 public:
 
-	struct CommentData
-	{
-		wxString Name;
-		wxString Comment;
-		wxString Author;
-		wxString DateTime_Modify;
-		wxString DateTime_Creation;
-		double Position[2];
-
-	} CommentInfo;
-
 	//Widgets ID's	
 	enum OP_COMMENT_ID
 	{
@@ -66,6 +55,7 @@ public:
 		ID_SAVE_COMMENTS,
 		ID_SHOW_DIALOG,
 		ID_DEL_DIALOG,
+		ID_SH_DIALOG,
 		ID_CLOSE_DIALOG,
 	};
 
@@ -115,7 +105,6 @@ protected:
 	/// Elements
 	void SelectElement(int selection, bool updateInteractor = true);
 	void NewElement();
-	void AddElement(CommentData info);
 	void DeleteElement();
 	void EditElement();
 	void ShowHideElement();
@@ -132,6 +121,7 @@ protected:
 	void Save();
 	
 	albaGUIDialog	*m_Dialog;
+	wxBitmapButton *m_ShowHide_ImageButton;
 	bool m_IsDialogOpened;
 
 	wxTextCtrl *m_Name_textCtrl;
@@ -142,17 +132,14 @@ protected:
 	bool m_Enabled;
 
 	wxListBox *m_CommentListBox;
-	albaGUIDictionaryWidget * m_CommentDict;
 	appInteractor2DMeasure_Comment *m_CommentInteractor;
-
-	std::vector<CommentData> m_CommentsVect;
 
 	int m_Selected;
 
-	wxString m_NameToEdit;
-	wxString m_CommentToEdit;
-	wxString m_AuthorToEdit;
-	wxString m_DateToEdit;
+	wxString m_Name;
+	wxString m_Comment;
+	wxString m_Author;
+	wxString m_EditDate;
 	wxString m_CrationDate;
 	int m_ShowElement;
 

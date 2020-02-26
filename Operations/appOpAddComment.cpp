@@ -45,6 +45,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "vtkPNGReader.h"
 #include "vtkPointData.h"
 #include "vtkTIFFReader.h"
+#include "albaPics.h"
 // End For Testing
 
 #define MAX_NAME_CHARS 30
@@ -63,22 +64,21 @@ appOpAddComment::appOpAddComment(wxString label, bool enable) :albaOp(label)
 	m_Enabled = enable;
 
 	m_CommentListBox = NULL;
-	m_CommentDict = NULL;
 	m_CommentInteractor = NULL;
 	
 	m_Dialog = NULL;
+	m_ShowHide_ImageButton = NULL;
 	m_Name_textCtrl = NULL;
 	m_Comment_textCtrl = NULL;
 	m_Author_textCtrl = NULL;
 	m_IsDialogOpened = false;
 
-	m_CommentsVect.clear();
-
 	m_Selected = -1;
-	m_NameToEdit = "";
-	m_CommentToEdit = "";
-	m_AuthorToEdit = "";
-	m_DateToEdit = "";
+
+	m_Name = "";
+	m_Comment = "";
+	m_Author = "";
+	m_EditDate = "";
 	m_CrationDate = "";
 	m_ShowElement = 1;
 
@@ -88,8 +88,6 @@ appOpAddComment::appOpAddComment(wxString label, bool enable) :albaOp(label)
 //----------------------------------------------------------------------------
 appOpAddComment::~appOpAddComment()
 {
-	m_CommentsVect.clear();
-
 	if (m_Dialog)
 		delete m_Dialog;
 }
@@ -117,11 +115,17 @@ albaOp* appOpAddComment::Copy()
 //----------------------------------------------------------------------------
 void appOpAddComment::OpRun()
 {
-	if (!m_Input->IsA("albaVMEImage"))
+	albaEvent e1(this, VIEW_SELECTED);
+	albaEventMacro(e1);
+
+	if (!e1.GetBool())
 	{
 		// Open Image View
 		albaEventMacro(albaEvent(this, ID_SHOW_IMAGE_VIEW));
+	}
 
+	if (!m_Input->IsA("albaVMEImage"))
+	{
 		ImportImage(); // For Testing
 	}
 	else
@@ -149,26 +153,10 @@ void appOpAddComment::OpRun()
 
 	// Load Comments from Tags
 	Load();
-
-	//TEST - Add Element
-// 	CommentData newComment;
-// 
-// 	newComment.Name = "Test Nota";
-// 	newComment.Comment = "Commento di Test";
-// 	newComment.Author = "Nik";
-// 	newComment.DateTime_Modify = "Now";
-// 	newComment.Position[0] = 100.0;
-// 	newComment.Position[1] = 100.0;
-// 
-// 	AddElement(newComment);
-// 
-// 	m_CommentInteractor->AddComment(newComment.Name, newComment.Comment, newComment.Author, newComment.DateTime_Modify, newComment.Position);
 }
 //----------------------------------------------------------------------------
 void appOpAddComment::OpStop(int result)
 {
-	delete m_CommentDict;
-
 	if (!m_TestMode)
 	{
 		HideGui();
@@ -217,12 +205,13 @@ void appOpAddComment::OnEvent(albaEventBase *alba_event)
 			// Dialog Events
 			case ID_CLOSE_DIALOG:
 			{
-				m_NameToEdit = m_Name_textCtrl->GetValue();
-				m_CommentToEdit = m_Comment_textCtrl->GetValue();
-				m_AuthorToEdit = m_Author_textCtrl->GetValue();
+				m_Name = m_Name_textCtrl->GetValue();
+				m_Comment = m_Comment_textCtrl->GetValue();
+				m_Author = m_Author_textCtrl->GetValue();
 
+				// Update Author
 				if (m_Current_Author = "") 
-					m_Current_Author = m_AuthorToEdit;
+					m_Current_Author = m_Author;
 
 				EditElement();
 				HideDialog();
@@ -235,6 +224,11 @@ void appOpAddComment::OnEvent(albaEventBase *alba_event)
 				HideDialog();
 			}
 			break;
+
+			case ID_SH_DIALOG:
+				ShowHideElement();
+				UpdateDialog();
+				break;
 
 			default:
 				Superclass::OnEvent(alba_event);
@@ -301,8 +295,10 @@ void appOpAddComment::Onevent_FromInteractor(albaEventBase * alba_event)
 		// Interactor Events
 	case appInteractor2DMeasure::ID_MEASURE_ADDED:
 	{
-		NewElement(); // To ListBox
-		SelectElement(m_CommentsVect.size() - 1);
+		UpdateGui();
+
+		SelectElement(m_CommentInteractor->GetMeasureCount() - 1);
+		
 		ShowDialog();
 	}
 	break;
@@ -313,14 +309,12 @@ void appOpAddComment::Onevent_FromInteractor(albaEventBase * alba_event)
 	break;
 	case appInteractor2DMeasure::ID_MEASURE_RCLICK:
 	{
-		int sel = m_CommentInteractor->GetSelectedMeasureIndex();
 		ShowDialog();
 	}
 	break;
 	case appInteractor2DMeasure::ID_MEASURE_SELECTED:
 	{
-		int sel = m_CommentInteractor->GetSelectedMeasureIndex();
-		SelectElement(sel, false);
+		SelectElement(m_CommentInteractor->GetSelectedMeasureIndex(), false);
 	}
 	break;
 	}
@@ -341,7 +335,8 @@ void appOpAddComment::CreateGui()
 // 	m_Gui->String(ID_EDIT_ELEMENT, _("Author"), &m_AuthorToEdit, "", false, false, true, 12);
 // 	m_Gui->String(ID_COMMENT, _("Date"), &m_DateToEdit);
 // 	m_Gui->Integer(ID_COMMENT, "Selection", &m_Selected);
-	
+
+	m_Gui->Button(ID_ADD_ELEMENT, "Add");
 	m_Gui->Button(ID_DELETE_ELEMENT, "Delete");
 	m_Gui->Button(ID_SHOW_ELEMENT, "Expand/Collapse");
 	m_Gui->Button(ID_SHOW_DIALOG, "Edit");
@@ -367,9 +362,9 @@ void appOpAddComment::UpdateGui()
 	if (!m_TestMode)
 	{
 		m_CommentListBox->Clear();
-		for (int i=0; i<m_CommentsVect.size(); i++)
+		for (int i = 0; i < m_CommentInteractor->GetMeasureCount(); i++)
 		{
-			m_CommentListBox->Insert(m_CommentsVect[i].Name, i);
+			m_CommentListBox->Insert(m_CommentInteractor->GetName(i).GetCStr(), i);
 		}
 
 		EnableDisableGui();
@@ -379,48 +374,48 @@ void appOpAddComment::UpdateGui()
 //----------------------------------------------------------------------------
 void appOpAddComment::EnableDisableGui()
 {
-	int nElemts = m_CommentsVect.size();
-	int elemPos = m_CommentListBox->GetSelection();
+	int nElemts = m_CommentInteractor->GetMeasureCount();
+	int sel = m_CommentListBox->GetSelection();
 
-	bool canEditElem = (elemPos > -1) && (elemPos < nElemts);
+	bool canEditElem = (sel > -1) && (sel < nElemts);
 
 	m_Gui->Enable(ID_EDIT_ELEMENT, canEditElem);
 	m_Gui->Enable(ID_DELETE_ELEMENT, canEditElem);
 
 	m_Gui->Enable(ID_COMMENT, false);
 
-	m_Gui->Enable(ID_SHOW_DIALOG, elemPos >= 0 && !m_IsDialogOpened);
+	m_Gui->Enable(ID_SHOW_DIALOG, sel >= 0 && !m_IsDialogOpened);
 	m_Gui->Enable(ID_SAVE_COMMENTS, nElemts > 0);
 	m_Gui->Enable(ID_LOAD_COMMENTS, nElemts == 0);
 }
 
-// ELEMENT
+/// ELEMENT
 //----------------------------------------------------------------------------
 void appOpAddComment::SelectElement(int selection, bool updateInteractor /*= false*/)
 {
-	if (m_Selected > -1 && m_Selected < m_CommentsVect.size())
+	if (m_Selected > -1 && m_Selected < m_CommentInteractor->GetMeasureCount())
 	{
 		m_CommentListBox->Deselect(m_Selected);
 		m_CommentListBox->SetSelection(m_Selected, false);
 	}
 
-	if (selection > -1 && selection < m_CommentsVect.size())
+	if (selection > -1 && selection < m_CommentInteractor->GetMeasureCount())
 	{
 		m_CommentListBox->Select(selection);
 		m_CommentListBox->SetSelection(selection, true);
 
-		m_NameToEdit = m_CommentsVect[selection].Name;
-		m_CommentToEdit = m_CommentsVect[selection].Comment;
-		m_AuthorToEdit = m_CommentsVect[selection].Author;
-		m_DateToEdit = m_CommentsVect[selection].DateTime_Modify;
-		m_CrationDate = m_CommentsVect[selection].DateTime_Creation;
+		m_Name = m_CommentInteractor->GetName(selection);
+		m_Comment = m_CommentInteractor->GetComment(selection);
+		m_Author = m_CommentInteractor->GetAuthor(selection);
+		m_EditDate = m_CommentInteractor->GetDateTime(selection);
+		m_CrationDate = m_CommentInteractor->GetCreationDateTime(selection);
 
-		if (m_CommentInteractor && updateInteractor)
-			m_CommentInteractor->SelectMeasure(selection);
+		if (updateInteractor)
+			m_CommentInteractor->SelectComment(selection);
 	}
 
 	m_Selected = selection;
-
+	
 	if (!m_TestMode)
 	{
 		m_Gui->Update();
@@ -430,112 +425,63 @@ void appOpAddComment::SelectElement(int selection, bool updateInteractor /*= fal
 //----------------------------------------------------------------------------
 void appOpAddComment::NewElement()
 {
-	wxString name = "Note";
+	double position[3] = { 100.0, 100.0, 0.0 };
 
-	// Incremental Name
-	char string[100];
-	sprintf(string, "_%d", m_CommentsVect.size() + 1);
-	name.append(string);
-
-	// Date and Time
-	time_t now = time(0);
-	char timestamp[24] = "";
-	strftime(timestamp, sizeof(timestamp), "%d/%m/%Y %H:%M", localtime(&now));
-
-	// Create new Element
-	CommentData newComment;
-	newComment.Name = name;
-	newComment.Comment = "Comment";
-	newComment.Author = m_Current_Author;
-	newComment.DateTime_Modify = timestamp;
-	newComment.DateTime_Creation = timestamp;
-	newComment.Position[0] = 0.0;
-	newComment.Position[1] = 0.0;
-
-	AddElement(newComment);
-
-	if (m_CommentInteractor)
-	{
-		m_CommentInteractor->AddComment(name, newComment.Comment, newComment.Author, timestamp);
-
-		int index = m_CommentInteractor->GetMeasureCount() - 1;
-		double point[3];
-		m_CommentInteractor->GetPosition(index, point);
-		m_CommentsVect[index].Position[0] = point[0];
-		m_CommentsVect[index].Position[1] = point[1];
-	}
-}
-//----------------------------------------------------------------------------
-void appOpAddComment::AddElement(CommentData info)
-{
-	m_CommentsVect.push_back(info);
+	// Add Comment
+	m_CommentInteractor->AddComment(position, "New Note", "Comment", "", "", "");
 
 	UpdateGui();
+	SelectElement(m_CommentInteractor->GetMeasureCount() - 1);
+	ShowDialog();
 }
 //----------------------------------------------------------------------------
 void appOpAddComment::DeleteElement()
 {
-		if (m_Selected > -1 && m_Selected < m_CommentsVect.size())
+	if (m_Selected > -1 && m_Selected < m_CommentInteractor->GetMeasureCount())
+	{
+		m_CommentInteractor->RemoveComment(m_Selected);
+
+		UpdateGui();
+
+		if (m_Selected > 0)
 		{
-			m_CommentsVect.erase(m_CommentsVect.begin() + m_Selected);
-
-			if (m_CommentInteractor)
-			{
-				m_CommentInteractor->RemoveComment(m_Selected);
-			}
-
-			UpdateGui();
-
-			if (m_Selected > 0)
-			{
-				SelectElement(m_Selected - 1);
-			}
-			else
-			{
-				SelectElement(-1);
-			}
+			SelectElement(m_Selected - 1);
 		}
+		else
+		{
+			SelectElement(-1);
+		}
+	}
 }
 //----------------------------------------------------------------------------
 void appOpAddComment::EditElement()
 {
-	if (m_Selected > -1 && m_Selected < m_CommentsVect.size())
+	if (m_Selected > -1 && m_Selected < m_CommentInteractor->GetMeasureCount())
 	{
-		if(m_NameToEdit.Length() > 0)
-			m_CommentsVect[m_Selected].Name = m_NameToEdit;
-		m_CommentsVect[m_Selected].Comment = m_CommentToEdit;
- 		m_CommentsVect[m_Selected].Author = m_AuthorToEdit;
+		if (m_Name.Length() > 0)
+			m_CommentInteractor->SetName(m_Selected, m_Name);
+		m_CommentInteractor->SetComment(m_Selected, m_Comment);
+		m_CommentInteractor->SetAuthor(m_Selected, m_Author);
 
 		// Update Date and Time
 		time_t now = time(0);
 		char timestamp[24] = "";
 		strftime(timestamp, sizeof(timestamp), "%d/%m/%Y %H:%M", localtime(&now));
-		m_CommentsVect[m_Selected].DateTime_Modify = m_DateToEdit = timestamp;
-		
-		if (m_CommentInteractor)
-		{
-			m_CommentInteractor->EditComment(m_Selected, m_CommentsVect[m_Selected].Name, m_CommentToEdit, m_AuthorToEdit, m_DateToEdit);
+		m_EditDate = timestamp;
 
-			double point[3];
-			m_CommentInteractor->GetPosition(m_Selected, point);
-			m_CommentsVect[m_Selected].Position[0] = point[0];
-			m_CommentsVect[m_Selected].Position[1] = point[1];
-		}
-		
+		m_CommentInteractor->SetDateTime(m_Selected, m_EditDate);
+
 		UpdateGui();
 	}
 }
 //----------------------------------------------------------------------------
 void appOpAddComment::ShowHideElement()
 {
-	if (m_Selected > -1 && m_Selected < m_CommentsVect.size())
-	{
-		if (m_CommentInteractor)
-			m_CommentInteractor->ShowComment(m_Selected, !m_CommentInteractor->IsVisible(m_Selected));
-	}
+	if (m_Selected > -1 && m_Selected < m_CommentInteractor->GetMeasureCount())
+		m_CommentInteractor->ShowComment(m_Selected, !m_CommentInteractor->IsVisible(m_Selected));
 }
 
-/// FOR TESTING
+/// FOR TESTING - IMPORT IMAGE
 //----------------------------------------------------------------------------
 int appOpAddComment::ImportImage()
 {
@@ -615,6 +561,8 @@ int appOpAddComment::ImportImage()
 	GetLogicManager()->VmeShow(m_ImportedImage, true);
 	GetLogicManager()->VmeSelect(m_Output);
 
+	m_Input = m_Output;
+
 	albaDEL(m_ImportedImage);
 
 	return 1;
@@ -636,31 +584,41 @@ void appOpAddComment::CreateDialog()
 		//////////////////////////////////////////////////////////////////////////
 
 		// Info
-		m_Name_textCtrl = new wxTextCtrl(m_Dialog, ID_EDIT_ELEMENT, m_NameToEdit, wxPoint(-1, -1), wxSize(300, 25), wxALL | wxEXPAND);
+		m_Name_textCtrl = new wxTextCtrl(m_Dialog, ID_EDIT_ELEMENT, m_Name, wxPoint(-1, -1), wxSize(300, 25), wxALL | wxEXPAND);
 		m_Name_textCtrl->SetEditable(true);
 		m_Name_textCtrl->SetMaxLength(MAX_NAME_CHARS);
 		m_Name_textCtrl->SetToolTip("Title - Max 30 characters");
 
-		m_Comment_textCtrl = new wxTextCtrl(m_Dialog, ID_EDIT_ELEMENT, m_CommentToEdit, wxPoint(-1, -1), wxSize(300, 150), wxALL | wxEXPAND);
+		m_Comment_textCtrl = new wxTextCtrl(m_Dialog, ID_EDIT_ELEMENT, m_Comment, wxPoint(-1, -1), wxSize(300, 150), wxALL | wxEXPAND);
 		m_Comment_textCtrl->SetEditable(true);
 		m_Comment_textCtrl->SetMaxLength(MAX_COMMENT_CHARS);
 		m_Comment_textCtrl->SetToolTip("Comment - Max 570 characters");
 
-		m_Author_textCtrl = new wxTextCtrl(m_Dialog, ID_EDIT_ELEMENT, m_AuthorToEdit, wxPoint(-1, -1), wxSize(300, 25), wxALL | wxEXPAND);
+		m_Author_textCtrl = new wxTextCtrl(m_Dialog, ID_EDIT_ELEMENT, m_Author, wxPoint(-1, -1), wxSize(300, 25), wxALL | wxEXPAND);
 		m_Author_textCtrl->SetEditable(true);
 		m_Author_textCtrl->SetMaxLength(MAX_AUTHOR_CHARS);
 		m_Author_textCtrl->SetToolTip("Author - Max 19 characters");
 
+		m_Date_text = new wxStaticText(m_Dialog, -1, "", wxPoint(-1, -1), wxSize(-1, -1));
 
-		m_Date_text = new wxStaticText(m_Dialog, -1, "", wxPoint(-1, -1), wxSize(-1, -1), wxALIGN_RIGHT);
+		//
+		wxStaticBoxSizer *boxSizer = new wxStaticBoxSizer(wxVERTICAL, m_Dialog, "Edit");
+		boxSizer->Add(m_Name_textCtrl, 0, wxALL | wxEXPAND, 0); // NAME INFO
+		boxSizer->Add(m_Comment_textCtrl, 0, wxALL | wxEXPAND, 0); // COMMENT INFO
 
-		wxStaticBoxSizer *labelSizer1 = new wxStaticBoxSizer(wxVERTICAL, m_Dialog, "Edit");
-		labelSizer1->Add(m_Name_textCtrl, 0, wxALL | wxEXPAND, 0);
-		labelSizer1->Add(m_Comment_textCtrl, 0, wxALL | wxEXPAND, 0);
-		labelSizer1->Add(m_Author_textCtrl, 0, wxALL | wxEXPAND, 0);
-		labelSizer1->Add(m_Date_text, 0, wxALL | wxEXPAND, 0);
+		wxBoxSizer *boxSizer2 = new wxBoxSizer(wxHORIZONTAL);
+		boxSizer2->Add(m_Author_textCtrl, 0, wxEXPAND, 0); // AUTHOR INFO
 
-		mainSizer->Add(labelSizer1, 0, wxALL | wxEXPAND, 5);
+		m_ShowHide_ImageButton = new wxBitmapButton(m_Dialog, ID_SH_DIALOG, albaPictureFactory::GetPictureFactory()->GetBmp("COMMENT_SHOW_ICON"));
+		m_ShowHide_ImageButton->SetValidator(albaGUIValidator(this, ID_SH_DIALOG, m_ShowHide_ImageButton));
+		m_ShowHide_ImageButton->SetToolTip("Show/Hide");
+	
+		boxSizer2->Add(m_ShowHide_ImageButton, 0, wxALIGN_RIGHT, 0);
+		
+		boxSizer->Add(boxSizer2, 0, wxALL | wxEXPAND, 0); // SHOW/HIDE BUTTON
+		boxSizer->Add(m_Date_text, 0, wxALL | wxEXPAND, 0); // DATE INFO
+		
+		mainSizer->Add(boxSizer, 0, wxALL | wxEXPAND, 5);
 
 		// Creating buttons
 		wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -669,7 +627,7 @@ void appOpAddComment::CreateDialog()
 		wxButton *delButton = new wxButton(m_Dialog, ID_DEL_DIALOG, "Delete");
 		delButton->SetValidator(albaGUIValidator(this, ID_DEL_DIALOG, delButton));
 		delButton->SetToolTip("Delete current Comment");
-		buttonSizer->Add(delButton, 0, wxALIGN_LEFT, 5);
+		buttonSizer->Add(delButton, 0, wxALIGN_LEFT, 5); // DELETE BUTTON
 
 		wxBoxSizer *separatorSizer = new wxBoxSizer(wxHORIZONTAL);
 		separatorSizer->SetMinSize(180, 20);
@@ -678,7 +636,7 @@ void appOpAddComment::CreateDialog()
 		wxButton *okButton = new wxButton(m_Dialog, ID_CLOSE_DIALOG, "OK");
 		okButton->SetValidator(albaGUIValidator(this, ID_CLOSE_DIALOG, okButton));
 		okButton->SetToolTip("Confirm changes");
-		buttonSizer->Add(okButton, 0, wxALIGN_RIGHT, 5);
+		buttonSizer->Add(okButton, 0, wxALIGN_RIGHT, 5); // OK BUTTON
 
 		mainSizer->Add(buttonSizer, 0, wxALL | wxEXPAND, 5);
 		
@@ -703,25 +661,48 @@ void appOpAddComment::CreateDialog()
 //----------------------------------------------------------------------------
 void appOpAddComment::UpdateDialog()
 {
-	wxString title = "";
-	
+	wxString date = "";
+
 	if (m_CrationDate != "")
-		title = "Created " + m_CrationDate;
+		date = "Created " + m_CrationDate;
 
-	if (m_DateToEdit != m_CrationDate)
-		title = "Last Modify " + m_DateToEdit;
+	if (m_EditDate != "")
+		date = "Last Modify " + m_EditDate;
+
+	m_Date_text->SetLabel(date);
+
+	m_Name_textCtrl->SetValue(m_Name);
+	m_Comment_textCtrl->SetValue(m_Comment);
+
+	if (m_Author == "") m_Author = m_Current_Author;
 	
-	m_Date_text->SetLabel(title);
+	m_Author_textCtrl->SetValue(m_Author);
 
-	m_Name_textCtrl->SetValue(m_NameToEdit);
-	m_Comment_textCtrl->SetValue(m_CommentToEdit);
-	m_Author_textCtrl->SetValue(m_AuthorToEdit);
+	if (m_Selected > -1 && m_Selected < m_CommentInteractor->GetMeasureCount())
+	{
+		if (m_CommentInteractor->IsVisible(m_Selected))
+		{
+			m_ShowHide_ImageButton->SetBitmapLabel(albaPictureFactory::GetPictureFactory()->GetBmp("COMMENT_SHOW_ICON"));
+			m_ShowHide_ImageButton->SetToolTip("Hide Comment");
+		}
+		else
+		{
+			m_ShowHide_ImageButton->SetBitmapLabel(albaPictureFactory::GetPictureFactory()->GetBmp("COMMENT_HIDE_ICON"));
+			m_ShowHide_ImageButton->SetToolTip("Show Comment");
+		}
+		m_ShowHide_ImageButton->Update();
+
+	}
+
 }
 //----------------------------------------------------------------------------
 void appOpAddComment::ShowDialog()
 {
 	if (m_IsDialogOpened)
 		HideDialog();
+
+	if (m_CommentInteractor)
+		m_CommentInteractor->Disable();
 
 	CreateDialog();
 
@@ -733,6 +714,9 @@ void appOpAddComment::HideDialog()
 	if (m_Dialog)
 		m_Dialog->Hide();
 
+	if (m_CommentInteractor)
+		m_CommentInteractor->Enable();
+
 	m_IsDialogOpened = false;
 }
 
@@ -741,7 +725,7 @@ void appOpAddComment::HideDialog()
 void appOpAddComment::Load()
 {
 	wxString tag = "info";
-	albaVME *input = m_Input->GetRoot();
+	albaVME *input = m_Input;// ->GetRoot();
 
 	double point[3] = { 0,0,0 };
 
@@ -769,11 +753,11 @@ void appOpAddComment::Load()
 
 			wxInfo = wxInfo.SubString(pos + 1, wxInfo.size());
 			pos = wxInfo.Find(divider);
-			albaString dateCreation = wxInfo.SubString(0, pos - 1);
+			albaString creationDate = wxInfo.SubString(0, pos - 1);
 
 			wxInfo = wxInfo.SubString(pos + 1, wxInfo.size());
 			pos = wxInfo.Find(divider);
-			albaString date = wxInfo.SubString(0, pos - 1);
+			albaString editDate = wxInfo.SubString(0, pos - 1);
 
 			wxInfo = wxInfo.SubString(pos + 1, wxInfo.size());
 			pos = wxInfo.Find(divider);
@@ -791,41 +775,45 @@ void appOpAddComment::Load()
 
 			albaString comment = wxInfo.SubString(pos + 1, wxInfo.size());
 
-			// Created new Comment
-			CommentData newComment;
+ 			// Add Comment
+			m_CommentInteractor->AddComment(point, name, comment, author, creationDate, editDate);
 
-			newComment.Name = name;
-			newComment.Comment = comment;
-			newComment.Author = author;
-			newComment.DateTime_Creation = dateCreation;
-			newComment.DateTime_Modify = date;
-			newComment.Position[0] = point[0];
-			newComment.Position[1] = point[1];
-
-			AddElement(newComment); // To ListBox
-			m_CommentInteractor->AddComment(name, comment, author, date, point); // To Interactor
+			if (m_Current_Author == "") 
+				m_Current_Author = author;
 		}
 	}
 
 	UpdateGui();
+
+	m_CommentInteractor->Render();
 }
 //----------------------------------------------------------------------------
 void appOpAddComment::Save()
 {
 	wxString tag = "info";
-	albaVME *input = m_Input->GetRoot();
+	albaVME *input = m_Input;// ->GetRoot();
 
-	int nComments = m_CommentsVect.size();
+	int nComments = m_CommentInteractor->GetMeasureCount();
 
 	albaTagItem measureTag;
 	measureTag.SetName("Comment_" + tag);
 	measureTag.SetNumberOfComponents(nComments);
 
 	//////////////////////////////////////////////////////////////////////////
-	for (int i = 0; i < m_CommentsVect.size(); i++)
+	for (int i = 0; i < nComments; i++)
 	{
+		wxString name = m_CommentInteractor->GetName(i);
+		wxString comment = m_CommentInteractor->GetComment(i);
+		wxString author = m_CommentInteractor->GetAuthor(i);
+		wxString dateTime_Creation = m_CommentInteractor->GetCreationDateTime(i);
+		wxString dateTime_Modify = m_CommentInteractor->GetDateTime(i);
+
+		double position[3];
+
+		m_CommentInteractor->GetMeasurePoint(i, position);
+
 		char tmp[1024];
-		sprintf(tmp, "%s#%s#%s#%s#%.3f#%.3f#%s", m_CommentsVect[i].Name, m_CommentsVect[i].Author, m_CommentsVect[i].DateTime_Creation, m_CommentsVect[i].DateTime_Modify, m_CommentsVect[i].Position[0], m_CommentsVect[i].Position[1], m_CommentsVect[i].Comment);
+		sprintf(tmp, "%s#%s#%s#%s#%.3f#%.3f#%s", name, author, dateTime_Creation, dateTime_Modify, position[0], position[1], comment);
 
 		measureTag.SetValue(tmp, i);
 	}

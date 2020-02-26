@@ -43,7 +43,7 @@ appInteractor2DMeasure_Indicator::appInteractor2DMeasure_Indicator() : appIntera
 
 	m_MeasureTypeText = "INDICATOR";
 
-	// Arrow tool
+	// Arrow
 	vtkNEW(m_EditConeSource);
 	vtkNEW(m_EditConeMapper);
 	m_EditConeMapper->SetInput(m_EditConeSource->GetOutput());
@@ -79,7 +79,7 @@ appInteractor2DMeasure_Indicator::~appInteractor2DMeasure_Indicator()
 	m_ConeActorVector.clear();
 }
 
-// RENDERING
+/// UPDATE ///////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Indicator::UpdateConeActor(int index, double * point1, double * point2)
 {
@@ -152,6 +152,7 @@ void appInteractor2DMeasure_Indicator::UpdateEditActors(double * point1, double 
 	UpdateConeActor(-1, point1, point2);
 	UpdateTextActor(-1, point1, point2);
 }
+
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Indicator::ShowEditActors()
 {
@@ -203,7 +204,7 @@ void appInteractor2DMeasure_Indicator::ShowArrow(bool show)
 	m_EditConeActor->SetVisibility(show);
 }
 
-// MEASURE
+/// MEASURE //////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
 void appInteractor2DMeasure_Indicator::AddMeasure(double *point1, double *point2)
 {
@@ -379,3 +380,5 @@ void appInteractor2DMeasure_Indicator::SelectMeasure(int index)
 		albaEventMacro(albaEvent(this, ID_MEASURE_SELECTED));
 	}
 }
+
+/// LOAD/SAVE ///////////////////////////////////////////////////////////////

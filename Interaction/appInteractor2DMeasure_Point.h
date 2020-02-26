@@ -35,13 +35,13 @@ public:
 	
 	// MEASURE
 	/** Add Measure*/
-	void AddMeasure(double *point1);
+	virtual void AddMeasure(double *point);
 	/** Edit Measure*/
-	void EditMeasure(int index, double *point1);
+	virtual void EditMeasure(int index, double *point);
 	/** Delete the Measure*/
-	void RemoveMeasure(int index);
+	virtual void RemoveMeasure(int index);
 	/** Select a Measure*/
-	void SelectMeasure(int index);
+	virtual void SelectMeasure(int index);
 
 	void ShowPoints();
 	void HidePoints();
@@ -62,17 +62,20 @@ protected:
 	appInteractor2DMeasure_Point();
 	virtual ~appInteractor2DMeasure_Point();
 	
+	// Measure Label Vector
+	std::vector<albaString> m_MeasureLabelVector;
+
 	// Draw Measure
 	void DrawMeasure(double * wp);
-	void MoveMeasure(int index, double * pointCoord);
+	void MoveMeasure(int index, double *point);
 
 	// RENDERING
-	void UpdatePointActor(int index, double * point);
-	void UpdateEditActors(double * point1, double * point2 = NULL);
-	void UpdateTextActor(int index, double * point);
+	void UpdatePointActor(int index, double *point);
+	void UpdateEditActors(double *point1, double *point2 = NULL);
+	void UpdateTextActor(int index, double *point);
 
 	//UTILS
-	void FindAndHighlightCurrentPoint(double * pointCoord);
+	void FindAndHighlightCurrentPoint(double *pointCoord);
 	
 	// Persistent Point
 	std::vector<vtkPointSource *>				m_PointSourceVector;
