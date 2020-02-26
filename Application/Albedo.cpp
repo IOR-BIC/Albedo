@@ -31,6 +31,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "appOpGuiSample.h"
 #include "appOpInteractorSample.h"
 #include "appOpInteractorSliderSample.h"
+#include "appOpInteractorTest.h"
 #include "appOpCreateEmptyVME.h"
 #include "appOpCursorTest.h"
 #include "appOpDictionary.h"
@@ -161,9 +162,12 @@ bool Albedo::OnInit()
 // 	// Show Dialog (Horizontal) Operation
 // 	m_Logic->Plug(new appOpShowDialog("Show Dialog (Horizontal)", appOpShowDialog::HORIZONTAL_MODE_2), _("GUI"));
 // 
-// 	// Test Interactor Operation
+ 	// Test Interactor Operation
  	m_Logic->Plug(new appOpInteractorSample("Interactor Sample"), _("Test"));
-// 
+
+	// Test Interactor Operation
+	m_Logic->Plug(new appOpInteractorTest("Interactor Measure 2D (Test)"), _("Test"));
+ 
 // 	// Test Interactor Slider Operation
 // 	m_Logic->Plug(new appOpInteractorSliderSample("Interactor Slider Sample"), _("Test"));
 // 

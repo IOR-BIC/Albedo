@@ -1,6 +1,6 @@
 /*=========================================================================
 Program:   Albedo
-Module:    appOpMeasure2D.cpp
+Module:    appOpInteractorTest.cpp
 Language:  C++
 Date:      $Date: 2019-01-01 12:00:00 $
 Version:   $Revision: 1.0.0.0 $
@@ -13,8 +13,8 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE. See the above copyright notice for more information.
 =========================================================================*/
 
-#ifndef __appOpMeasure2D_H__
-#define __appOpMeasure2D_H__
+#ifndef __appOpInteractorTest_H__
+#define __appOpInteractorTest_H__
 
 //----------------------------------------------------------------------------
 // Include :
@@ -24,7 +24,6 @@ PURPOSE. See the above copyright notice for more information.
 #include "albaOp.h"
 #include <string>
 #include <vector>
-#include "appInteractor2DMeasure.h"
 
 //----------------------------------------------------------------------------
 // Forward references :
@@ -32,45 +31,35 @@ PURPOSE. See the above copyright notice for more information.
 class albaEvent;
 class albaVMEImage;
 class albaVMEVolumeRGB;
-class appInteractor2DMeasure_Point;
-class appInteractor2DMeasure_Distance;
-class appInteractor2DMeasure_Indicator;
-class appInteractor2DMeasure_Angle;
 
-// Class Name: appOpMeasure2D
-class APP_OPERATIONS_EXPORT appOpMeasure2D: public albaOp
+class appInteractor2DMeasure;
+//class appInteractor2DMeasure_Point;
+class appInteractor2DMeasure_Distance;
+//class appInteractor2DMeasure_Indicator;
+//class appInteractor2DMeasure_Angle;
+
+// Class Name: appOpInteractorTest
+class APP_OPERATIONS_EXPORT appOpInteractorTest: public albaOp
 {
 public:
-
-	enum INTERACTION_TYPE
-	{
-		POINT,
-		DISTANCE,
-		INDICATOR,
-		ANGLE,
-	};
 
 	//Widgets ID's	
 	enum OP_INTERACTION_SAMPLE_ID
 	{
 		ID_EDIT_LINE = MINID,
-		ID_SELECT_INTERACTOR,
-		ID_MEASURE_LIST,
-		ID_SELECT_MEASURE,
-		ID_REMOVE_MEASURE,
+		ID_ONE_LINE,
 		ID_NUM_LINES,
 		ID_SHOW_TEXT,
 		ID_SHOW_ARROW,
 		ID_LOAD_MEASURES,
 		ID_SAVE_MEASURES,
 		ID_MEASURE,
-		ID_MEASURE_LAB,
 	};
 
-  appOpMeasure2D(const wxString &label = "Interactor Sample");
- ~appOpMeasure2D(); 
+  appOpInteractorTest(const wxString &label = "Interactor Sample");
+ ~appOpInteractorTest(); 
   
-  albaTypeMacro(appOpMeasure2D, albaOp);
+  albaTypeMacro(appOpInteractorTest, albaOp);
 
   albaOp* Copy();
 
@@ -80,13 +69,8 @@ public:
 	/** Builds operation's interface. */
   void OpRun();
 
-	void InitInteractors();
-
   /** Precess events coming from other objects */
   void OnEvent(albaEventBase *alba_event);
-
-	/** Return an xpm-icon that can be used to represent this operation */
-	virtual char ** GetIcon();
 
 protected:
 
@@ -101,32 +85,18 @@ protected:
 
 	void ImportImage(); // Load Image for Testing
 
-	/** Select a Measure Interactor */
-	void SetMeasureInteractor(int index);
-
-	/* Update Measure ListBox */
-	void UpdateMeasureList();
-
 	/** Remove Measures */
-	void RemoveMeasure(bool clearAll = false);
-
-	/** Load Measures from Tags */
-	void Load();
-	/** Save Measures to Tags */
-	void Save();
+	void ClearMeasures(bool clearAll = false);
 
 	int m_SelectedMeasure;
+	wxString m_MeasureText;
+	albaString m_MeasureTypeText;
 
-	albaString m_Measure;
-	albaString m_MeasureLabel;
-	albaString m_MeasureType;
-
-	wxListBox *m_MeasureListBox;
-
-	std::vector<appInteractor2DMeasure *> m_InteractorVector;
-
-	int m_CurrentInteractor;
-	int m_SelectedInteractor;
+ 	appInteractor2DMeasure *m_Interactor;
+// 	appInteractor2DMeasure_Point *m_Interactor;
+// 	appInteractor2DMeasure_Distance *m_Interactor;
+//	appInteractor2DMeasure_Indicator *m_Interactor;
+//	appInteractor2DMeasure_Angle *m_Interactor;
 
   albaVMEImage  *m_ImportedImage;
   std::string		m_FileName;
