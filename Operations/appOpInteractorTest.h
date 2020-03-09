@@ -34,9 +34,10 @@ class albaVMEVolumeRGB;
 
 class appInteractor2DMeasure;
 //class appInteractor2DMeasure_Point;
-class appInteractor2DMeasure_Distance;
+//class appInteractor2DMeasure_Distance;
 //class appInteractor2DMeasure_Indicator;
 //class appInteractor2DMeasure_Angle;
+class appInteractor2DMeasure_DistancePoint;
 
 // Class Name: appOpInteractorTest
 class APP_OPERATIONS_EXPORT appOpInteractorTest: public albaOp
@@ -92,11 +93,12 @@ protected:
 	wxString m_MeasureText;
 	albaString m_MeasureTypeText;
 
- 	appInteractor2DMeasure *m_Interactor;
+// 	appInteractor2DMeasure *m_Interactor;
 // 	appInteractor2DMeasure_Point *m_Interactor;
 // 	appInteractor2DMeasure_Distance *m_Interactor;
 //	appInteractor2DMeasure_Indicator *m_Interactor;
 //	appInteractor2DMeasure_Angle *m_Interactor;
+	appInteractor2DMeasure_DistancePoint *m_Interactor;
 
   albaVMEImage  *m_ImportedImage;
   std::string		m_FileName;

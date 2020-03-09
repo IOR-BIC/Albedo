@@ -25,6 +25,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "appInteractor2DMeasure_Point.h"
 #include "appInteractor2DMeasure_Distance.h"
 #include "appInteractor2DMeasure_Indicator.h"
+#include "appInteractor2DMeasure_DistancePoint.h"
 #include "appInteractor2DMeasure_Angle.h"
 
 #include "albaDecl.h"
@@ -129,6 +130,7 @@ void appOpMeasure2D::OpRun()
 		{
 			ImportImage();
 		}
+
 		GetLogicManager()->VmeShow(m_ImportedImage, true);
 		GetLogicManager()->VmeSelect(m_Output);
 
@@ -146,18 +148,6 @@ void appOpMeasure2D::OpRun()
 			}
 		}
 	}
-
-	//////////////////////////////////////////////////////////////////////////
-// 	if (m_Input->GetTagArray() && m_Input->GetTagArray()->IsTagPresent("MeasureLineType"))
-// 	{
-// 		wxString description = "Trovate Misure. \nCaricarle?";
-// 		int result = wxMessageBox(description, "Load Measures", wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP);
-// 
-// 		if (result == wxYES)
-// 		{ 
-// 			Load();
-// 		}
-// 	}
 }
 
 //----------------------------------------------------------------------------
@@ -188,15 +178,21 @@ void appOpMeasure2D::InitInteractors()
 	InteractorIndicator->EnableEditMeasure(true);
 	m_InteractorVector.push_back(InteractorIndicator);
 
-	// Create Interactor Angle
+	// Create Interactor Distance Point
+	appInteractor2DMeasure_DistancePoint *InteractorDistancePoint = appInteractor2DMeasure_DistancePoint::New();
+	if (m_CurrentInteractor == DISTANCE_POINT) albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)InteractorDistancePoint));
+	InteractorDistancePoint->SetListener(this);
+	InteractorDistancePoint->SetColor(0, 1, 1);
+	InteractorDistancePoint->EnableEditMeasure(true);
+	m_InteractorVector.push_back(InteractorDistancePoint);
+
+	// Create Interactor Angle // TO FIX
 //  appInteractor2DMeasure_Angle *InteractorAngle = appInteractor2DMeasure_Angle::New();
 //  if (m_CurrentInteractor == ANGLE)	albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)InteractorAngle));
 // 	InteractorAngle->SetListener(this);
 // 	InteractorAngle->SetColor(1, 0, 1);
 // 	InteractorAngle->EnableEditMeasure(true);
 // 	InteractorAngle.push_back(m_InteractorAngle);
-
-	//albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_InteractorVector[m_CurrentInteractor]));
 
 	m_MeasureType = m_InteractorVector[m_CurrentInteractor]->GetMeasureType();
 }
@@ -208,8 +204,8 @@ void appOpMeasure2D::CreateGui()
 	m_Gui->SetListener(this);
 
 	m_Gui->Divider(1);
-	wxString choises[4] = { _("Point"),_("Distance"),_("Indicator"),_("Angle (to fix)") };
-	m_Gui->Combo(ID_SELECT_INTERACTOR, "", &m_SelectedInteractor, 4, choises, "Select Measure Type");
+	wxString choises[5] = { _("Point"),_("Distance"),_("Indicator"),_("Distance Point"),_("Angle (to fix)") };
+	m_Gui->Combo(ID_SELECT_INTERACTOR, "", &m_SelectedInteractor, 5, choises, "Select Measure Type");
 	
 	m_MeasureListBox = m_Gui->ListBox(ID_MEASURE_LIST, "", 200);
 	m_Gui->Divider();
@@ -338,7 +334,7 @@ void appOpMeasure2D::OnEvent(albaEventBase *alba_event)
 				// Update Measure Gui Entry
 				m_SelectedMeasure = m_InteractorVector[m_CurrentInteractor]->GetSelectedMeasureIndex();
 				m_Measure = m_InteractorVector[m_CurrentInteractor]->GetMeasure(m_SelectedMeasure);
-				//m_MeasureLabel = m_InteractorVector[m_CurrentInteractor]->GetMeasureLabel(m_SelectedMeasure);
+				m_MeasureLabel = m_InteractorVector[m_CurrentInteractor]->GetMeasureLabel(m_SelectedMeasure);
 
 				//m_MeasureListBox->Select(m_SelectedMeasure); // TO FIX
 				m_Gui->Update();

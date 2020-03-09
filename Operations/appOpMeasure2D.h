@@ -35,6 +35,7 @@ class albaVMEVolumeRGB;
 class appInteractor2DMeasure_Point;
 class appInteractor2DMeasure_Distance;
 class appInteractor2DMeasure_Indicator;
+class appInteractor2DMeasure_DistancePoint;
 class appInteractor2DMeasure_Angle;
 
 // Class Name: appOpMeasure2D
@@ -47,6 +48,8 @@ public:
 		POINT,
 		DISTANCE,
 		INDICATOR,
+		DISTANCE_POINT,
+		XP,
 		ANGLE,
 	};
 

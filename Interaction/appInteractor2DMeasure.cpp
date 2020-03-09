@@ -84,6 +84,9 @@ appInteractor2DMeasure::appInteractor2DMeasure()
 	m_ShowText = false;
 	m_ShowPoint = true;
 
+	m_MeasureVector.clear();
+	m_MeasureLabelVector.clear();
+
 	m_MeasureLabel = "";
 
 	m_Action = ACTION_NONE;
@@ -143,6 +146,7 @@ appInteractor2DMeasure::~appInteractor2DMeasure()
 
 	m_TextActorVector.clear();
 	m_MeasureVector.clear();
+	m_MeasureLabelVector.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -368,6 +372,20 @@ albaString appInteractor2DMeasure::GetMeasure(int index)
 		return m_MeasureVector[index];
 
 	return "No Measure";
+}
+//---------------------------------------------------------------------------
+albaString appInteractor2DMeasure::GetMeasureLabel(int index)
+{
+	if (index >= 0 && index < m_MeasureLabelVector.size())
+		return m_MeasureLabelVector[index];
+
+	return "No Label";
+}
+//---------------------------------------------------------------------------
+void appInteractor2DMeasure::SetMeasureLabel(int index, albaString text)
+{
+	if (index >= 0 && index < m_MeasureLabelVector.size())
+		m_MeasureLabelVector[index] = text;
 }
 
 //----------------------------------------------------------------------------

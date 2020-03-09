@@ -41,8 +41,6 @@ appInteractor2DMeasure_Point::appInteractor2DMeasure_Point() : appInteractor2DMe
 	m_EditMeasureEnable = false;
 
 	m_MeasureTypeText = "POINT";
-
-	m_MeasureLabelVector.clear();
 }
 //----------------------------------------------------------------------------
 appInteractor2DMeasure_Point::~appInteractor2DMeasure_Point()
@@ -71,8 +69,6 @@ appInteractor2DMeasure_Point::~appInteractor2DMeasure_Point()
 	m_PointSourceVector.clear();
 	m_PointMapperVector.clear();
 	m_PointActorVector.clear();
-
-	m_MeasureLabelVector.clear();
 }
 
 /// RENDERING ////////////////////////////////////////////////////////////////

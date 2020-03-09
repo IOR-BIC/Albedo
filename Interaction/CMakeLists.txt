@@ -24,6 +24,7 @@ appInteractor2DMeasure_Distance.cpp		appInteractor2DMeasure_Distance.h
 appInteractor2DMeasure_Angle.cpp			appInteractor2DMeasure_Angle.h
 appInteractor2DMeasure_Indicator.cpp	appInteractor2DMeasure_Indicator.h
 appInteractor2DMeasure_Comment.cpp	appInteractor2DMeasure_Comment.h
+appInteractor2DMeasure_DistancePoint.cpp	appInteractor2DMeasure_DistancePoint.h
 )
 
 SET(PROJECT_LIBS ${PROJECT_LIBS})

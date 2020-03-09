@@ -61,9 +61,6 @@ protected:
 
 	appInteractor2DMeasure_Point();
 	virtual ~appInteractor2DMeasure_Point();
-	
-	// Measure Label Vector
-	std::vector<albaString> m_MeasureLabelVector;
 
 	// Draw Measure
 	void DrawMeasure(double * wp);

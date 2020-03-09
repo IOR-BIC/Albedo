@@ -173,8 +173,10 @@ protected:
 
 	// Measure Vector
 	std::vector<albaString> m_MeasureVector;
+	std::vector<albaString> m_MeasureLabelVector;
 
 	albaString m_MeasureLabel;
+
 	albaString m_MeasureTypeText;
 
 	albaDeviceButtonsPadMouse	*m_Mouse;

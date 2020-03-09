@@ -27,6 +27,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "appInteractor2DMeasure_Distance.h"
 #include "appInteractor2DMeasure_Indicator.h"
 #include "appInteractor2DMeasure_Angle.h"
+#include "appInteractor2DMeasure_DistancePoint.h"
 
 #include "albaDecl.h"
 #include "albaEvent.h"
@@ -94,7 +95,7 @@ void appOpInteractorTest::OpRun()
 	}
 	
 	// Create Interactor
-	m_Interactor = appInteractor2DMeasure_Distance::New();
+	m_Interactor = appInteractor2DMeasure_DistancePoint::New();
 	albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_Interactor));
 	m_Interactor->SetListener(this);
 	m_Interactor->SetColorSelection(0, 0, 1);
