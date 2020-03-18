@@ -29,6 +29,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "appOpCreateSurfaceParametric.h"
 #include "appOpEmpty.h"
 #include "appOpGuiSample.h"
+#include "appOpApplyTemplate.h"
 #include "appOpInteractorSample.h"
 #include "appOpInteractorSliderSample.h"
 #include "appOpInteractorTest.h"
@@ -37,6 +38,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "appOpDictionary.h"
 #include "appOpMeasure2D.h"
 #include "appOpShowDialog.h"
+#include "appOpTransformInteractor.h"
 #include "appUtils.h"
 #include "appViewImageCompound.h"
 #include "appEmptyVME.h"
@@ -141,42 +143,49 @@ bool Albedo::OnInit()
 	//Operations
 	//////////////////////////////////////////////////////////////////////////	
 
-// 	// Empty Operation
- 	m_Logic->Plug(new appOpEmpty("Op Empty"));
+ 	// Empty Operation
+ 	//m_Logic->Plug(new appOpEmpty("Op Empty"));
 
-// 	// Create Empty VME Operation
-// 	m_Logic->Plug(new appOpCreateEmptyVME("Create Empty VME"), _("Create"));
-// 
-// 	// Create Surface Parametric Operation
-// 	m_Logic->Plug(new appOpCreateSurfaceParametric("Create Parametric Surface"), _("Create"));
-// 
-// 	// Transform Operation
-// 	m_Logic->Plug(new albaOpTransform("Transform \tCtrl+T"), _("Edit"));
-// 
-// 	// Dictionary Operation
-// 	m_Logic->Plug(new appOpDictionary("Dictionary Editor"), _("Edit"));
-// 	
-// 	// Show Dialog (Vertical) Operation
-// 	m_Logic->Plug(new appOpShowDialog("Show Dialog (Vertical)"), _("GUI"));
-// 
-// 	// Show Dialog (Horizontal) Operation
-// 	m_Logic->Plug(new appOpShowDialog("Show Dialog (Horizontal)", appOpShowDialog::HORIZONTAL_MODE_2), _("GUI"));
-// 
- 	// Test Interactor Operation
- 	m_Logic->Plug(new appOpInteractorSample("Interactor Sample"), _("Test"));
+	// Create Empty VME Operation
+	m_Logic->Plug(new appOpCreateEmptyVME("Create Empty VME"), _("Create"));
+
+	// Create Surface Parametric Operation
+	m_Logic->Plug(new appOpCreateSurfaceParametric("Create Parametric Surface"), _("Create"));
+
+	// Transform Operation
+	m_Logic->Plug(new albaOpTransform("Transform \tCtrl+T"), _("Edit"));
+
+	// Dictionary Operation
+	m_Logic->Plug(new appOpDictionary("Dictionary Editor"), _("Edit"));
+	
+	// Show Dialog (Vertical) Operation
+	m_Logic->Plug(new appOpShowDialog("Show Dialog (Vertical)"), _("GUI"));
+
+ 	// Show Dialog (Horizontal) Operation
+ 	m_Logic->Plug(new appOpShowDialog("Show Dialog (Horizontal)", appOpShowDialog::HORIZONTAL_MODE_2), _("GUI"));
+
+	// Test Gui Sample Operation
+	m_Logic->Plug(new appOpGuiSample("Gui Sample"), _("GUI"));
+
+	// Test Cursor Operation
+	m_Logic->Plug(new appOpCursorTest("Cursor Test"), _("GUI"));
+
+  // Test Interactor Operation
+ 	m_Logic->Plug(new appOpInteractorSample("Interactor Sample"), _("Interaction"));
+
+	// Test Interactor Slider Operation
+	m_Logic->Plug(new appOpInteractorSliderSample("Interactor Slider Sample"), _("Interaction"));
 
 	// Test Interactor Operation
-	m_Logic->Plug(new appOpInteractorTest("Interactor Measure 2D (Test)"), _("Test"));
+	m_Logic->Plug(new appOpInteractorTest("Interactor Measure 2D (Test)"), _("Interaction"));
  
-// 	// Test Interactor Slider Operation
-// 	m_Logic->Plug(new appOpInteractorSliderSample("Interactor Slider Sample"), _("Test"));
-// 
-// 	// Test Gui Sample Operation
-// 	m_Logic->Plug(new appOpGuiSample("Gui Sample"), _("Test"));
-// 
-// 	// Test Cursor Operation
- 	m_Logic->Plug(new appOpCursorTest("Cursor Test"), _("Test"));
+	// Test Interactor Operation
+	m_Logic->Plug(new appOpApplyTemplate("Textured Template Interactor"), _("Interaction"));
 
+	// Test Interactor Operation
+	m_Logic->Plug(new appOpTransformInteractor("Transform Interactor"), _("Interaction"));
+	
+	
 	// 2D Measure Operation
 	m_Logic->Plug(new appOpMeasure2D("Measure 2D (Prototype)"));
 

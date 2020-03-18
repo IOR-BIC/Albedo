@@ -17,19 +17,21 @@ PROJECT(appOperations)
 
 # Set your list of sources here.
 SET(PROJECT_SRCS
-appOpEmpty.cpp										appOpEmpty.h
-appOpGuiSample.cpp								appOpGuiSample.h
-appOpInteractorSample.cpp					appOpInteractorSample.h
+appOpEmpty.cpp						appOpEmpty.h
+appOpGuiSample.cpp					appOpGuiSample.h
+appOpInteractorSample.cpp			appOpInteractorSample.h
 appOpInteractorSliderSample.cpp		appOpInteractorSliderSample.h
-appOpCreateEmptyVME.cpp						appOpCreateEmptyVME.h
+appOpCreateEmptyVME.cpp				appOpCreateEmptyVME.h
 appOpCreateSurfaceParametric.cpp	appOpCreateSurfaceParametric.h
-appOpDictionary.cpp								appOpDictionary.h
-appOpShowDialog.cpp								appOpShowDialog.h
-appOpShowImage.cpp								appOpShowImage.h
-appOpCursorTest.cpp								appOpCursorTest.h
-appOpMeasure2D.cpp								appOpMeasure2D.h
-appOpAddComment.cpp								appOpAddComment.h
-appOpInteractorTest.cpp						appOpInteractorTest.h
+appOpDictionary.cpp					appOpDictionary.h
+appOpShowDialog.cpp					appOpShowDialog.h
+appOpShowImage.cpp					appOpShowImage.h
+appOpCursorTest.cpp					appOpCursorTest.h
+appOpMeasure2D.cpp					appOpMeasure2D.h
+appOpAddComment.cpp					appOpAddComment.h
+appOpInteractorTest.cpp				appOpInteractorTest.h
+appOpApplyTemplate.cpp				appOpApplyTemplate.h
+appOpTransformInteractor.cpp		appOpTransformInteractor.h
 )
 
 SET(PROJECT_LIBS ${PROJECT_LIBS})

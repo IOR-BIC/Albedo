@@ -95,11 +95,11 @@ void appOpInteractorTest::OpRun()
 	}
 	
 	// Create Interactor
-	m_Interactor = appInteractor2DMeasure_DistancePoint::New();
+	m_Interactor = appInteractor2DMeasure::New();
 	albaEventMacro(albaEvent(this, PER_PUSH, (albaObject *)m_Interactor));
 	m_Interactor->SetListener(this);
-	m_Interactor->SetColorSelection(0, 0, 1);
-	m_Interactor->EnableEditMeasure(false);
+// 	m_Interactor->SetColorSelection(0, 0, 1);
+// 	m_Interactor->EnableEditMeasure(false);
 
 	albaString wildc = "Images (*.bmp;*.jpg;*.png;*.tif)| *.bmp;*.jpg;*.png;*.tif";
 
@@ -107,18 +107,18 @@ void appOpInteractorTest::OpRun()
 	{
 		CreateGui();
 
-		m_FileName = albaGetOpenFile("", wildc.GetCStr(), "Open Image");
+		//m_FileName = albaGetOpenFile("", wildc.GetCStr(), "Open Image");
 	}
 
-	if (m_FileName == "")
+//	if (m_FileName == "")
+//	{
+//		OpStop(OP_RUN_CANCEL);
+//	}
+//	else
 	{
-		OpStop(OP_RUN_CANCEL);
-	}
-	else
-	{
-		ImportImage();
-		GetLogicManager()->VmeShow(m_ImportedImage, true);
-		GetLogicManager()->VmeSelect(m_Output);
+//		ImportImage();
+//		GetLogicManager()->VmeShow(m_ImportedImage, true);
+//		GetLogicManager()->VmeSelect(m_Output);
 
 		if (!m_TestMode)
 		{
@@ -130,13 +130,15 @@ void appOpInteractorTest::OpRun()
 			if (e.GetBool())
 			{
 				m_Interactor->SetRendererByView(e.GetView());
-				m_Interactor->EnableEditMeasure();
-				m_MeasureTypeText = m_Interactor->GetMeasureType();
+// 				m_Interactor->EnableEditMeasure();
+// 				m_MeasureTypeText = m_Interactor->GetMeasureType();
 
 				m_Gui->Update();
 			}
 		}
 	}
+
+	//OpStop(OP_RUN_OK);
 }
 
 //----------------------------------------------------------------------------
@@ -200,8 +202,8 @@ void appOpInteractorTest::OnEvent(albaEventBase *alba_event)
 
 			if (m_Interactor)
 			{
-				m_SelectedMeasure = m_Interactor->GetSelectedMeasureIndex();
-				m_MeasureText = m_Interactor->GetMeasure(m_SelectedMeasure);
+// 				m_SelectedMeasure = m_Interactor->GetSelectedMeasureIndex();
+// 				m_MeasureText = m_Interactor->GetMeasure(m_SelectedMeasure);
 			}
 		}
 	}
@@ -210,12 +212,12 @@ void appOpInteractorTest::OnEvent(albaEventBase *alba_event)
 //----------------------------------------------------------------------------
 void appOpInteractorTest::ClearMeasures(bool clearAll /*Default = false*/)
 {
-	int nLines = clearAll ? 0 : m_Interactor->GetMeasureCount();
-	while (m_Interactor->GetMeasureCount() > nLines)
-	{
-		// Clear Extra lines
-		m_Interactor->RemoveMeasure(0);
-	}
+// 	int nLines = clearAll ? 0 : m_Interactor->GetMeasureCount();
+// 	while (m_Interactor->GetMeasureCount() > nLines)
+// 	{
+// 		// Clear Extra lines
+// 		m_Interactor->RemoveMeasure(0);
+// 	}
 }
 
 //----------------------------------------------------------------------------
