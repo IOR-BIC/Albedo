@@ -33,6 +33,7 @@ PURPOSE. See the above copyright notice for more information.
 class albaDeviceButtonsPadMouse;
 class albaRWI;
 
+class vtkALBATextActorMeter;
 class vtkLineSource;
 class vtkCoordinate;
 class vtkPolyDataMapper2D;
@@ -103,6 +104,7 @@ protected:
 
 	void UpdateLineActor(int index, double * point1, double * point2);
 	void UpdatePointActor(int index, double * point);
+	void UpdateTextActor(int index, double * point);
 
 	void FindAndHighlightCurrentPoint(double * pointCoord);
 	
@@ -122,6 +124,9 @@ protected:
 	std::vector<vtkLineSource *>				m_LineSourceVector;
 	std::vector<vtkPolyDataMapper2D *>	m_LineMapperVector;
 	std::vector<vtkActor2D *>						m_LineActorVector;
+
+	// Text 
+	vtkALBATextActorMeter	*m_EditTextActor;
 
 	// Edit Actors
 	vtkPointSource				*m_EditPointSource;

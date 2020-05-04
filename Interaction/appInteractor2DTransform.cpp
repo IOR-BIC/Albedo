@@ -26,6 +26,7 @@ PURPOSE. See the above copyright notice for more information.
 #include "albaView.h"
 #include "appUtils.h"
 
+#include "vtkALBATextActorMeter.h"
 #include "vtkALBASmartPointer.h"
 #include "vtkActor.h"
 #include "vtkActor2D.h"
@@ -86,6 +87,10 @@ appInteractor2DTransform::appInteractor2DTransform()
 	m_ScaleMode = 0;
 	m_DeformationMode = 0;
 
+	// Text
+	vtkNEW(m_EditTextActor);
+	m_EditTextActor->SetColor(m_ColorSelection[0], m_ColorSelection[1], m_ColorSelection[2]);
+
 	// Point tool
 	vtkNEW(m_EditPointSource);
 	m_EditPointSource->SetNumberOfPoints(1);
@@ -105,8 +110,10 @@ appInteractor2DTransform::~appInteractor2DTransform()
 	vtkDEL(m_Coordinate);
 
 	m_Renderer->RemoveActor2D(m_EditPointActor);
+	m_Renderer->RemoveActor2D(m_EditTextActor);
 
 	// Edit Actor
+	vtkDEL(m_EditTextActor);
 	vtkDEL(m_EditPointSource);
 	vtkDEL(m_EditPointMapper);
 	vtkDEL(m_EditPointActor);
@@ -290,6 +297,32 @@ void appInteractor2DTransform::UpdatePointActor(int index, double * point)
 		m_EditPointSource->Update();
 	}
 }
+//----------------------------------------------------------------------------
+void appInteractor2DTransform::UpdateTextActor(int index, double * point)
+{
+	double text_pos[3];
+	text_pos[0] = point[0];
+	text_pos[1] = point[1] - 20.0;
+
+	albaString text = "Text";
+
+	if (index == 4)
+	{
+		text = "Position: " + wxString::Format("%f, %f", text_pos[0], text_pos[1]);
+	}
+	else
+	{
+		switch (m_Mode)
+		{
+		case 0: text = "Scale: "; break;
+		case 1: text = "Deformation: "; break;
+		case 2: text = "Rotation: "; break;
+		}
+	}
+
+	m_EditTextActor->SetText(text);
+	m_EditTextActor->SetTextPosition(text_pos);
+}
 
 // MEASURE
 //----------------------------------------------------------------------------
@@ -400,6 +433,8 @@ void appInteractor2DTransform::EditMeasure(int index, double point[3])
 		case 2: Rotation(index, point); break;
 		}
 	}
+
+	UpdateTextActor(index, point);
 
 	//////////////////////////////////////////////////////////////////////////
 	if (m_Renderer)
@@ -532,6 +567,9 @@ void appInteractor2DTransform::FindAndHighlightCurrentPoint(double * pointCoord)
 
 				m_Renderer->AddActor2D(m_EditPointActor);
 				UpdatePointActor(-1, point);
+				m_Renderer->AddActor2D(m_EditTextActor);
+				UpdateTextActor(-1, point);
+
 				m_Renderer->GetRenderWindow()->Render();
 
 				// Set Mouse Cursor
@@ -545,6 +583,7 @@ void appInteractor2DTransform::FindAndHighlightCurrentPoint(double * pointCoord)
 	if (m_CurrentPointIndex >= 0)
 	{
 		m_Renderer->RemoveActor2D(m_EditPointActor);
+		m_Renderer->RemoveActor2D(m_EditTextActor);
 		m_Renderer->GetRenderWindow()->Render();
 		m_CurrentPointIndex = -1;
 
@@ -759,6 +798,11 @@ void appInteractor2DTransform::Scaling(int index, double point[3])
 	{
 	case 0:
 	{
+// 		oldPoint[0] = point1[0] - point[0];
+// 		oldPoint[1] = point1[1] - point[1];
+// 
+// 		double diff = sqrt((oldPoint[0] * oldPoint[0]) + (oldPoint[1] * oldPoint[1]));
+
 		if (m_ScaleMode == 0)
 		{
 			point4[0] = point[0];
