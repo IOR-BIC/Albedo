@@ -168,14 +168,14 @@ void appOpCursorTest::OnEvent(albaEventBase *alba_event)
 
 			case ID_MODE3:
 			{
-			#include "pic/Cursor/Pencil.xpm"
+			#include "pic/Cursor/Rotate.xpm"
 				// 	wxBitmap *b_curs = new wxBitmap(imagePath + "\\Pencil_xpm");
 				// 	int h = b_curs->GetHeight(), w = b_curs->GetWidth();
 				// 
 				// 	wxImage curImage = wxImage(b_curs->ConvertToImage());
 
 				// create cursor with hotspots in the middle of the bitmap
-				 	wxCursor cursor = wxCursor(Pencil_xpm);
+				 	wxCursor cursor = wxCursor(Rotate_xpm);
 					m_View->GetWindow()->SetCursor(cursor);
 			}break;
 

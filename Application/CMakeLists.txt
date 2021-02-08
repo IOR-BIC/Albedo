@@ -16,8 +16,8 @@
 PROJECT (Albedo)
 
 SET(PROJECT_SRCS 
-Albedo.cpp 					Albedo.h
-appLogic.cpp 				appLogic.h
+Albedo.cpp 			Albedo.h
+appLogic.cpp 		appLogic.h
 appViewManager.cpp 	appViewManager.h
 appWizardSample.cpp	appWizardSample.h
 appDecl.h
@@ -51,3 +51,9 @@ SET(PROJECT_LIBS albaOperations albaGui albaViews albaVME albaInteraction albaSe
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${PROJECT_LIBS})
 
+  # Generate Version File Info  
+  INCLUDE (${ALBEDO_SOURCE_DIR}/CMakeModules/DateTimeMacro.cmake)
+  DATE2(date) #(dd-mm-yyyy)
+  STRING (REPLACE "-" "/" APP_DATE ${date} )
+  message(${PROJECT_NAME} " " ${ALBEDO_VERSION} " " ${APP_DATE})
+  CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/Version.txt.in ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.txt @ONLY)
