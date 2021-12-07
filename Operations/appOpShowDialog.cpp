@@ -77,7 +77,7 @@ appOpShowDialog::~appOpShowDialog()
 }
 
 //----------------------------------------------------------------------------
-bool appOpShowDialog::Accept(albaVME *node)
+bool appOpShowDialog::InternalAccept(albaVME *node)
 {
 	return true;
 }

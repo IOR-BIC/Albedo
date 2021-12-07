@@ -46,7 +46,7 @@ albaOp* appOpCreateEmptyVME::Copy()
 	return new appOpCreateEmptyVME(m_Label);
 }
 //----------------------------------------------------------------------------
-bool appOpCreateEmptyVME::Accept(albaVME*node)
+bool appOpCreateEmptyVME::InternalAccept(albaVME*node)
 {
 	return (node && node->IsALBAType(albaVME));
 }

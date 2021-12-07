@@ -62,7 +62,7 @@ appOpTransformInteractor::~appOpTransformInteractor()
 }
 
 //----------------------------------------------------------------------------
-bool appOpTransformInteractor::Accept(albaVME *node)
+bool appOpTransformInteractor::InternalAccept(albaVME *node)
 {
 	return node && node->IsA("albaVMEImage");
 }

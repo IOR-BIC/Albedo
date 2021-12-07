@@ -45,9 +45,6 @@ public:
 	/** Return a copy of the operation.*/
   albaOp* Copy();
 
-  /** Return true for the acceptable vme type. */
-  bool Accept(albaVME*node);
-
   /** Builds operation's interface. */
   void OpRun();
 	
@@ -55,6 +52,10 @@ public:
 	std::vector<wxString> m_VectIds;
 
 private:
+
+	/** Return true for the acceptable vme type. */
+	/*virtual*/ bool InternalAccept(albaVME *node);
+
 	void CreateGui(int index);
 
 	wxListBox *m_listBox;

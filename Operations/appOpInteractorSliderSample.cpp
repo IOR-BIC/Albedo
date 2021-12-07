@@ -78,7 +78,7 @@ albaOp* appOpInteractorSliderSample::Copy()
 }
 
 //----------------------------------------------------------------------------
-bool appOpInteractorSliderSample::Accept(albaVME *node)
+bool appOpInteractorSliderSample::InternalAccept(albaVME *node)
 {
   return true;
 }

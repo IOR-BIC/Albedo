@@ -54,7 +54,7 @@ appOpCursorTest::~appOpCursorTest()
 }
 
 //----------------------------------------------------------------------------
-bool appOpCursorTest::Accept(albaVME *node)
+bool appOpCursorTest::InternalAccept(albaVME *node)
 {
 	//return node->IsA("...");
 	return m_Enabled;

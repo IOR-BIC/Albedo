@@ -45,9 +45,6 @@ public:
 	/** Return a copy of the operation */
 	/*virtual*/ albaOp* Copy();
 
-	/** Return true for the acceptable vme type. */
-	/*virtual*/ bool Accept(albaVME *node);
-
 	/** Builds operation's interface. */
 	/*virtual*/ void OpRun();
 
@@ -60,6 +57,9 @@ public:
 	void EnableOp(bool enable) { m_Enabled = enable; };
 
 protected:
+
+	/** Return true for the acceptable vme type. */
+	/*virtual*/ bool InternalAccept(albaVME *node);
 
 	/** This method is called at the end of the operation and result contain the wxOK or wxCANCEL. */
 	/*virtual*/ void OpStop(int result);	

@@ -81,7 +81,7 @@ albaOp* appOpGuiSample::Copy()
 	return new appOpGuiSample(m_Label);
 }
 //----------------------------------------------------------------------------
-bool appOpGuiSample::Accept(albaVME*node)
+bool appOpGuiSample::InternalAccept(albaVME*node)
 {
 	return true;
 }

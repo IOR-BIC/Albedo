@@ -80,7 +80,7 @@ albaOp* appOpInteractorSample::Copy()
 }
 
 //----------------------------------------------------------------------------
-bool appOpInteractorSample::Accept(albaVME *node)
+bool appOpInteractorSample::InternalAccept(albaVME *node)
 {
   return true;
 }

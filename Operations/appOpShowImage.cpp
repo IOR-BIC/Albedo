@@ -73,7 +73,7 @@ albaOp* appOpShowImage::Copy()
 	return new appOpShowImage(m_Label);
 }
 //----------------------------------------------------------------------------
-bool appOpShowImage::Accept(albaVME*node)
+bool appOpShowImage::InternalAccept(albaVME*node)
 {
 	return true;
 }
