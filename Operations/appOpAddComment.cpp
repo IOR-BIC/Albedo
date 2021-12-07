@@ -93,7 +93,7 @@ appOpAddComment::~appOpAddComment()
 }
 
 //----------------------------------------------------------------------------
-bool appOpAddComment::Accept(albaVME *node)
+bool appOpAddComment::InternalAccept(albaVME *node)
 {
 	//return node->IsA("...");
 	return m_Enabled;

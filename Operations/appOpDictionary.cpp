@@ -72,7 +72,7 @@ appOpDictionary::~appOpDictionary()
 }
 
 //----------------------------------------------------------------------------
-bool appOpDictionary::Accept(albaVME *node)
+bool appOpDictionary::InternalAccept(albaVME *node)
 {
 	return true;
 }

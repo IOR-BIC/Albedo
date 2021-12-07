@@ -83,9 +83,6 @@ public:
 
 	void OpRun();
 
-	// Return true for the acceptable vme type.
-	bool Accept(albaVME *node);
-
 	void SetTitle(wxString title) { m_Title = title; };
 
 	void SetDescription(wxString description) { m_Description = description; };
@@ -98,6 +95,9 @@ public:
 	void ShowButtons(bool show) { m_ShowButtons = show; };
 
 protected:
+
+	/** Return true for the acceptable vme type. */
+	/*virtual*/ bool InternalAccept(albaVME *node);
 
 	// This method is called at the end of the operation and result contain the wxOK or wxCANCEL.
 	void OpStop(int result);

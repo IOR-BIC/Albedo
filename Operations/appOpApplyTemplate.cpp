@@ -57,7 +57,7 @@ appOpApplyTemplate::~appOpApplyTemplate()
 }
 
 //----------------------------------------------------------------------------
-bool appOpApplyTemplate::Accept(albaVME *node)
+bool appOpApplyTemplate::InternalAccept(albaVME *node)
 {
 	return node && node->IsA("albaVMEImage");
 }

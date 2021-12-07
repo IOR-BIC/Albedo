@@ -82,7 +82,7 @@ albaOp* appOpMeasure2D::Copy()
 }
 
 //----------------------------------------------------------------------------
-bool appOpMeasure2D::Accept(albaVME *node)
+bool appOpMeasure2D::InternalAccept(albaVME *node)
 {
   return true;
 	//return node && node->IsA("albaVMEImage");
